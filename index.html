@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Science Drills - Home</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#f8fafc;color:#0f172a;min-height:100vh}
+  header{text-align:center;padding:56px 20px 16px;background:linear-gradient(180deg,#eff6ff 0%,#f8fafc 100%);border-bottom:1px solid #e2e8f0;position:relative;overflow:hidden}
+  header::before{content:"⚛ ⚗ 🧬 🌍";position:absolute;top:12px;left:0;right:0;text-align:center;letter-spacing:24px;opacity:.15;font-size:20px}
+  .logo{width:48px;height:48px;margin:0 auto 12px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#06b6d4);display:grid;place-items:center}
+  h1{font-size:40px;letter-spacing:-.03em}
+  h1 span{background:linear-gradient(90deg,#2563eb,#06b6d4);-webkit-background-clip:text;background-clip:text;color:transparent}
+  header p{color:#64748b;margin-top:8px;font-size:17px}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 16px 60px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .set-card{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:22px;transition:.18s}
+  .set-card:hover{transform:translateY(-3px);border-color:#93c5fd;box-shadow:0 10px 30px rgba(15,23,42,.08)}
+  .badge{align-self:flex-start;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+  .set-card h2{font-size:20px}
+  .set-card p{color:#64748b;font-size:14px;line-height:1.5}
+  .start{margin-top:auto;padding-top:8px;font-weight:700;font-size:14px;color:#2563eb}
+  footer{text-align:center;color:#94a3b8;font-size:13px;padding:28px}
+  .topbar{position:absolute;top:14px;right:16px;display:flex;gap:8px;align-items:center}
+  .topbar button,.topbar .user{font-size:13px;font-weight:600;padding:8px 14px;border-radius:999px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;color:#0f172a}
+  .topbar .primary{background:#2563eb;border-color:#2563eb;color:#fff}
+  .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;place-items:center;z-index:50;padding:16px}
+  .modal-bg.open{display:grid}
+  .modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+  .modal h3{font-size:20px;margin-bottom:4px}
+  .modal p{font-size:13px;color:#64748b;margin-bottom:14px}
+  .modal input{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;margin:6px 0;font-size:14px}
+  .modal .row{display:flex;gap:8px;margin-top:12px}
+  .modal .err{color:#dc2626;font-size:13px;min-height:18px;margin-top:6px}
+  .btn{flex:1;padding:10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;font-weight:700;cursor:pointer}
+  .btn.primary{background:#2563eb;color:#fff;border-color:#2563eb}
+  @media(max-width:700px){.grid{grid-template-columns:1fr}h1{font-size:30px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="topbar" id="topbar">
+    <button id="loginBtn">Log in</button>
+    <button id="signupBtn" class="primary">Sign up</button>
+  </div>
+  <div class="logo">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><circle cx="12" cy="12" r="2" fill="white" stroke="white"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></svg>
+  </div>
+  <h1>Science <span>Drills</span></h1>
+  <p>Choose a drill set to begin</p>
+</header>
+<div class="wrap">
+  <div class="grid" id="setGrid"></div>
+</div>
+<footer>Science Drill Reviewer</footer>
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle">Sign up</h3>
+    <p id="modalSub">Create an account to track your drills.</p>
+    <input id="nameField" placeholder="Name (optional)" />
+    <input id="emailField" type="email" placeholder="Email" />
+    <input id="passField" type="password" placeholder="Password (min 6 chars)" />
+    <div class="err" id="authErr"></div>
+    <div class="row">
+      <button class="btn" id="cancelBtn">Cancel</button>
+      <button class="btn primary" id="submitBtn">Sign up</button>
+    </div>
+  </div>
+</div>
+<script>
+// ADD NEW DRILL SETS HERE. Set href to "" for "Coming soon".
+const SETS = [
+  { title: "Set A", badge: "150 questions", description: "Earth Science, Astronomy and Physics.", href: "science-drill-1.html" },
+  { title: "Set B", badge: "150 questions", description: "Physics, Chemistry, and Biology.", href: "science-drill-2.html" },
+  { title: "Set C", badge: "150 questions", description: "Biology, Earth Science, Astronomy, Physics, and Chemistry.", href: "science-drill-3.html" },
+  { title: "Set D", badge: "150 questions", description: "Biology, Earth Science, and Physics", href: "science-drill-4.html" },
+  { title: "Set E", badge: "150 questions", description: "Earth Science, Physics, Chemistry and Biology.", href: "science-drill-5.html" },
+  { title: "Set F", badge: "150 questions", description: "Physics and Chemistry", href: "science-drill-6.html" },
+];
+const grid = document.getElementById('setGrid');
+SETS.forEach(function(s){
+  const available = !!s.href;
+  const card = document.createElement(available ? 'a' : 'div');
+  card.className = 'set-card';
+  if(available) card.href = s.href;
+  card.innerHTML = '<span class="badge">'+s.badge+'</span><h2>'+s.title+'</h2><p>'+s.description+'</p>' + (available ? '<div class="start">Start drill →</div>' : '<div class="start">Coming soon</div>');
+  grid.appendChild(card);
+});
+
+// --- Auth (talks to backend in server.js) ---
+let mode = 'signup';
+const modalBg = document.getElementById('modalBg');
+const modalTitle = document.getElementById('modalTitle');
+const submitBtn = document.getElementById('submitBtn');
+const authErr = document.getElementById('authErr');
+const topbar = document.getElementById('topbar');
+function openModal(m) {
+  mode = m;
+  modalTitle.textContent = m === 'signup' ? 'Sign up' : 'Log in';
+  submitBtn.textContent = m === 'signup' ? 'Sign up' : 'Log in';
+  document.getElementById('nameField').style.display = m === 'signup' ? 'block' : 'none';
+  authErr.textContent = '';
+  modalBg.classList.add('open');
+}
+document.getElementById('signupBtn').onclick = () => openModal('signup');
+document.getElementById('loginBtn').onclick = () => openModal('login');
+document.getElementById('cancelBtn').onclick = () => modalBg.classList.remove('open');
+modalBg.addEventListener('click', e => { if (e.target === modalBg) modalBg.classList.remove('open'); });
+submitBtn.onclick = async () => {
+  authErr.textContent = '';
+  const body = {
+    name: document.getElementById('nameField').value,
+    email: document.getElementById('emailField').value.trim(),
+    password: document.getElementById('passField').value
+  };
+  try {
+    const r = await fetch('/api/' + (mode === 'signup' ? 'signup' : 'login'), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    const data = await r.json();
+    if (!r.ok) { authErr.textContent = data.error || 'Something went wrong.'; return; }
+    localStorage.setItem('sd_token', data.token);
+    modalBg.classList.remove('open');
+    renderUser(data.user);
+  } catch { authErr.textContent = 'Cannot reach server. Run "npm start" first.'; }
+};
+function renderUser(u) {
+  topbar.innerHTML = '<span class="user">' + (u.name || u.email) + '</span><button id="logoutBtn">Log out</button>';
+  document.getElementById('logoutBtn').onclick = () => { localStorage.removeItem('sd_token'); location.reload(); };
+}
+(async () => {
+  const token = localStorage.getItem('sd_token');
+  if (!token) return;
+  try {
+    const r = await fetch('/api/me', { headers: { Authorization: 'Bearer ' + token } });
+    if (!r.ok) return;
+    renderUser(await r.json());
+  } catch {}
+})();
+</script>
+</body>
+</html>
