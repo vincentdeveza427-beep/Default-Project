@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>General Science Drill</title>
+<style>
+:root{
+  --bg1:#071b2e; --bg2:#0d2b45; --accent:#28e0c5; --accent2:#5aa9ff;
+  --card:#0f2740; --card-border:#1c3f5e; --text:#eaf6ff; --muted:#9db4c7;
+  --correct:#2ecc71; --wrong:#ff5f6d; --amber:#ffcc66;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:radial-gradient(circle at 20% 10%, #123456 0%, var(--bg1) 45%, #050f1a 100%);
+  color:var(--text); min-height:100vh; padding-bottom:60px;
+}
+header{
+  padding:28px 20px 18px; text-align:center; position:relative; overflow:hidden;
+}
+header::before{
+  content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(2px 2px at 10% 20%, #fff, transparent),
+    radial-gradient(2px 2px at 80% 30%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 60% 70%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 30% 80%, #fff, transparent),
+    radial-gradient(2px 2px at 90% 85%, #fff, transparent);
+  opacity:.25; pointer-events:none;
+}
+header h1{
+  margin:0; font-size:clamp(1.5rem,4vw,2.4rem); letter-spacing:.5px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  position:relative;
+}
+header p{color:var(--muted); margin:8px 0 0; font-size:.95rem; position:relative;}
+
+.wrap{max-width:900px; margin:0 auto; padding:0 16px;}
+
+.controls{
+  display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:18px 0 26px;
+}
+.btn{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#04222f; border:none; padding:11px 22px; border-radius:30px;
+  font-weight:700; font-size:.95rem; cursor:pointer; transition:transform .15s, box-shadow .15s;
+  box-shadow:0 4px 14px rgba(40,224,197,.25);
+}
+.btn:hover{transform:translateY(-2px); box-shadow:0 6px 18px rgba(40,224,197,.4);}
+.btn.secondary{
+  background:transparent; color:var(--accent); border:1.5px solid var(--accent);
+  box-shadow:none;
+}
+.btn.secondary:hover{background:rgba(40,224,197,.1);}
+
+.progress-bar{
+  height:8px; background:#0a2033; border-radius:6px; overflow:hidden; margin:0 0 20px;
+  border:1px solid var(--card-border);
+}
+.progress-fill{
+  height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width .3s ease;
+}
+.stat-row{
+  display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); margin-bottom:6px;
+}
+
+#score-banner{
+  display:none; text-align:center; background:var(--card); border:1px solid var(--card-border);
+  border-radius:16px; padding:22px; margin-bottom:24px;
+}
+#score-banner h2{margin:0 0 6px; font-size:1.6rem;}
+#score-banner .big{
+  font-size:2.6rem; font-weight:800; background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+#score-banner p{color:var(--muted); margin:6px 0 0;}
+
+.question-card{
+  background:var(--card); border:1px solid var(--card-border); border-radius:16px;
+  padding:20px; margin-bottom:16px; transition:border-color .2s;
+  scroll-margin-top:20px;
+}
+.question-card.correct{border-color:var(--correct); box-shadow:0 0 0 1px rgba(46,204,113,.25) inset;}
+.question-card.wrong{border-color:var(--wrong); box-shadow:0 0 0 1px rgba(255,95,109,.25) inset;}
+
+.q-head{
+  display:flex; gap:10px; margin-bottom:14px; align-items:flex-start;
+}
+.q-num{
+  flex:none; width:34px; height:34px; border-radius:50%;
+  background:rgba(90,169,255,.15); color:var(--accent2);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:.85rem; border:1px solid rgba(90,169,255,.4);
+}
+.q-text{font-size:1rem; line-height:1.5; font-weight:600;}
+
+.options{display:flex; flex-direction:column; gap:8px;}
+.option{
+  display:flex; align-items:center; gap:10px;
+  background:#0a1e33; border:1px solid var(--card-border); border-radius:10px;
+  padding:11px 14px; cursor:pointer; font-size:.92rem; transition:background .15s, border-color .15s;
+}
+.option:hover{border-color:var(--accent2); background:#0c2338;}
+.option .letter{
+  flex:none; width:24px; height:24px; border-radius:50%; background:#132c45;
+  display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; color:var(--muted);
+}
+.option.selected{border-color:var(--accent2); background:rgba(90,169,255,.12);}
+.option.selected .letter{background:var(--accent2); color:#04222f;}
+
+.option.reveal-correct{border-color:var(--correct); background:rgba(46,204,113,.12);}
+.option.reveal-correct .letter{background:var(--correct); color:#04220f;}
+.option.reveal-wrong{border-color:var(--wrong); background:rgba(255,95,109,.12);}
+.option.reveal-wrong .letter{background:var(--wrong); color:#2a0407;}
+.option.disabled{cursor:default; pointer-events:none;}
+
+.answer-note{
+  margin-top:12px; font-size:.85rem; padding:9px 12px; border-radius:8px;
+  display:none;
+}
+.answer-note.show{display:block;}
+.answer-note.right{color:var(--correct); background:rgba(46,204,113,.08);}
+.answer-note.wrong{color:var(--wrong); background:rgba(255,95,109,.08);}
+.answer-note.skip{color:var(--amber); background:rgba(255,204,102,.08);}
+
+footer{text-align:center; color:var(--muted); font-size:.8rem; padding:20px; opacity:.6;}
+
+.filter-row{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:10px;}
+.filter-row select{
+  background:#0a1e33; color:var(--text); border:1px solid var(--card-border);
+  border-radius:8px; padding:8px 12px; font-size:.85rem;
+}
+
+@media (max-width:480px){
+  .q-text{font-size:.95rem;}
+  .option{font-size:.88rem; padding:10px 12px;}
+  .btn{padding:10px 16px; font-size:.88rem;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Science Drill</h1>
+  <p>150 questions - Earth Science - Astronomy - Physics - Set A</p>
+</header>
+
+<div class="wrap">
+  <div class="filter-row">
+    <select id="rangeSelect">
+      <option value="0-150">All Questions (1-150)</option>
+      <option value="0-30">Earth Science I (1-30)</option>
+      <option value="30-60">Earth Science II (31-60)</option>
+      <option value="60-90">Astronomy I (61-90)</option>
+      <option value="90-120">Astronomy II (91-120)</option>
+      <option value="120-150">Physics (121-150)</option>
+    </select>
+  </div>
+
+  <div class="stat-row">
+    <span id="answeredCount">0 / 150 answered</span>
+    <span id="liveScore">Score: -</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="controls">
+    <button class="btn" id="checkBtn">Check Answers</button>
+    <button class="btn secondary" id="revealBtn">Reveal All Answers</button>
+    <button class="btn secondary" id="resetBtn">Reset Drill</button>
+  </div>
+
+  <div id="score-banner">
+    <h2>Drill Complete</h2>
+    <div class="big" id="finalScore">0 / 150</div>
+    <p id="finalPct">0% correct</p>
+  </div>
+
+  <div id="quizContainer"></div>
+
+  <div class="controls" style="margin-top:20px;">
+    <button class="btn secondary" id="topBtn">Back to Top</button>
+  </div>
+</div>
+
+<footer>Science Drill Reviewer - Set A - 150 items</footer>
+
+<script>
+const QUESTIONS = [["What mechanical and chemical processes cause even the hardest rock to break down into smaller particles?", ["Hydration: solution", "Burrowing animals: growing roots", "Carbonation: oxidation", "Disintegration: oxidation"], 3], ["We experience great seismic activities because we are located in the:", ["Fault belt", "Continental crust", "Pacific Trench", "Circum-Pacific belt"], 3], ["Pag-asa announces the approach of the seasonal winds. The familiar names used for northeast and southeast monsoons, respectively are:", ["Amihan and Habagat", "Habagat & Kanluran", "Habagat and Amihan", "Amihan and Kanluran"], 0], ["Which of the following can be used to determine if the 18k ring offered to you by a friend is a fancy or a true gold ring as claimed?", ["Touch it", "Determine its specific gravity", "Rub it against a stone", "Bite It"], 1], ["Fishermen are advised not to drink ocean water because it can cause", ["Bursting of the cells", "Dehydration of the cells", "Poisoning of the cells", "Increase in cell pressure"], 1], ["What kind of rock is formed in the Bicol region and how are they formed?", ["Shale: sedimentation", "Metamorphic; pressure", "Sedimentary; deposition of skeletons", "Igneous; solidification of magma"], 3], ["Sonar is the detection of sound waves reflected off boundaries in water. A region of warm water in a cold lake can produce a reflection, as can the bottom of the lake. Which portion of the water would you expect to produce the stronger echo?", ["Middle", "No echo will be produce.", "Top", "Bottom"], 3], ["What is the explanation why carbon-dating works?", ["There is so much non-radioactive carbon dioxide in the air", "After a plant or animal dies, it stops producing oxygen", "After a plant or animal dies, it stops taking in fresh C-14", "Plants and animals are emitters of C-14"], 2], ["Where does the pickup needle on a phonograph move the fastest across the record?", ["At the end of the record", "At the beginning of the record", "At no place, the needle does not move", "Everywhere, because it has the same speed everywhere of the record"], 3], ["During daytime, hot air above the land rises and is replaced by cold air from the body of water. This air is called:", ["Sea breeze", "Prevailing breeze", "Land breeze", "Convection current"], 0], ["Why do we see the sun rise in the east?", ["The earth revolves eastward", "The earth rotates from west to east", "We are located in the 20th meridian", "On the globe, we are located in the east"], 1], ["Which of the following is an important factor in explaining why seasons occur on Earth?", ["Earth's axis is tilted", "The sun's axis is tilted", "The sun rotates on the axis", "Earth rotates on its axis"], 0], ["If you are to cook eggs by boiling and you are in a high mountain, you have to:", ["Boil for a longer time", "Use more water to boil", "Use a hotter flame", "Boil for a shorter time"], 0], ["What do we call the intermittent springs which eject columns of water with great force at certain intervals?", ["Falls", "Spout", "Geysers", "Streams"], 2], ["Which electronics device is used to measure, temperature and humidity in the upper atmosphere?", ["Hygrometer", "Radiosonde", "Barometer", "Altimeter"], 1], ["A large depression caused by a collapse of the slopes of a volcano is called a:", ["Syncline", "Basin", "Base level", "Caldera"], 3], ["In the months of July, August and September, what prevailing wind system occurs?", ["southwest monsoon", "Northeast monsoon", "Trade winds", "Easterly winds"], 0], ["Vibrations of the earth are produced by rapid release of energy and are radiated in all direction from a source called:", ["Focus", "Fault", "Epicenter", "Foreshock"], 0], ["A magnet is a metallic substance capable of attracting iron and certain other metals. Metal cans, such as those used to pack foods can be attracted by magnet because the can is made chiefly of:", ["Iron", "Tin", "Copper", "Brass"], 1], ["How much is the tilt of the earth?", ["23.5 degrees", "25.3 degrees", "24.5 degrees", "24 degrees"], 0], ["In which rock layers are remains of aquatic organism commonly found?", ["Igneous", "Metamorphic", "Intrusive", "Sedimentary"], 3], ["Which is the softest and hardest mineral in the correct order?", ["Talc; diamond", "Gypsum; corumdum", "Talc; gypsum", "Calcite; diamond"], 0], ["A rise in atmospheric temperature due to an increase in carbon dioxide, methane and other gases that trap heat in the atmosphere is called:", ["Carbon cycle", "El nino phenomenon", "Coriolis effect", "Green house effect"], 3], ["Without the sun, there will be no life on earth because:", ["We need it to see everything around us", "Sun can be a source of electrical energy", "We need it to warm us during cold season", "Plants need sun to grow and manufactured food"], 3], ["What term is used to indicate the amount of water vapor actually present in the air at a given time?", ["Relative humidity", "Atmospheric humidity", "Absolute humidity", "Atmospheric moisture"], 2], ["The photo chemical smog results from the automobile pollutants reacting with:", ["Acid rain", "Carbon dioxide", "Ozone", "Sunlight"], 3], ["Which of this is malleable?", ["Gold", "Glass", "Chalk", "Rubber"], 0], ["Which of the following shows mechanical weathering in rocks?", ["Formation of caverns", "Acids dissolve rocks", "Freezing water between rocks particles", "Iron in rocks combine with oxygen"], 2], ["Combustion of coal can lead to acid rain formation. What type of pollutant is present in the coal?", ["Sulfur", "Phosphorus", "Carbon", "Nitrogen"], 0], ["Growth and development are synonymous, respectively with which of the following?", ["Zygote and embryo", "Multiplication and differentiation", "Division and multiplication", "Multiplication and division"], 1], ["Which of the following pairs contains one igneous and one sedimentary rock?", ["Obsidian and gneiss", "Sandstone and quartzite", "Shale and marble", "Granite and limestone"], 3], ["Certain substances are classified as water pollutants, others as air pollutants and still others are land pollutants. Which of the following pollutes all three parts of our environment?", ["Ozone", "Fluorocarbon", "Smog", "Acid rain"], 3], ["The streak of a mineral can be obtained most easily by performing which of the following tests?", ["Putting the mineral into acid.", "Scratching the mineral with a diamond.", "Examining the mineral under a microscope", "Rubbing the mineral on an unglazed white tile."], 3], ["Which is not true about the concentration of methane gas in the atmosphere?", ["It has an atmospheric lifetime of about ten years", "It is generated as a by-product of refrigerants and aerosols.", "It is generated by biological activity related to rice cultivations", "It is generated as a by-product of the digestive processes of cattle."], 1], ["The water sphere of the earth is known as the:", ["Hydrosphere", "Troposphere", "Atmosphere", "Lithosphere"], 0], ["Which reference passes through both the geographic North Pole and the geographic South Pole?", ["0° latitude", "Tropic of Cancer (23.5°N)", "0° longitudes", "Tropic of Capricorn (23.5°S)"], 2], ["A cycle of moon phases can be seen from Earth because the:", ["Moon's axis is tilted", "Moon spins on its axis", "Moon revolves around Earth", "Moon's distance from Earth changes at a predicate rate"], 2], ["The best reason for discouraging the use of plastic is:", ["It competes with the use of indigenous materials", "It is non-biodegradable", "It is biodegradable", "It is expensive"], 1], ["Fog is a cloud with its base at or very near the ground. The formation of fog generally occurs after the ground has lost heat by:", ["Evaporation", "Transpiration", "Convection", "Radiation"], 3], ["The solidified lava of a volcano belongs to which rock family:", ["Fossilized", "Metamorphic", "Igneous", "Sedimentary"], 2], ["Which of the following is a metamorphic rock?", ["Marble", "Sandstone", "Granite", "Quartz"], 0], ["The ________ is the ability of rock or soil to transmit water.", ["Wetability", "viscosity", "Permeability", "porosity"], 2], ["An observer watching a sailing ship at sea notes that the ship appears to be \"sinking\" as it moves away. Which statement best explains this observation?", ["The Earth is revolving", "The Earth is rotating", "The earth has a curve surface", "The surface of the ocean has depressions"], 2], ["How are latitude and longitude lines drawn on a globe of Earth?", ["Longitude lines are parallel and latitude lines meet at the equator", "Longitude lines are parallel and latitude lines meet at the poles", "Latitude lines are parallel and longitude lines meet at the equator", "Latitude lines are parallel and longitude lines meet at the poles"], 3], ["Two streams begin at the same elevation and have equal volumes. Which statement best explains why one stream could be flowing faster than the other stream:", ["The faster stream is flowing in different directions.", "The faster streams have a much steeper gradient.", "The faster stream contains more dissolved minerals", "The faster stream has a temperature of 109C and the slower stream has a temperature of 20°C."], 1], ["The majority of people experience the worst jet-lag when flying in which of the following directions?", ["East to west", "South to north", "West to east", "North to south"], 2], ["Of the following rocks, is the most resistant to both chemical and mechanical weathering.", ["Quartzite", "Limestone", "Shale", "Marbles"], 0], ["Which of the following is the most important erosion and transportation agent?", ["Water", "Glaciers", "Wind", "None of the above"], 0], ["The core of the earth is thought to be composed of which of the following?", ["Iron and nickel", "Uranium and lead", "Compressed gases", "Basalt and granite"], 0], ["The physical property used in mineral identification for the way a mineral's surface reflects light Is called:", ["Luster", "Refractivity", "Polish", "Streak"], 0], ["The true shape of the earth is best described as a:", ["Perfect ellipse", "Highly eccentric ellipse", "Perfect sphere", "Slightly oblate sphere"], 3], ["Compared to dull and rough rock surfaces, shiny and smooth rock surfaces are most likely to sunlight.", ["Absorb", "Reflect", "Refract", "Scatter"], 1], ["The disappearance of the dinosaurs also marks the end of which geological era?", ["Cenozoic", "Precambrian", "Cambrian", "Mesozoic"], 3], ["The metamorphic rock which forms from pure limestone is called:", ["Marble", "Slate", "Gneiss", "Schist"], 0], ["Which is generally considered the most important factor in the metamorphism of rocks?", ["Temperature", "Chemical composition", "Presence of water", "Oxidation state"], 0], ["The prime meridian is indicated as:", ["180th meridian", "Noon meridian", "0° latitude", "0° longitudes"], 3], ["What is given to the science which studies the atmosphere?", ["Meteorology", "Weatherology", "Oceanography", "Atmospherology"], 0], ["The study of inland waters, also called freshwater science, is", ["Oceanography", "Geology", "Hydrology", "Limnology"], 3], ["The field of science which covers the outermost layer of the Earth's crust that is subject to soil formation processes is", ["Geography", "Soil science", "Ecology", "Geology"], 1], ["The field of science which covers the gaseous parts of the Earth is - .", ["Hydrology", "Atmospheric science", "Atmospherology", "Earth science"], 1], ["While traveling at night and you lose your sense of direction what star or constellation should you look for? I. Polaris II. Ursa minor III. Rigel IV. Ursa major", ["I and IV", "I and II", "III and IV", "III and II"], 1], ["Knowing the distance of the earth from the sun to be about 148,800,000 km and the speed of light. How long does it take light to reach us?", ["8 minutes", "20 minutes", "8 seconds", "20 seconds"], 0], ["Which widely accepted theory of the origin of the solar system is in agreement with today's findings?", ["Dust-cloud", "Exploding star", "Nebular", "Planetessimal"], 2], ["Light from two closely spaced stars will NOT produce a steady interference pattern at the earth's surface because of:", ["Their non point like natures", "Their different radial distances", "The inherent instability of the atmosphere", "Light from the two stars is incoherent"], 3], ["Which is the most accepted theory that the universe originated from a superball that exploded, hurling materials around?", ["Big bang", "Continental drift", "Dust cloud", "Magellanic cloud"], 0], ["All of the planet move in elliptical orbit in the same direction around the sun, and lie in almost the same planet, EXCEPT:", ["Neptune", "Pluto", "Uranus", "Jupiter"], 1], ["The sun is mostly made of which gas?", ["Oxygen", "Nitrogen", "Helium", "Hydrogen"], 3], ["This object orbits earth in both the Earth centered (geocentric) and Sun-centered (heliocentric) models of our solar system?", ["Venus", "Moon", "Sun", "Polaris"], 1], ["What is the point in the moon's orbit nearest to the earth called?", ["Perigee", "Perihelion", "Apogee", "Aphelion"], 0], ["The fundamental forces of nature are most correctly given as:", ["Graviton, photon, lepton and hadrons", "Chemical, mechanical, friction and atomic", "Gravitational, electromotive, magnetic and atomic", "Gravitational, electromagnetic, strong interactive and weak interactive"], 3], ["Which of these events gives us evidence that the Earth is spherical?", ["The Earth's rotation", "An earthquake", "a volcanic eruption", "an eclipse of the moon"], 3], ["The planet with the largest orbit has the:", ["Biggest gravity pull", "Longest period of rotation", "Longest period of revolution", "Shortest period of rotation"], 2], ["What is the point in the earth's orbit nearest to the sun called?", ["Solstice", "Perihelion", "Equinox", "Aphelion"], 1], ["The length of an earth day is determined by the time required for approximately on:", ["Sun rotation", "Earth rotation", "Sun revolution", "Earth revolution"], 1], ["The apparent rising and setting of the sun, as viewed from earth, is caused by:", ["The sun's rotation", "Earth's revolution", "The sun's revolution", "Earth's rotation"], 3], ["What is the most abundant gas in the sun?", ["Neon", "Hydrogen", "Helium", "Krypton"], 1], ["The scientist who formulated a heliocentric model of the solar system was", ["Descartes", "Ptolemy", "Copernicus", "Galileo Galilei"], 2], ["Who became famous for his discovery of the planet Uranus, along with two of its major moons Titania and Oberon, and also discovered two moons of Saturn?", ["Charles Avison", "Caroline Herschel", "Frederick William Herschel", "Matthias Bamert"], 2], ["Which one of the following is NOT one of Kepler's laws?", ["harmonic law", "law of equal areas", "law of elliptical paths", "law of radial velocities"], 3], ["Black holes appear black for what basic reason?", ["They appear in starless, dark areas of the Milky Way.", "They \"shine\" by blackbody radiation and are easily detected.", "Light cannot escape them", "They are invisible and can never be detected by astronomers."], 2], ["A highly successful scientific spacecraft was launched in January 1978. Operated jointly by NASA and the European Space Agency (ESA), it has helped astronomers from around the world obtain access to the ultraviolet (UV) radiation of celestial objects in unique ways not available by other means. Which is this spacecraft?", ["International Ultraviolet Explorer", "International Ultraviolet Station", "International Ultraviolet Agency", "International Ultraviolet Project"], 0], ["Which of Kepler's laws gives an indication of the semi-major axis?", ["Law of relativity", "Law of elliptical orbits", "Harmonic law", "Law of equal areas"], 2], ["A large minor planet discovered in 1804 by the German astronomer Karl Ludwig Harding (1765-1834) is a type-S asteroid with a diameter of 240 kms. and a rotation period of 7.2 hours. Its orbital period is 4.36 years and is known as ___.", ["Eros", "Ida", "Vega", "Juno"], 3], ["What event is believed to create elements heavier than iron?", ["The formation of a neutron star", "A nova outburst", "The accretion of matter into a black hole", "A supernova explosion"], 3], ["Which Mercury Mission Project with a duration of 15 minutes and 37 seconds was recovered on July 21.1961 at Randolf, Atlantic?", ["Mercury Atlas 7 (Aurora 7)", "Mercury Redstone 3 (Freedom 7)", "Mercury Atlas 6 (Friendship 7)", "Mercury Redstone 4 (Liberty Bell 7)"], 3], ["Which of the following is NOT a physical characteristic of a terrestrial planet?", ["Relatively low density", "Solid surface", "Small density", "Relatively high-temperature environment"], 0], ["Jupiter's moon with an approximate diameter of 30 km. and rotates around Jupiter for 75 days is", ["Sinope", "Ananke", "Carme", "Pasiphae"], 3], ["The precession of the Earth's axis is caused by", ["the apparent north-south movement of the Sun", "the tilt of the axis", "the Earth's equatorial bulge", "gravitational torque"], 2], ["The vernal equinox indicates the beginning of", ["Winter", "fall", "spring", "summer"], 2], ["A major human space flight project headed by NASA. Russia, Canada, Europe, Japan, and Brazil are also contributing key elements to this large, modular space station in low Earth orbit that represents a permanent human outpost in outer space for microgravity research and advanced space technology demonstrations. What is this major human space flight project?", ["International Space Station", "International Galaxy Explorer", "International Ultraviolet Explorer", "International Telecommunication Satellite"], 0], ["The first French astronomer to spot Comet Halley during its anticipated return in 1758, was an avid \"comet hunter\". He personally discovered at least 13 new comets and assisted in the discovery of six more others. Who is this French astronomer?", ["Charles Messier", "Arno Allen", "Albert Abraham Michelson", "Hermann Julius Oberth"], 0], ["Which of the following statements concerning the terrestrial planets is FALSE?", ["All rotate clockwise as viewed from above the North Pole", "They are relatively close to the Sun and have orbits closer the outer planets.", "Mercury and Venus can never be in opposition-", "All have magnetic fields except Venus"], 0], ["Tidal bulges in the ocean are due", ["to the horizontal components of tidal forces that cause water to flow on Earth's surface toward areas nearest the Moon and toward areas opposite Moon", "to the Moon's gravitational force lifting the ocean water away from solid Earth", "mainly to gravitational forces between the Sun and Earth", "mainly to gravitational forces between the Sun and Moon"], 0], ["Evidence that points to the existence of black holes, was provided by ___.", ["LGM", "Maunalao Observatory", "Hubble Space Telescope", "radio astronomy"], 2], ["The moon is very hot on the side facing the Sun and very cold on the dark side. This extreme temperature difference is primarily due to the Moon's.", ["mineral composition", "reflective rocks", "lack of volcanic activity", "this atmosphere"], 3], ["Stars twinkle and planets do not twinkle because ___.", ["all stars are pulsing light sources", "all stars are exploding light sources", "planets shine by reflected lights and stars produce their own light", "stars appears as point sources of light and planet are disk sources"], 3], ["Initial evidence that supports the big bang theory of the creation of the universe came from", ["experiment conducted by shuttle astronauts", "unmanned space probes", "data from the Hubble Space Telescope", "redshift calculations by Edwin Hubble"], 3], ["Which of the following does NOT refer to the celestial sphere?", ["north celestial pole", "celestial equator", "vernal equinox", "core"], 3], ["The planet with its motion about its axis which is faster than that of any other planet, taking only 10 h to make one rotation is ___.", ["Mercury", "Jupiter", "Venus", "Saturn"], 1], ["Which of the following is NOT a general physical feature of the Moon's surface?", ["plains", "rays", "terminator", "regolith"], 2], ["Which of the following does NOT refer to the name of a type of star?", ["cepheid variable", "red giant", "Seyfert", "white dwarf"], 2], ["The approximate age of the Moon was determined by", ["measurement of the depth of the surface dust", "laser measurement of the distance from the Earth to the Moon", "radioactive dating of Moon rocks", "exploration of Apollo astronauts"], 2], ["Which of the following is NOT a unit of distance measurement to a celestial object?", ["parsec", "light-year", "arc second", "astronomical unit"], 2], ["You would have the largest mass of gold if your chunk of gold weighed 1N on which heavenly body?", ["Saturn", "Moon", "Jupiter", "Earth"], 1], ["What explains the common belief that stars seem to twinkle?", ["Light passes through alternate darkness and light.", "Light is reflected from different surfaces.", "Light passes through air with different densities.", "Light is radiated with different intensities."], 2], ["Which space shuttle vehicle can orbit the Earth and take off and land like an airplane?", ["Apollo II", "Columbia", "Vostok 2", "Sputnik I"], 1], ["After the Earth completes one revolution, we experience a", ["Season", "Month", "Year", "Day"], 2], ["The moon's orbit is elliptical. The point in its orbit farthest from us is termed", ["Perigee", "Perihelion", "Aphelion", "Apogee"], 3], ["In how many days does the moon complete one revolution around the Earth?", ["30", "29 1/3", "27 1/3", "31"], 1], ["If the tilt of the Earth's axis is away from the sun, what season will occur in the south hemisphere?", ["Winter", "Summer", "Spring", "Autumn"], 1], ["If an object were equipped with a speedometer and allowed to fall freely on a planet where the acceleration due to gravity is 20 m/s², by how much will the reading on the speedometer increase each second?", ["10 m/s", "40 m/s", "20 m/s", "30 m/s"], 2], ["An object weights 30 N on earth. A second object weight 30 N on the moon. Which of the two objects has the greater mass?", ["The one on the moon", "The one on earth", "Not enough information to say", "They have the same mass"], 0], ["A block is digged without acceleration in a straight-line path across a level surface by a force of 6 N. what is the frictional force between the block and the surface?", ["Less than 6 N", "More than 6 N", "6 N", "Need more information"], 2], ["An unfortunate bug splatters against the windshield of a moving car. Compared to the acceleration of the car, how will you describe the deceleration of the bug?", ["Smaller than the car", "Not enough information to say", "The same as the car", "Larger than the car"], 3], ["Which law of motion could explain what happens every time we walk?", ["Law of inertia", "Law of interaction", "Everyone reacts by resisting a change", "Law of universal gravitation"], 1], ["In a darkened room in front of a white wall, you cast shadows of your hand by red and green colored lamps. How will the colors of the wall and the left and right shadows of your hand appear, respectively?", ["Yellow, green and red", "Red, green and yellow", "Green, red and yellow", "Yellow, red and green"], 2], ["The speed of sound in water is 1498 m/s. A sonar signal is sent straight down from a ship at a point just below the water surface, and 1.80s later the reflected signal is detected. How deep is the ocean beneath the ship?", ["1498 m", "1350 m", "1620 m", "1200 m"], 2], ["A coastguard sees a distress rocket burst in the sky and five seconds later he hears the bang. If the speed of sound is 330 m/s, how far is the exploding rocket from the coastguard?", ["66 m", "335 m", "1584 m", "1650 m"], 3], ["Airplanes are designed with pointed noses and thin tails in order to:", ["Reduce a force called drag which slows it down", "Produce fluid friction as the airplane moves", "Increase the lift of the wings and the body", "Fight the forward thrust of the airplane"], 0], ["A small electric lamp when placed at the focal point of a converging lens will produce", ["Diffused beam of light", "Converging beam of light", "Parallel beam of light", "Diverging beam of light"], 2], ["When white light passes through a grating, what is visible on the screen?", ["A full spectrum of color", "Bright fingers of only one color", "Dark fingers of one wavelength", "Nothing will appear on the screen"], 0], ["If an object made of a material whose specific gravity is less than one is immerse in water, it will:", ["Sink", "Remain at equilibrium", "Float", "Absorb a small amount"], 2], ["When rubbed with a silk handkerchief, a glass plate loses some electrons. What is the charge of the rubbed plate?", ["Positive", "Negative", "Zero", "Cannot be determined"], 0], ["A power supply has a potential difference V with several identical capacitors. Which arrangement of capacitors will store the greatest amount of charge when charged by the power supply?", ["One single capacitor only", "Three of the capacitors in series", "Two of the capacitors in series", "Two of the capacitors in parallel"], 3], ["Which of the following quantities, is a vector in character?", ["Electric energy", "Potential difference", "Electric field", "Electric charge"], 2], ["What does it mean to say that a car has a twelve volt battery?", ["Both battery terminals have equal electric potential", "Both battery terminals have a 12-volt electric potential", "One of the battery terminals is 12V higher in electric potential than the other", "One of the battery terminals is 12V lower in electric potential than the other"], 2], ["Which is the best way of determining the volume of an irregular object?", ["Multiply L, W, T", "Get its density", "Multiply L x W", "Displacement method"], 3], ["The amount of heat needed to melt a unit mass of a substance to its normal melting point is known as:", ["Heat of fusion", "Heat of condensation", "Temperature of fusion", "Heat of evaporation"], 0], ["Which of the following objects that roll down an incline have the greatest acceleration?", ["Objects with large rotational inertia", "Objects with small rotational inertia", "There is not enough information to say", "Acceleration is independent of rotational inertia in this case"], 1], ["If the wavelength of a 4.40 x 10s Hz sounds in freshwater is 3.30 m, what is the speed of sound in the water?", ["1.10 x103 m/s", "7.70 x 103 m/s", "1.45 x10s m/s", "7.70 x10s m/s"], 1], ["A student rubs a glass object and felt cloth together and the glass becomes positively charged. Which of the following statements is NOT true?", ["The felt cloth became charged negatively during the rubbing process. (true)", "The felt materials have greater affinity to electrons than the glass (true)", "Electrons are transferred from the glass to the felt cloth (not true)", "The glass gained protons during the rubbing process (not true)"], 3], ["Which of the following combinations of length (L) and cross sectional area (A) will give a certain conductor the least resistance?", ["L and A", "2 L and 1/2 A", "2L and 2A", "1/2L and 2A"], 3], ["A 1200 W turbo broiler is operated for 45 minutes to cook a whole chicken. How many kilowatt hours of electrical energy is utilized in the process?", ["1.6 k/h", "0.9 k/h", "54 k/h", "26.7 k/h"], 1], ["The north pole of a bar magnet is brought near a coil of wire. What is the direction of the induced current?", ["Clockwise", "Away from the observer", "Counter clockwise", "Towards the observer"], 2], ["A supersonic airplane flying at tremendous speed is said to be longer by twenty cm than when it is parked on the ground because:", ["Speed may change any time", "Great speed made it slightly elongated", "Friction increased the capacity of the engine", "Friction raised the temperature of the airplane"], 3], ["A tire has a volume of 300 cu cm. man pumped 200 ml of air into the tire while other man managed to pump another 200 ml. what will then be the volume of air in the tire?", ["100 ml", "300 ml", "200 ml", "400 ml"], 1], ["The force that an object exerts on a given unit of area is called", ["Volume", "Weight", "Density", "Pressure"], 3], ["Why transmission of sound in the outer space impossible?", ["Light travels faster than sound", "Second is produced due to top lightning", "Light and sounds are produced at different time", "We cannot hear and see two different events at the same time"], 2], ["Which is NOT a simple machine?", ["Lever", "Fulcrum", "Pulley", "Inclined plane"], 1], ["A ring and disk roll down a hill together. Which reaches the bottom first?", ["The ring", "Depends on the masses", "The disk", "depends on the moment of inertia"], 2], ["The propulsion of jets and rockets is based on Newton's Law of:", ["Gravitation", "Acceleration", "Inertia", "Interaction"], 3], ["Compared to its weight on earth, how much will a ten kg object weigh on the moon?", ["More than its weight on earth", "Less than its weight on earth", "there is not enough information to say", "the same as its weight on earth"], 1], ["A bag of groceries has a mass of ten kilograms. What is its weight?", ["Ten N", "1000 N", "100 N", "1 N"], 2], ["What is the speed of a jet plane that flies 7,200 km in nine hours?", ["200 km/hr", "800 km/hr", "80 km/hr", "72 km/hr"], 2], ["A three month old baby's weight can be expressed either in terms of a large unit, such as a kilogram or a smaller unit, such as a gram. How is the unit related to the number?", ["Smaller number, smaller unit", "Smaller number, larger unit", "Larger number, smaller unit", "Larger number, larger unit"], 1], ["A real inverted image of an object is focused on a screen by a converging lens. If the upper half of the lens is then covered, what happens to the image?", ["The entire image remains and becomes less bright", "The image does not change in any way", "The upper half of the image disappears", "The lower half of the image disappears"], 0], ["In the absence of air resistance, a projectile has a maximum range when thrown a/an angle of", ["90 degrees", "30 degrees", "60 degrees", "45 degrees"], 3], ["If the refractive index from air to glass is 3/2 and from air to water is 4/3, the speed of light decreases as it leaves: I. Water to enter glass II. Air to enter glass III. Water to enter air", ["II and III", "I and II", "I and III", "I only"], 1], ["What happens when a wave encounters a slit?", ["Bends and is refracted", "Bends and is diffracted", "Bends and is superimposed", "Bends and is Polarized"], 1], ["A turning fork produces a sound wave in air with frequency of 261.6 HZ. At room temperature the speed of sound is 343 m/s. what is its wavelength?", ["2.33 m", "1.31 m", "4.01 m", "6.04 m"], 2]];
+
+const letters = ['A','B','C','D'];
+const container = document.getElementById('quizContainer');
+const rangeSelect = document.getElementById('rangeSelect');
+let userAnswers = new Array(QUESTIONS.length).fill(null);
+let checked = false;
+
+function render(range){
+  container.innerHTML = '';
+  const start = range[0], end = range[1];
+  for(let i=start;i<end;i++){
+    const qtext = QUESTIONS[i][0], opts = QUESTIONS[i][1], correctIdx = QUESTIONS[i][2];
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = 'q'+i;
+
+    const head = document.createElement('div');
+    head.className = 'q-head';
+    head.innerHTML = '<div class="q-num">'+(i+1)+'</div><div class="q-text">'+qtext+'</div>';
+    card.appendChild(head);
+
+    const optsWrap = document.createElement('div');
+    optsWrap.className = 'options';
+    opts.forEach(function(optText, idx){
+      const opt = document.createElement('div');
+      opt.className = 'option';
+      opt.dataset.idx = idx;
+      opt.innerHTML = '<div class="letter">'+letters[idx]+'</div><div>'+optText+'</div>';
+      opt.addEventListener('click', function(){
+        if(checked) return;
+        userAnswers[i] = idx;
+        Array.prototype.forEach.call(optsWrap.children, function(c){c.classList.remove('selected');});
+        opt.classList.add('selected');
+        updateStats();
+      });
+      optsWrap.appendChild(opt);
+    });
+    card.appendChild(optsWrap);
+
+    const note = document.createElement('div');
+    note.className = 'answer-note';
+    note.id = 'note'+i;
+    card.appendChild(note);
+
+    container.appendChild(card);
+  }
+  updateStats();
+}
+
+function updateStats(){
+  const answered = userAnswers.filter(function(a){return a!==null;}).length;
+  document.getElementById('answeredCount').textContent = answered + ' / ' + QUESTIONS.length + ' answered';
+  document.getElementById('progressFill').style.width = (answered/QUESTIONS.length*100)+'%';
+  if(!checked){
+    document.getElementById('liveScore').textContent = 'Score: -';
+  }
+}
+
+function checkAnswers(){
+  checked = true;
+  let score = 0;
+  QUESTIONS.forEach(function(q, i){
+    const opts = q[1], correctIdx = q[2];
+    const card = document.getElementById('q'+i);
+    if(!card) return;
+    const optsEls = card.querySelectorAll('.option');
+    const userIdx = userAnswers[i];
+    optsEls.forEach(function(el){el.classList.add('disabled');});
+    const note = document.getElementById('note'+i);
+    note.classList.add('show');
+
+    if(userIdx === correctIdx){
+      score++;
+      card.classList.add('correct');
+      optsEls[correctIdx].classList.add('reveal-correct');
+      note.className = 'answer-note show right';
+      note.textContent = 'Correct - Answer: ' + letters[correctIdx] + '. ' + opts[correctIdx];
+    } else if(userIdx === null){
+      card.classList.add('wrong');
+      optsEls[correctIdx].classList.add('reveal-correct');
+      note.className = 'answer-note show skip';
+      note.textContent = 'Not answered - Correct answer: ' + letters[correctIdx] + '. ' + opts[correctIdx];
+    } else {
+      card.classList.add('wrong');
+      optsEls[correctIdx].classList.add('reveal-correct');
+      optsEls[userIdx].classList.add('reveal-wrong');
+      note.className = 'answer-note show wrong';
+      note.textContent = 'Incorrect - Correct answer: ' + letters[correctIdx] + '. ' + opts[correctIdx];
+    }
+  });
+
+  document.getElementById('liveScore').textContent = 'Score: ' + score + ' / ' + QUESTIONS.length;
+
+  const banner = document.getElementById('score-banner');
+  banner.style.display = 'block';
+  document.getElementById('finalScore').textContent = score + ' / ' + QUESTIONS.length;
+  document.getElementById('finalPct').textContent = Math.round(score/QUESTIONS.length*100) + '% correct';
+  banner.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function revealAll(){
+  checked = true;
+  QUESTIONS.forEach(function(q,i){
+    const opts = q[1], correctIdx = q[2];
+    const card = document.getElementById('q'+i);
+    if(!card) return;
+    const optsEls = card.querySelectorAll('.option');
+    optsEls.forEach(function(el){el.classList.add('disabled');});
+    optsEls[correctIdx].classList.add('reveal-correct');
+    const note = document.getElementById('note'+i);
+    note.className = 'answer-note show right';
+    note.textContent = 'Answer: ' + letters[correctIdx] + '. ' + opts[correctIdx];
+  });
+}
+
+function resetDrill(){
+  checked = false;
+  userAnswers = new Array(QUESTIONS.length).fill(null);
+  document.getElementById('score-banner').style.display = 'none';
+  render(getRange());
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function getRange(){
+  return rangeSelect.value.split('-').map(Number);
+}
+
+document.getElementById('checkBtn').addEventListener('click', checkAnswers);
+document.getElementById('revealBtn').addEventListener('click', revealAll);
+document.getElementById('resetBtn').addEventListener('click', resetDrill);
+document.getElementById('topBtn').addEventListener('click', function(){window.scrollTo({top:0,behavior:'smooth'});});
+rangeSelect.addEventListener('change', function(){
+  checked = false;
+  document.getElementById('score-banner').style.display = 'none';
+  render(getRange());
+});
+
+render(getRange());
+</script>
+</body>
+</html>

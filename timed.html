@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timed Mode - Science Drill</title>
+<style>
+:root{
+  --bg1:#071b2e; --accent:#28e0c5; --accent2:#5aa9ff;
+  --card:#0f2740; --card-border:#1c3f5e; --text:#eaf6ff; --muted:#9db4c7;
+  --correct:#2ecc71; --wrong:#ff5f6d; --amber:#ffcc66;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text);
+  background:radial-gradient(circle at 20% 10%, #123456 0%, var(--bg1) 45%, #050f1a 100%);}
+.hidden{display:none !important;}
+#intro,#ended,#bad{max-width:560px;margin:7vh auto;padding:0 16px;}
+.panel{background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:26px;}
+.panel h1{margin:0 0 6px;font-size:1.6rem;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.panel p{color:var(--muted);line-height:1.55;margin:8px 0;}
+.panel ul{color:var(--muted);line-height:1.6;padding-left:20px;margin:10px 0 16px;}
+.panel label{display:block;font-weight:600;font-size:.9rem;color:var(--muted);margin:14px 0 6px;}
+.panel input{width:100%;background:#0a1e33;border:1px solid var(--card-border);color:var(--text);border-radius:10px;padding:11px 14px;font-size:1rem;}
+.panel input:focus{outline:none;border-color:var(--accent2);}
+.err{color:var(--wrong);font-size:.85rem;min-height:1.2em;margin-top:6px;}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+.btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04222f;border:none;padding:11px 22px;border-radius:30px;font-weight:700;font-size:.95rem;cursor:pointer;text-decoration:none;display:inline-block;}
+.btn.secondary{background:transparent;color:var(--accent);border:1.5px solid var(--accent);}
+#bar{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 14px;background:#0a1e33;border-bottom:1px solid var(--card-border);z-index:5;}
+#bar .left{display:flex;align-items:center;gap:12px;min-width:0;}
+#bar a{color:var(--accent);text-decoration:none;font-weight:700;font-size:.85rem;white-space:nowrap;}
+#setLabel{color:var(--muted);font-size:.85rem;white-space:nowrap;}
+#status{color:var(--muted);font-size:.85rem;text-align:center;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#clock{font-variant-numeric:tabular-nums;font-size:1.35rem;font-weight:800;white-space:nowrap;}
+#clock.warn{color:var(--amber);} #clock.danger{color:var(--wrong);} #clock.done{color:var(--muted);}
+#prog{position:fixed;top:56px;left:0;height:3px;width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transform-origin:left;z-index:5;}
+#frame{position:fixed;top:59px;left:0;width:100%;height:calc(100% - 59px);border:0;background:transparent;}
+#lock{position:fixed;top:59px;left:0;right:0;bottom:0;background:rgba(5,15,26,.92);display:none;place-items:center;z-index:4;padding:20px;text-align:center;}
+#lock.show{display:grid;}
+@media(max-width:560px){#status{display:none;} #setLabel{display:none;}}
+</style>
+</head>
+<body>
+
+<div id="bad" class="hidden"><div class="panel">
+  <h1>Drill not found</h1>
+  <p>This timed link is not valid. Go back to the homepage and choose a drill set.</p>
+  <div class="row"><a class="btn" href="index.html">Back to homepage</a></div>
+</div></div>
+
+<div id="intro" class="hidden"><div class="panel">
+  <h1 id="introTitle">Timed Mode</h1>
+  <p>You have <b>3 hours</b> to finish this drill.</p>
+  <ul>
+    <li>The timer starts as soon as you press Start.</li>
+    <li>When time runs out, your answers are <b>submitted automatically</b> and you can no longer change them.</li>
+    <li>You can submit early. The timer stops once your submission goes through.</li>
+    <li>The timer keeps running even if you close or refresh this page.</li>
+    <li>"Reveal All Answers" is turned off in timed mode.</li>
+  </ul>
+  <label for="nameIn">Name / Student ID</label>
+  <input id="nameIn" type="text" placeholder="e.g. Juan Dela Cruz" autocomplete="off">
+  <div class="err" id="introErr"></div>
+  <div class="row">
+    <button class="btn" id="startBtn">Start 3-hour timer</button>
+    <a class="btn secondary" href="index.html">Cancel</a>
+  </div>
+</div></div>
+
+<div id="ended" class="hidden"><div class="panel">
+  <h1>Timed attempt finished</h1>
+  <p id="endedMsg">You already finished a timed attempt for this drill.</p>
+  <div class="row">
+    <button class="btn" id="newBtn">Start a new attempt</button>
+    <a class="btn secondary" href="index.html">Back to homepage</a>
+  </div>
+</div></div>
+
+<div id="bar" class="hidden">
+  <div class="left"><a href="index.html">&larr; Home</a><span id="setLabel"></span></div>
+  <div id="status"></div>
+  <div id="clock">3:00:00</div>
+</div>
+<div id="prog" class="hidden"></div>
+<iframe id="frame" class="hidden" title="Drill"></iframe>
+<div id="lock"><div class="panel"><h1>Time is up</h1><p>Answers can no longer be changed.</p><div class="row" style="justify-content:center"><a class="btn" href="index.html">Back to homepage</a></div></div></div>
+
+<script>
+(function(){
+  var TOTAL = 3 * 60 * 60 * 1000;
+  var params = new URLSearchParams(location.search);
+  var setFile = params.get('set') || '';
+  var valid = /^science-drill-\d+\.html$/.test(setFile);
+  var num = valid ? parseInt(setFile.match(/\d+/)[0], 10) : 0;
+  var letter = valid ? String.fromCharCode(64 + num) : '';
+  var KEY = 'sd_timed_' + setFile;
+  var frame = document.getElementById('frame');
+  var attempt = null, timer = null, frameReady = false, pendingSubmit = false, crossOrigin = false;
+
+  function $(id){ return document.getElementById(id); }
+  function show(id){ $(id).classList.remove('hidden'); }
+  function hide(id){ $(id).classList.add('hidden'); }
+  function readAttempt(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
+  function writeAttempt(){ try{ localStorage.setItem(KEY, JSON.stringify(attempt)); }catch(e){} }
+  function fmt(ms){
+    var s = Math.max(0, Math.ceil(ms / 1000));
+    var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+    return h + ':' + (m < 10 ? '0' : '') + m + ':' + (x < 10 ? '0' : '') + x;
+  }
+  function win(){ try{ var w = frame.contentWindow; void w.document.body; return w; }catch(e){ return null; } }
+
+  if(!valid){ show('bad'); return; }
+  $('introTitle').textContent = 'Timed Mode - Set ' + letter;
+  $('setLabel').textContent = 'Set ' + letter;
+  document.title = 'Timed Mode - Set ' + letter;
+
+  attempt = readAttempt();
+  if(attempt && attempt.finished){
+    $('endedMsg').textContent = 'You already finished a timed attempt for Set ' + letter + (attempt.name ? ' as ' + attempt.name : '') + '. You can start a new attempt if your teacher allows it.';
+    show('ended');
+  } else if(attempt && attempt.end){
+    startSession();
+  } else {
+    show('intro');
+  }
+
+  $('newBtn').onclick = function(){
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    attempt = null; hide('ended'); show('intro');
+  };
+
+  $('startBtn').onclick = function(){
+    var name = $('nameIn').value.trim();
+    if(!name){ $('introErr').textContent = 'Please enter your name / student ID.'; $('nameIn').focus(); return; }
+    // fresh start: clear any half-finished practice answers for this set
+    try{ localStorage.removeItem('sciDrillProgress_' + letter); }catch(e){}
+    var now = Date.now();
+    attempt = { name: name, start: now, end: now + TOTAL, finished: false };
+    writeAttempt();
+    hide('intro');
+    startSession();
+  };
+
+  function startSession(){
+    show('bar'); show('prog'); show('frame');
+    frame.onload = onFrameLoad;
+    frame.src = setFile;
+    tick();
+    timer = setInterval(tick, 1000);
+  }
+
+  var STYLE_OPEN = '#revealBtn{display:none !important;}';
+  var STYLE_LOCK = '.option{pointer-events:none !important;} #checkBtn,#resetBtn,#revealBtn,#startOverBtn{display:none !important;} #studentName{pointer-events:none;}';
+
+  function addStyle(w, css, id){
+    try{
+      var d = w.document;
+      var old = d.getElementById(id); if(old) old.remove();
+      var s = d.createElement('style'); s.id = id; s.textContent = css; d.head.appendChild(s);
+    }catch(e){}
+  }
+
+  function onFrameLoad(){
+    frameReady = true;
+    var w = win();
+    if(!w){ crossOrigin = true; return; }
+    addStyle(w, STYLE_OPEN, 'sd-timed-open');
+    try{
+      var inp = w.document.getElementById('studentName');
+      if(inp && !inp.value.trim()){
+        inp.value = attempt.name;
+        inp.dispatchEvent(new w.Event('input', { bubbles: true }));
+      }
+    }catch(e){}
+    if(attempt.finished){ lockFrame(); }
+    if(pendingSubmit){ pendingSubmit = false; forceSubmit(); }
+  }
+
+  function lockFrame(){
+    var w = win();
+    if(w){ addStyle(w, STYLE_LOCK, 'sd-timed-lock'); }
+    else { $('lock').classList.add('show'); }
+  }
+
+  function isSubmitted(w){
+    try{ return !!w.eval('submitted'); }catch(e){ return false; }
+  }
+
+  function tick(){
+    if(!attempt || attempt.finished) return;
+    var left = attempt.end - Date.now();
+    $('clock').textContent = fmt(left);
+    $('clock').className = left <= 60000 ? 'danger' : (left <= 600000 ? 'warn' : '');
+    $('prog').style.transform = 'scaleX(' + Math.max(0, Math.min(1, left / TOTAL)) + ')';
+    $('status').textContent = left <= 600000 ? 'Less than 10 minutes left' : 'Answers are submitted automatically at 0:00:00';
+    if(left <= 0){ forceSubmit(); return; }
+    if(frameReady){
+      var w = win();
+      if(w && isSubmitted(w)){ finish('manual'); }
+    }
+  }
+
+  function forceSubmit(){
+    if(!attempt || attempt.finished) return;
+    if(!frameReady){ pendingSubmit = true; $('clock').textContent = '0:00:00'; return; }
+    var w = win();
+    if(w){
+      try{
+        if(!isSubmitted(w)){
+          w.confirm = function(){ return true; };
+          w.alert = function(){};
+          var inp = w.document.getElementById('studentName');
+          if(inp && !inp.value.trim()){ inp.value = attempt.name; }
+          w.checkAnswers();
+        }
+      }catch(e){}
+    }
+    finish('time');
+  }
+
+  function finish(reason){
+    if(attempt.finished) return;
+    attempt.finished = true; attempt.reason = reason; writeAttempt();
+    clearInterval(timer);
+    $('clock').className = 'done';
+    if(reason === 'time'){
+      $('clock').textContent = '0:00:00';
+      $('prog').style.transform = 'scaleX(0)';
+      $('status').textContent = "Time is up - answers were submitted automatically";
+    } else {
+      $('status').textContent = 'Submitted - timer stopped';
+    }
+    lockFrame();
+  }
+})();
+</script>
+</body>
+</html>

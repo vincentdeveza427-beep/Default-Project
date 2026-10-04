@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcard Mode - Science Drill</title>
+<style>
+:root{
+  --bg1:#071b2e; --accent:#28e0c5; --accent2:#5aa9ff;
+  --card:#0f2740; --card-border:#1c3f5e; --text:#eaf6ff; --muted:#9db4c7;
+  --correct:#2ecc71; --wrong:#ff5f6d; --amber:#ffcc66;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text);min-height:100vh;padding-bottom:50px;
+  background:radial-gradient(circle at 20% 10%, #123456 0%, var(--bg1) 45%, #050f1a 100%);}
+.hidden{display:none !important;}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px;}
+header{padding:22px 16px 10px;text-align:center;}
+header h1{margin:0;font-size:clamp(1.4rem,4vw,2rem);background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+header p{color:var(--muted);margin:6px 0 0;font-size:.92rem;}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 12px;}
+.top a{color:var(--accent);text-decoration:none;font-weight:700;font-size:.88rem;}
+.counts{display:flex;gap:14px;font-weight:700;font-size:.95rem;}
+.counts .n{color:#5aa9ff;} .counts .l{color:#ff5f6d;} .counts .d{color:#2ecc71;}
+.counts span.on{text-decoration:underline;}
+.bar{height:8px;background:#0a2033;border-radius:6px;overflow:hidden;border:1px solid var(--card-border);margin-bottom:6px;}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s;}
+.barlabel{color:var(--muted);font-size:.78rem;text-align:right;margin-bottom:12px;}
+.tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin-bottom:14px;color:var(--muted);font-size:.82rem;}
+.tools select{background:#0a1e33;color:var(--text);border:1px solid var(--card-border);border-radius:8px;padding:6px 8px;font-size:.82rem;}
+.chip{background:transparent;color:var(--accent);border:1.5px solid var(--accent);border-radius:30px;padding:7px 14px;font-weight:700;font-size:.82rem;cursor:pointer;}
+.scene{perspective:1200px;}
+.card{display:grid;transform-style:preserve-3d;transition:transform .45s;cursor:pointer;min-height:320px;}
+.card.flipped{transform:rotateY(180deg);}
+.face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border:1px solid var(--card-border);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:12px;}
+.face.back{transform:rotateY(180deg);border-color:rgba(46,204,113,.5);box-shadow:0 0 0 1px rgba(46,204,113,.2) inset;}
+.tag{align-self:flex-start;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(90,169,255,.15);color:var(--accent2);border:1px solid rgba(90,169,255,.4);}
+.back .tag{background:rgba(46,204,113,.12);color:var(--correct);border-color:rgba(46,204,113,.4);}
+.q{font-size:1.05rem;line-height:1.55;font-weight:600;}
+.qsmall{font-size:.88rem;line-height:1.5;color:var(--muted);}
+.opts{display:flex;flex-direction:column;gap:7px;margin-top:4px;}
+.opt{display:flex;gap:10px;align-items:center;background:#0a1e33;border:1px solid var(--card-border);border-radius:10px;padding:9px 12px;font-size:.92rem;}
+.opt b{flex:none;width:24px;height:24px;border-radius:50%;background:#132c45;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted);}
+.ans{background:rgba(46,204,113,.12);border:1px solid var(--correct);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;font-size:1.05rem;font-weight:700;}
+.ans b{flex:none;width:32px;height:32px;border-radius:50%;background:var(--correct);color:#04220f;display:flex;align-items:center;justify-content:center;}
+.hint{margin-top:auto;color:var(--muted);font-size:.78rem;text-align:center;}
+.bottom{margin-top:18px;}
+.show{display:block;margin:0 auto;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04222f;border:none;padding:13px 40px;border-radius:30px;font-weight:800;font-size:1rem;cursor:pointer;}
+.rate{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.rate button{border:none;border-radius:14px;padding:12px 6px;cursor:pointer;font-weight:800;font-size:.95rem;display:flex;flex-direction:column;gap:3px;align-items:center;}
+.rate button small{font-weight:600;font-size:.75rem;opacity:.85;}
+.rate .vh{background:#ff5f6d;color:#2a0407;}
+.rate .hd{background:#ffcc66;color:#332400;}
+.rate .ez{background:#2ecc71;color:#04220f;}
+.legend{color:var(--muted);font-size:.74rem;text-align:center;margin-top:10px;line-height:1.5;}
+.msg{text-align:center;color:var(--muted);padding:50px 10px;line-height:1.7;}
+.msg a{color:var(--accent);}
+.msg h2{color:var(--text);margin:0 0 6px;}
+@media(max-width:480px){.q{font-size:1rem;}.rate button{font-size:.85rem;}}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">Flashcards</h1>
+  <p>Spaced repetition study mode (Anki-style). No timer and no score is recorded.</p>
+</header>
+<div class="wrap">
+  <div class="top"><a href="index.html">&larr; Home</a><div class="counts" id="counts"></div></div>
+  <div id="loading" class="msg">Loading cards...</div>
+  <div id="error" class="msg hidden"><b id="errTitle">Could not load this drill.</b><br><span id="errDetail"></span><br><br><a href="index.html">Back to homepage</a></div>
+  <div id="app" class="hidden">
+    <div class="bar"><i id="fill"></i></div>
+    <div class="barlabel" id="barLabel"></div>
+    <div class="tools">
+      <label>New cards/day
+        <select id="newLimit"><option>10</option><option>20</option><option>50</option><option>100</option><option>150</option></select>
+      </label>
+      <button class="chip" id="resetBtn">Reset progress</button>
+    </div>
+    <div id="done" class="msg hidden"></div>
+    <div id="deck">
+      <div class="scene"><div class="card" id="card">
+        <div class="face front">
+          <span class="tag" id="fTag"></span>
+          <div class="q" id="fQ"></div>
+          <div class="opts" id="fOpts"></div>
+          <div class="hint">Think of your answer, then press Show Answer</div>
+        </div>
+        <div class="face back">
+          <span class="tag" id="bTag"></span>
+          <div class="qsmall" id="bQ"></div>
+          <div class="ans"><b id="bLetter"></b><span id="bText"></span></div>
+          <div class="hint">How hard was it to recall?</div>
+        </div>
+      </div></div>
+      <div class="bottom">
+        <button class="show" id="showBtn">Show Answer</button>
+        <div class="rate hidden" id="rate">
+          <button class="vh" data-r="again">Very Hard<small id="tVH"></small></button>
+          <button class="hd" data-r="hard">Hard<small id="tHD"></small></button>
+          <button class="ez" data-r="good">Easy<small id="tEZ"></small></button>
+        </div>
+        <div class="legend">Shortcuts: Space = show answer, 1 = Very Hard, 2 = Hard, 3 = Easy.<br>Cards are shown in random order. The time under each button is when you will see the card again.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var params = new URLSearchParams(location.search);
+  var setFile = params.get('set') || '';
+  var valid = /^science-drill-\d+\.html$/.test(setFile);
+  var letters = ['A','B','C','D'];
+  var KEY = 'sd_anki_' + setFile;
+  function $(id){ return document.getElementById(id); }
+  function fail(why){
+    $('loading').classList.add('hidden'); $('error').classList.remove('hidden');
+    var msg = {
+      link: 'This link has no valid drill set. Open the homepage, choose Flashcard Mode, then pick a set.',
+      file: 'Flashcards cannot load when the page is opened straight from a folder (file://). Open the website address instead (for example your GitHub Pages link).',
+      missing: 'The drill file for this set was not found. Make sure that set\'s HTML file (science-drill-N.html) is uploaded in the same folder.',
+      parse: 'The drill file loaded but its questions could not be read.'
+    };
+    $('errDetail').textContent = msg[why] || msg.parse;
+  }
+  if(!valid){ fail('link'); return; }
+  if(location.protocol === 'file:'){ fail('file'); return; }
+  var setLetter = String.fromCharCode(64 + parseInt(setFile.match(/\d+/)[0], 10));
+  $('title').textContent = 'Flashcards - Set ' + setLetter;
+  document.title = 'Flashcards - Set ' + setLetter;
+
+  // ---------- Anki (SM-2, v2 scheduler) settings: Anki's defaults ----------
+  var CFG = {
+    steps: [1, 10],        // learning steps (minutes)
+    lapseSteps: [10],      // relearning steps (minutes)
+    gradIvl: 1,            // graduating interval (days)
+    startEase: 2.5,        // starting ease 250%
+    minEase: 1.3,
+    hardMult: 1.2,         // hard interval 120%
+    ivlMod: 1.0,           // interval modifier 100%
+    newIvlPct: 0,          // new interval after a lapse 0%
+    minIvl: 1,
+    maxIvl: 36500,
+    learnAhead: 20,        // learn-ahead limit (minutes)
+    rollover: 4            // day starts at 4 am
+  };
+  // card.s: 0 new, 1 learning, 2 review, 3 relearning
+  // card.due: ms timestamp (learning / relearning) or day number (review)
+
+  function now(){ return Date.now(); }
+  function today(){
+    var n = new Date();
+    var local = n.getTime() - n.getTimezoneOffset() * 60000;
+    return Math.floor((local - CFG.rollover * 3600000) / 86400000);
+  }
+  function newCard(){ return { s: 0, step: 0, due: 0, ivl: 0, ease: CFG.startEase, lapses: 0, reps: 0 }; }
+
+  function fuzzed(ivl){
+    var lo, hi;
+    if(ivl < 2){ return ivl; }
+    if(ivl === 2){ lo = 2; hi = 3; }
+    else {
+      var f = ivl < 7 ? Math.floor(ivl * 0.25) : (ivl < 30 ? Math.max(2, Math.floor(ivl * 0.15)) : Math.max(4, Math.floor(ivl * 0.05)));
+      f = Math.max(f, 1); lo = ivl - f; hi = ivl + f;
+    }
+    return Math.min(CFG.maxIvl, lo + Math.floor(Math.random() * (hi - lo + 1)));
+  }
+  function constrain(x, prev){
+    var v = Math.max(Math.floor(x * CFG.ivlMod), prev + 1);
+    return Math.min(v, CFG.maxIvl);
+  }
+
+  // r: 'again' (Very Hard) | 'hard' (Hard) | 'good' (Easy)
+  function rate(c0, r, fuzz){
+    var c = JSON.parse(JSON.stringify(c0)), n = now(), td = today();
+    var relearn = c.s === 3;
+    if(c.s === 0){ c.s = 1; c.step = 0; }
+    if(c.s === 1 || c.s === 3){
+      var steps = relearn ? CFG.lapseSteps : CFG.steps;
+      if(r === 'again'){
+        c.step = 0; c.due = n + steps[0] * 60000;
+      } else if(r === 'hard'){
+        var d1 = steps[c.step];
+        var d2 = steps.length > 1 ? (c.step + 1 < steps.length ? steps[c.step + 1] : steps[0]) : d1 * 2;
+        c.due = n + (d1 + Math.max(d1, d2)) / 2 * 60000;
+      } else {
+        c.step++;
+        if(c.step >= steps.length){
+          c.s = 2; c.step = 0;
+          if(!relearn){ c.ivl = CFG.gradIvl; }
+          c.due = td + c.ivl; c.reps++;
+        } else {
+          c.due = n + steps[c.step] * 60000;
+        }
+      }
+      return c;
+    }
+    // review card
+    var ivl = c.ivl, delay = Math.max(0, td - c.due);
+    if(r === 'again'){
+      c.lapses++;
+      c.ease = Math.max(CFG.minEase, c.ease - 0.2);
+      c.ivl = Math.max(CFG.minIvl, Math.floor(ivl * CFG.newIvlPct));
+      c.s = 3; c.step = 0; c.due = n + CFG.lapseSteps[0] * 60000;
+      return c;
+    }
+    var ivl2 = constrain((ivl + Math.floor(delay / 4)) * CFG.hardMult, ivl);
+    var out;
+    if(r === 'hard'){
+      c.ease = Math.max(CFG.minEase, c.ease - 0.15);
+      out = ivl2;
+    } else {
+      out = constrain((ivl + Math.floor(delay / 2)) * c0.ease, ivl2);
+    }
+    if(fuzz) out = fuzzed(out);
+    c.ivl = out; c.due = td + out; c.reps++;
+    return c;
+  }
+
+  function fmt(c){
+    if(c.s === 1 || c.s === 3){
+      var m = (c.due - now()) / 60000;
+      if(m < 1) return '<1m';
+      if(m < 60) return Math.round(m) + 'm';
+      return Math.round(m / 60) + 'h';
+    }
+    var d = c.ivl;
+    if(d < 30) return d + 'd';
+    if(d < 365) return (Math.round(d / 30 * 10) / 10) + 'mo';
+    return (Math.round(d / 365 * 10) / 10) + 'y';
+  }
+
+  // ---------- state ----------
+  var Q = [], S = null, cur = -1, last = -1, flipped = false;
+
+  function freshState(limit){
+    var cards = []; for(var i = 0; i < Q.length; i++) cards.push(newCard());
+    return { cards: cards, day: today(), newToday: 0, newLimit: limit || 20 };
+  }
+  function loadState(){
+    var st = null;
+    try{ st = JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+    if(!st || !st.cards || st.cards.length !== Q.length){ st = freshState(st && st.newLimit); }
+    if(st.day !== today()){ st.day = today(); st.newToday = 0; }
+    S = st;
+  }
+  function saveState(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+  function extract(html){
+    var m = html.match(/const QUESTIONS\s*=\s*(\[[\s\S]*?\]);\s*\n\s*const letters/);
+    if(!m) m = html.match(/const QUESTIONS\s*=\s*(\[[\s\S]*\]);/);
+    if(!m) return null;
+    try{ return (new Function('return ' + m[1]))(); }catch(e){ return null; }
+  }
+
+  // ---------- queue ----------
+  function queues(){
+    var n = now(), td = today(), learn = [], rev = [], nw = [], ahead = [], learning = 0, graduated = 0;
+    for(var i = 0; i < S.cards.length; i++){
+      var c = S.cards[i];
+      if(c.s === 0) nw.push(i);
+      else if(c.s === 1 || c.s === 3){
+        learning++;
+        if(c.due <= n) learn.push(i);
+        else if(c.due <= n + CFG.learnAhead * 60000) ahead.push(i);
+      } else if(c.s === 2){
+        graduated++;
+        if(c.due <= td) rev.push(i);
+      }
+    }
+    var allowed = Math.max(0, S.newLimit - S.newToday);
+    return { learn: learn, rev: rev, nw: nw, ahead: ahead, allowed: allowed, learning: learning, graduated: graduated };
+  }
+  function pickNext(){
+    var q = queues();
+    var cand = q.learn.concat(q.rev, q.allowed > 0 ? q.nw : []);
+    if(cand.length){
+      var f = cand.filter(function(i){ return i !== last; });
+      var arr = f.length ? f : cand;
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+    if(q.ahead.length){
+      q.ahead.sort(function(a, b){ return S.cards[a].due - S.cards[b].due; });
+      return q.ahead[0];
+    }
+    return -1;
+  }
+
+  // ---------- UI ----------
+  function resetFlip(){
+    var card = $('card');
+    card.style.transition = 'none';
+    card.classList.remove('flipped');
+    void card.offsetWidth;
+    card.style.transition = '';
+    flipped = false;
+    $('rate').classList.add('hidden');
+    $('showBtn').classList.remove('hidden');
+  }
+
+  function waitText(){
+    var n = now(), td = today(), soon = Infinity, nextRev = Infinity;
+    S.cards.forEach(function(c){
+      if((c.s === 1 || c.s === 3) && c.due < soon) soon = c.due;
+      if(c.s === 2 && c.due < nextRev) nextRev = c.due;
+    });
+    var parts = [];
+    if(soon < Infinity){
+      var m = Math.max(1, Math.round((soon - n) / 60000));
+      parts.push('Next learning card in about ' + (m < 60 ? m + ' min' : Math.round(m / 60) + ' h') + '.');
+    }
+    if(nextRev < Infinity && nextRev > td){
+      var d = nextRev - td; parts.push('Next review is due in ' + d + ' day' + (d === 1 ? '' : 's') + '.');
+    }
+    var q = queues();
+    if(q.nw.length && q.allowed === 0) parts.push('You reached today\'s limit of ' + S.newLimit + ' new cards. Raise "New cards/day" to keep going.');
+    return parts.join('<br>');
+  }
+
+  function render(){
+    var q = queues();
+    $('counts').innerHTML = '<span class="n">New ' + Math.min(q.nw.length, q.allowed) + '</span><span class="l">Learning ' + q.learning + '</span><span class="d">Due ' + q.rev.length + '</span>';
+    $('fill').style.width = (q.graduated / Q.length * 100) + '%';
+    $('barLabel').textContent = q.graduated + ' of ' + Q.length + ' cards learned';
+    $('newLimit').value = String(S.newLimit);
+    if(cur < 0){
+      $('deck').classList.add('hidden'); $('done').classList.remove('hidden');
+      $('done').innerHTML = '<h2>Done for now!</h2>You finished every card that is due.<br>' + waitText() + '<br><a href="index.html">Back to homepage</a>';
+      return;
+    }
+    $('done').classList.add('hidden'); $('deck').classList.remove('hidden');
+    var qd = Q[cur], correct = qd[2];
+    $('fTag').textContent = 'Question ' + (cur + 1);
+    $('bTag').textContent = 'Answer';
+    $('fQ').innerHTML = qd[0]; $('bQ').innerHTML = qd[0];
+    var o = '';
+    for(var k = 0; k < qd[1].length; k++){ o += '<div class="opt"><b>' + letters[k] + '</b><span>' + qd[1][k] + '</span></div>'; }
+    $('fOpts').innerHTML = o;
+    $('bLetter').textContent = letters[correct];
+    $('bText').innerHTML = qd[1][correct];
+  }
+
+  function showAnswer(){
+    if(cur < 0 || flipped) return;
+    flipped = true;
+    $('card').classList.add('flipped');
+    var c = S.cards[cur];
+    $('tVH').textContent = fmt(rate(c, 'again', false));
+    $('tHD').textContent = fmt(rate(c, 'hard', false));
+    $('tEZ').textContent = fmt(rate(c, 'good', false));
+    $('showBtn').classList.add('hidden');
+    $('rate').classList.remove('hidden');
+  }
+
+  function answer(r){
+    if(cur < 0 || !flipped) return;
+    var c0 = S.cards[cur];
+    if(c0.s === 0) S.newToday++;
+    S.cards[cur] = rate(c0, r, true);
+    saveState();
+    last = cur;
+    cur = pickNext();
+    resetFlip();
+    render();
+  }
+
+  function start(){
+    loadState();
+    cur = pickNext();
+    resetFlip();
+    render();
+  }
+
+  fetch(setFile).then(function(r){ if(!r.ok) throw 'missing'; return r.text(); }).then(function(html){
+    Q = extract(html);
+    if(!Q || !Q.length) throw 'parse';
+    $('loading').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    start();
+  }).catch(function(e){ fail(typeof e === 'string' ? e : 'missing'); });
+
+  $('showBtn').onclick = showAnswer;
+  $('card').onclick = function(){ if(!flipped) showAnswer(); };
+  Array.prototype.forEach.call(document.querySelectorAll('#rate button'), function(b){
+    b.onclick = function(){ answer(b.getAttribute('data-r')); };
+  });
+  $('newLimit').onchange = function(){
+    S.newLimit = parseInt($('newLimit').value, 10); saveState();
+    if(cur < 0){ cur = pickNext(); resetFlip(); }
+    render();
+  };
+  $('resetBtn').onclick = function(){
+    if(!confirm('Erase all spaced-repetition progress for this set?')) return;
+    S = freshState(S.newLimit); saveState(); last = -1; cur = pickNext(); resetFlip(); render();
+  };
+  document.addEventListener('keydown', function(e){
+    if(!S || e.target.tagName === 'SELECT') return;
+    if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); if(!flipped) showAnswer(); }
+    else if(flipped && e.key === '1') answer('again');
+    else if(flipped && e.key === '2') answer('hard');
+    else if(flipped && e.key === '3') answer('good');
+  });
+  // when waiting for the next learning card, check again every 15 seconds
+  setInterval(function(){
+    if(S && cur < 0){ var nx = pickNext(); if(nx >= 0){ cur = nx; resetFlip(); render(); } else { render(); } }
+  }, 15000);
+
+  // expose a tiny hook for automated tests
+  window.__anki = { rate: rate, CFG: CFG, state: function(){ return S; }, cur: function(){ return cur; } };
+})();
+</script>
+</body>
+</html>
