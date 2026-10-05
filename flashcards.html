@@ -247,6 +247,23 @@ header p{color:var(--muted);margin:6px 0 0;font-size:.92rem;}
   }
   function saveState(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
+  var pend = { reviews:0, again:0, hard:0, good:0 }, sendT = null;
+function localDay(){ var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+function track(r){
+  pend.reviews++; if(r === 'again') pend.again++; else if(r === 'hard') pend.hard++; else pend.good++;
+  clearTimeout(sendT); sendT = setTimeout(flush, 4000);
+}
+function flush(){
+  var token = localStorage.getItem('sd_token');
+  if(!token || !pend.reviews || !S) return;
+  var body = { mode:'flashcards', set:setLetter, total:Q.length, score:queues().graduated, day:localDay(),
+    reviews:pend.reviews, again:pend.again, hard:pend.hard, good:pend.good };
+  pend = { reviews:0, again:0, hard:0, good:0 };
+  fetch('/api/activity', { method:'POST', keepalive:true,
+    headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token }, body: JSON.stringify(body) }).catch(function(){});
+}
+document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'hidden') flush(); });
+
   function extract(html){
     var m = html.match(/const QUESTIONS\s*=\s*(\[[\s\S]*?\]);\s*\n\s*const letters/);
     if(!m) m = html.match(/const QUESTIONS\s*=\s*(\[[\s\S]*\]);/);
@@ -353,7 +370,7 @@ header p{color:var(--muted);margin:6px 0 0;font-size:.92rem;}
     $('rate').classList.remove('hidden');
   }
 
-  function answer(r){
+  function answer(r){track(r);
     if(cur < 0 || !flipped) return;
     var c0 = S.cards[cur];
     if(c0.s === 0) S.newToday++;

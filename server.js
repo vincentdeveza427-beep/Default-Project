@@ -39,13 +39,30 @@ function saveUsers(users) {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 }
 
+// Basic email format: something@something.tld (no spaces)
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+// Escape % _ \ so ilike treats them as plain characters
+function escapeLike(s) {
+  return s.replace(/[\\%_]/g, '\\$&');
+}
+
 async function findByEmail(email) {
   if (supabase) {
-    const { data, error } = await supabase.from('users').select('*').ilike('email', email).limit(1);
+    const { data, error } = await supabase.from('users').select('*').ilike('email', escapeLike(email)).limit(1);
     if (error) throw new Error(error.message);
     return data[0] || null;
   }
   return loadUsers().find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
+}
+
+async function findByName(name) {
+  if (supabase) {
+    const { data, error } = await supabase.from('users').select('id').ilike('name', escapeLike(name)).limit(1);
+    if (error) throw new Error(error.message);
+    return data[0] || null;
+  }
+  return loadUsers().find(u => (u.name || '').toLowerCase() === name.toLowerCase()) || null;
 }
 
 async function findById(id) {
@@ -65,7 +82,10 @@ async function createUser({ name, email, hash }) {
       .select('id, name, email')
       .single();
     if (error) {
-      if (error.code === '23505') throw Object.assign(new Error('duplicate'), { status: 400 });
+      if (error.code === '23505') {
+        const field = (error.message || '').includes('users_name_lower_idx') ? 'username' : 'email';
+        throw Object.assign(new Error('duplicate'), { status: 400, field });
+      }
       throw new Error(error.message);
     }
     return data;
@@ -75,6 +95,58 @@ async function createUser({ name, email, hash }) {
   users.push(user);
   saveUsers(users);
   return { id: user.id, name: user.name, email: user.email };
+}
+
+// ---- activity (exam attempts + flashcard study), per user ----
+const ACTIVITY_FILE = path.join(__dirname, 'activity.json');
+function loadActivity() {
+  try { return JSON.parse(fs.readFileSync(ACTIVITY_FILE, 'utf8')); } catch { return []; }
+}
+function saveActivityFile(rows) {
+  fs.writeFileSync(ACTIVITY_FILE, JSON.stringify(rows, null, 2));
+}
+
+async function listActivity(userId) {
+  if (supabase) {
+    const { data, error } = await supabase.from('activity').select('*')
+      .eq('user_id', userId).order('created_at', { ascending: true }).limit(5000);
+    if (error) throw new Error(error.message);
+    return data;
+  }
+  return loadActivity().filter(r => r.user_id === userId);
+}
+
+// Exams insert a row per attempt. Flashcards keep one row per user/set/day (reviews add up).
+async function recordActivity(userId, a) {
+  const nowIso = new Date().toISOString();
+  if (supabase) {
+    if (a.mode === 'flashcards') {
+      const { data, error } = await supabase.from('activity').select('*')
+        .eq('user_id', userId).eq('mode', 'flashcards').eq('set_letter', a.set_letter).eq('day', a.day).limit(1);
+      if (error) throw new Error(error.message);
+      if (data[0]) {
+        const r = data[0];
+        const { error: e2 } = await supabase.from('activity').update({
+          score: a.score, total: a.total, reviews: r.reviews + a.reviews,
+          again: r.again + a.again, hard: r.hard + a.hard, good: r.good + a.good, updated_at: nowIso
+        }).eq('id', r.id);
+        if (e2) throw new Error(e2.message);
+        return;
+      }
+    }
+    const { error } = await supabase.from('activity').insert({ user_id: userId, ...a });
+    if (error) throw new Error(error.message);
+    return;
+  }
+  const rows = loadActivity();
+  const r = a.mode === 'flashcards' && rows.find(x => x.user_id === userId && x.mode === 'flashcards' && x.set_letter === a.set_letter && x.day === a.day);
+  if (r) {
+    Object.assign(r, { score: a.score, total: a.total, reviews: r.reviews + a.reviews,
+      again: r.again + a.again, hard: r.hard + a.hard, good: r.good + a.good, updated_at: nowIso });
+  } else {
+    rows.push({ id: Date.now().toString() + Math.random().toString(36).slice(2, 6), user_id: userId, ...a, created_at: nowIso, updated_at: nowIso });
+  }
+  saveActivityFile(rows);
 }
 
 function signToken(user) {
@@ -96,12 +168,21 @@ function auth(req, res, next) {
 // Sign up
 app.post('/api/signup', async (req, res) => {
   try {
-    const { name = '', email = '', password = '' } = req.body;
+    let { name = '', email = '', password = '' } = req.body;
+    name = String(name).trim();
+    email = String(email).trim();
+    password = String(password);
+
+    if (!name) return res.status(400).json({ error: 'Username is required.' });
     if (!email || !password) return res.status(400).json({ error: 'Email and password are required.' });
+    if (!EMAIL_RE.test(email) || email.length > 254) return res.status(400).json({ error: 'Please enter a valid email address.' });
     if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters.' });
 
+    if (await findByName(name)) {
+      return res.status(400).json({ error: 'That username has already been taken.' });
+    }
     if (await findByEmail(email)) {
-      return res.status(400).json({ error: 'That email is already registered. Try logging in.' });
+      return res.status(400).json({ error: 'That email has already been taken. Try logging in.' });
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -111,7 +192,7 @@ app.post('/api/signup', async (req, res) => {
     res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
   } catch (e) {
     if (e.status === 400 && e.message === 'duplicate') {
-      return res.status(400).json({ error: 'That email is already registered. Try logging in.' });
+      return res.status(400).json({ error: `That ${e.field} has already been taken.` });
     }
     console.error(e);
     res.status(500).json({ error: 'Server error: ' + e.message });
@@ -122,7 +203,7 @@ app.post('/api/signup', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   try {
     const { email = '', password = '' } = req.body;
-    const user = await findByEmail(email);
+    const user = await findByEmail(String(email).trim());
     if (!user) return res.status(400).json({ error: 'No account found for that email.' });
 
     const ok = await bcrypt.compare(password, user.hash);
@@ -142,6 +223,45 @@ app.get('/api/me', auth, async (req, res) => {
     const user = await findById(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found.' });
     res.json({ id: user.id, name: user.name, email: user.email });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+});
+
+// Save progress (exam attempt or flashcard study)
+const clampInt = (v, max) => Math.max(0, Math.min(max, Math.floor(Number(v) || 0)));
+app.post('/api/activity', auth, async (req, res) => {
+  try {
+    const b = req.body || {};
+    const mode = b.mode;
+    const set_letter = String(b.set || '').toUpperCase();
+    const total = clampInt(b.total, 1000);
+    if (!['exam', 'flashcards'].includes(mode) || !/^[A-Z]$/.test(set_letter) || !total) {
+      return res.status(400).json({ error: 'Invalid activity.' });
+    }
+    const day = /^\d{4}-\d{2}-\d{2}$/.test(b.day || '') ? b.day : new Date().toISOString().slice(0, 10);
+    await recordActivity(req.user.id, {
+      mode, set_letter, day, total,
+      score: Math.min(clampInt(b.score, 1000), total),
+      unanswered: Math.min(clampInt(b.unanswered, 1000), total),
+      duration_sec: mode === 'exam' ? clampInt(b.durationSec, 86400) : null,
+      reviews: clampInt(b.reviews, 5000),
+      again: clampInt(b.again, 5000),
+      hard: clampInt(b.hard, 5000),
+      good: clampInt(b.good, 5000)
+    });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+});
+
+// Get this user's progress
+app.get('/api/activity', auth, async (req, res) => {
+  try {
+    res.json(await listActivity(req.user.id));
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Server error: ' + e.message });

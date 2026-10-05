@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Progress - Science Drill</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg1:#071b2e;--accent:#28e0c5;--accent2:#5aa9ff;--card:#0f2740;--border:#1c3f5e;--text:#eaf6ff;--muted:#9db4c7;--good:#2ecc71;--bad:#ff5f6d;--amber:#ffcc66;}
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text);min-height:100vh;padding-bottom:50px;
+ background:radial-gradient(circle at 20% 10%,#123456 0%,var(--bg1) 45%,#050f1a 100%);}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px;}
+header{padding:22px 0 8px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+header h1{margin:0;font-size:clamp(1.4rem,4vw,2rem);background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+a{color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem;}
+select{background:#0a1e33;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:.85rem;}
+.hidden{display:none !important;}
+.msg{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:34px;text-align:center;color:var(--muted);line-height:1.7;margin-top:30px;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;}
+.stat b{display:block;font-size:1.6rem;margin-bottom:2px;}
+.stat span{color:var(--muted);font-size:.78rem;}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px;}
+.panel h2{margin:0 0 4px;font-size:1.05rem;}
+.panel p.sub{margin:0 0 12px;color:var(--muted);font-size:.8rem;}
+.chartbox{position:relative;height:280px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.empty{color:var(--muted);font-size:.88rem;padding:30px 0;text-align:center;}
+ul.ins{margin:0;padding-left:18px;color:var(--text);line-height:1.8;font-size:.93rem;}
+ul.ins li span{color:var(--muted);}
+@media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr);}.two{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title">My Progress</h1>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <select id="setSel"></select>
+      <a href="index.html">&larr; Home</a>
+    </div>
+  </header>
+
+  <div id="msg" class="msg">Loading your progress...</div>
+
+  <div id="main" class="hidden">
+    <div class="stats" id="stats"></div>
+
+    <div class="panel">
+      <h2>Exam mode: score over time</h2>
+      <p class="sub">Each point is one finished timed attempt (percent correct).</p>
+      <div class="chartbox"><canvas id="cExam"></canvas></div>
+      <div class="empty hidden" id="eExam">No timed attempts yet. Finish a Timed Mode drill while logged in to see your scores here.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Flashcard mode: cards learned</h2>
+      <p class="sub">Cards that graduated from learning, per set, by study day.</p>
+      <div class="chartbox"><canvas id="cFlash"></canvas></div>
+      <div class="empty hidden" id="eFlash">No flashcard study yet. Review some cards while logged in to see progress here.</div>
+    </div>
+
+    <div class="two">
+      <div class="panel">
+        <h2>Cards reviewed per day</h2>
+        <p class="sub">Flashcard reviews over time.</p>
+        <div class="chartbox"><canvas id="cReviews"></canvas></div>
+        <div class="empty hidden" id="eReviews">No reviews yet.</div>
+      </div>
+      <div class="panel">
+        <h2>Average exam score by set</h2>
+        <p class="sub">Across all your timed attempts.</p>
+        <div class="chartbox"><canvas id="cSets"></canvas></div>
+        <div class="empty hidden" id="eSets">No timed attempts yet.</div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="panel">
+        <h2>Answer breakdown</h2>
+        <p class="sub">All exam questions combined.</p>
+        <div class="chartbox"><canvas id="cBreak"></canvas></div>
+        <div class="empty hidden" id="eBreak">No timed attempts yet.</div>
+      </div>
+      <div class="panel">
+        <h2>Analytics</h2>
+        <p class="sub">What your history says.</p>
+        <ul class="ins" id="insights"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var token = localStorage.getItem('sd_token');
+  var ALL = [], charts = {};
+  var COLORS = ['#28e0c5','#5aa9ff','#ffcc66','#ff5f6d','#b48cff','#2ecc71'];
+  function $(id){ return document.getElementById(id); }
+  function color(letter){ return COLORS[(letter.charCodeAt(0) - 65) % COLORS.length]; }
+  function msg(t){ $('msg').classList.remove('hidden'); $('main').classList.add('hidden'); $('msg').innerHTML = t; }
+  function pct(r){ return r.total ? Math.round(r.score / r.total * 1000) / 10 : 0; }
+  function avg(a){ return a.length ? a.reduce(function(x, y){ return x + y; }, 0) / a.length : 0; }
+  function r1(n){ return Math.round(n * 10) / 10; }
+  function dayOf(r){ return r.day ? String(r.day).slice(0, 10) : String(r.created_at).slice(0, 10); }
+  function short(d){ var p = d.split('-'); return p[1] + '/' + p[2]; }
+
+  if(!token){ msg('Please log in on the <a href="index.html">homepage</a> to see your progress.'); return; }
+
+  fetch('/api/activity', { headers: { Authorization: 'Bearer ' + token } })
+    .then(function(r){ if(r.status === 401) throw 'auth'; if(!r.ok) throw 'err'; return r.json(); })
+    .then(function(rows){ ALL = rows; init(); })
+    .catch(function(e){
+      if(e === 'auth'){ localStorage.removeItem('sd_token'); msg('Your session expired. Please log in again on the <a href="index.html">homepage</a>.'); }
+      else msg('Could not load your progress. Make sure the server is running and try again.');
+    });
+
+  fetch('/api/me', { headers: { Authorization: 'Bearer ' + token } })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(u){ if(u) $('title').textContent = (u.name || u.email) + "'s Progress"; })
+    .catch(function(){});
+
+  function init(){
+    var letters = {};
+    ALL.forEach(function(r){ letters[r.set_letter] = 1; });
+    var sel = $('setSel');
+    sel.innerHTML = '<option value="">All sets</option>' + Object.keys(letters).sort().map(function(l){ return '<option value="' + l + '">Set ' + l + '</option>'; }).join('');
+    sel.onchange = draw;
+    $('msg').classList.add('hidden'); $('main').classList.remove('hidden');
+    Chart.defaults.color = '#9db4c7';
+    Chart.defaults.borderColor = 'rgba(28,63,94,.7)';
+    draw();
+  }
+
+  function show(canvasId, emptyId, has){
+    $(canvasId).parentNode.classList.toggle('hidden', !has);
+    $(emptyId).classList.toggle('hidden', has);
+  }
+  function make(id, cfg){
+    if(charts[id]) charts[id].destroy();
+    charts[id] = new Chart($(id), cfg);
+  }
+
+  function draw(){
+    var f = $('setSel').value;
+    var rows = ALL.filter(function(r){ return !f || r.set_letter === f; });
+    var exams = rows.filter(function(r){ return r.mode === 'exam'; });
+    var flash = rows.filter(function(r){ return r.mode === 'flashcards'; });
+    var sets = Array.from(new Set(rows.map(function(r){ return r.set_letter; }))).sort();
+
+    // ---- summary cards ----
+    var examPct = exams.map(pct);
+    var latestLearned = 0;
+    Array.from(new Set(flash.map(function(r){ return r.set_letter; }))).forEach(function(s){
+      var mine = flash.filter(function(r){ return r.set_letter === s; });
+      latestLearned += mine[mine.length - 1].score;
+    });
+    var totalReviews = flash.reduce(function(a, r){ return a + r.reviews; }, 0);
+    var days = Array.from(new Set(rows.map(dayOf))).sort();
+    var streak = 0;
+    (function(){
+      var set = {}; days.forEach(function(d){ set[d] = 1; });
+      var d = new Date(); function key(x){ return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); }
+      if(!set[key(d)]) d.setDate(d.getDate() - 1);
+      while(set[key(d)]){ streak++; d.setDate(d.getDate() - 1); }
+    })();
+    var cards = [
+      [exams.length, 'Timed exams finished'],
+      [exams.length ? r1(avg(examPct)) + '%' : '-', 'Average exam score'],
+      [exams.length ? Math.max.apply(null, examPct) + '%' : '-', 'Best exam score'],
+      [latestLearned, 'Flashcards learned'],
+      [totalReviews, 'Flashcard reviews'],
+      [days.length, 'Study days'],
+      [streak, 'Day streak'],
+      [exams.length ? exams.reduce(function(a, r){ return a + r.score; }, 0) : '-', 'Exam questions correct']
+    ];
+    $('stats').innerHTML = cards.map(function(c){ return '<div class="stat"><b>' + c[0] + '</b><span>' + c[1] + '</span></div>'; }).join('');
+
+    // ---- exam line chart ----
+    show('cExam', 'eExam', exams.length > 0);
+    if(exams.length){
+      make('cExam', { type: 'line',
+        data: { labels: exams.map(function(e, i){ return '#' + (i + 1) + ' (' + short(dayOf(e)) + ')'; }),
+          datasets: sets.filter(function(s){ return exams.some(function(e){ return e.set_letter === s; }); }).map(function(s){
+            return { label: 'Set ' + s, spanGaps: true, tension: .25, borderColor: color(s), backgroundColor: color(s), pointRadius: 4,
+              data: exams.map(function(e){ return e.set_letter === s ? pct(e) : null; }) };
+          }) },
+        options: { maintainAspectRatio: false, scales: { y: { min: 0, max: 100, title: { display: true, text: '% correct' } } } } });
+    }
+
+    // ---- flashcard learned chart (carry last value forward per set) ----
+    var fDays = Array.from(new Set(flash.map(dayOf))).sort();
+    show('cFlash', 'eFlash', fDays.length > 0);
+    if(fDays.length){
+      var fSets = Array.from(new Set(flash.map(function(r){ return r.set_letter; }))).sort();
+      make('cFlash', { type: 'line',
+        data: { labels: fDays.map(short),
+          datasets: fSets.map(function(s){
+            var last = null;
+            return { label: 'Set ' + s, tension: .25, borderColor: color(s), backgroundColor: color(s), pointRadius: 4, spanGaps: true,
+              data: fDays.map(function(d){
+                var r = flash.filter(function(x){ return x.set_letter === s && dayOf(x) === d; })[0];
+                if(r) last = r.score; return last; }) };
+          }) },
+        options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'cards learned' } } } } });
+    }
+
+    // ---- reviews per day ----
+    show('cReviews', 'eReviews', fDays.length > 0);
+    if(fDays.length){
+      make('cReviews', { type: 'bar',
+        data: { labels: fDays.map(short), datasets: [{ label: 'Reviews', backgroundColor: '#5aa9ff',
+          data: fDays.map(function(d){ return flash.filter(function(x){ return dayOf(x) === d; }).reduce(function(a, x){ return a + x.reviews; }, 0); }) }] },
+        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+    }
+
+    // ---- avg by set ----
+    var eSets = Array.from(new Set(exams.map(function(r){ return r.set_letter; }))).sort();
+    show('cSets', 'eSets', eSets.length > 0);
+    var bySet = eSets.map(function(s){ return r1(avg(exams.filter(function(e){ return e.set_letter === s; }).map(pct))); });
+    if(eSets.length){
+      make('cSets', { type: 'bar',
+        data: { labels: eSets.map(function(s){ return 'Set ' + s; }), datasets: [{ label: 'Avg %', data: bySet, backgroundColor: eSets.map(color) }] },
+        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100 } } } });
+    }
+
+    // ---- answer breakdown ----
+    var cor = 0, un = 0, tot = 0;
+    exams.forEach(function(e){ cor += e.score; un += e.unanswered; tot += e.total; });
+    show('cBreak', 'eBreak', tot > 0);
+    if(tot){
+      make('cBreak', { type: 'doughnut',
+        data: { labels: ['Correct', 'Wrong', 'Unanswered'], datasets: [{ data: [cor, tot - cor - un, un], backgroundColor: ['#2ecc71', '#ff5f6d', '#ffcc66'], borderWidth: 0 }] },
+        options: { maintainAspectRatio: false } });
+    }
+
+    // ---- analytics insights ----
+    var ins = [];
+    if(exams.length){
+      ins.push('Average exam score: <b>' + r1(avg(examPct)) + '%</b> over ' + exams.length + ' attempt' + (exams.length === 1 ? '' : 's') + '.');
+      if(exams.length >= 2){
+        var d = r1(examPct[examPct.length - 1] - examPct[0]);
+        ins.push('Latest vs first attempt: <b style="color:' + (d >= 0 ? 'var(--good)' : 'var(--bad)') + '">' + (d >= 0 ? '+' : '') + d + ' points</b>.');
+      }
+      if(eSets.length >= 2){
+        var hi = bySet.indexOf(Math.max.apply(null, bySet)), lo = bySet.indexOf(Math.min.apply(null, bySet));
+        if(hi !== lo){
+          ins.push('Strongest set: <b>Set ' + eSets[hi] + '</b> (' + bySet[hi] + '%).');
+          ins.push('Needs the most work: <b>Set ' + eSets[lo] + '</b> (' + bySet[lo] + '%).');
+        }
+      }
+      var durs = exams.filter(function(e){ return e.duration_sec; }).map(function(e){ return e.duration_sec; });
+      if(durs.length) ins.push('Average time used: <b>' + Math.round(avg(durs) / 60) + ' min</b> of 180.');
+      ins.push('Average unanswered per exam: <b>' + r1(un / exams.length) + '</b>' + (un / exams.length >= 5 ? ' <span>(try to answer every item)</span>' : '') + '.');
+    }
+    if(flash.length){
+      var A = 0, H = 0, G = 0;
+      flash.forEach(function(r){ A += r.again; H += r.hard; G += r.good; });
+      var n = A + H + G;
+      if(n){
+        ins.push('Flashcard ratings: <b>' + Math.round(G / n * 100) + '% Easy</b>, ' + Math.round(H / n * 100) + '% Hard, ' + Math.round(A / n * 100) + '% Very Hard.');
+        ins.push('Average <b>' + Math.round(totalReviews / fDays.length) + ' reviews</b> per study day.');
+      }
+    }
+    if(!ins.length) ins.push('<span>Nothing to analyze yet. Finish an exam or review some flashcards while logged in.</span>');
+    $('insights').innerHTML = ins.map(function(t){ return '<li>' + t + '</li>'; }).join('');
+  }
+})();
+</script>
+</body>
+</html>
