@@ -65,11 +65,13 @@ async function createUser({ name, email, hash }) {
       .insert({ name, email, hash })
       .select('id, name, email')
       .single();
-    if (error) {
-      if (error.code === '23505') throw Object.assign(new Error('duplicate'), { status: 400 });
-      throw new Error(error.message);
-    }
-    return data;
+    iif (error) {
+  if (error.code === '23505') {
+    const field = (error.message || '').includes('users_name_lower_idx') ? 'username' : 'email';
+    throw Object.assign(new Error('duplicate'), { status: 400, field });
+  }
+  throw new Error(error.message);
+}
   }
   const users = loadUsers();
   const user = { id: Date.now().toString(), name, email, hash, createdAt: new Date().toISOString() };
@@ -120,7 +122,8 @@ app.post('/api/signup', async (req, res) => {
     res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
   } catch (e) {
     if (e.status === 400 && e.message === 'duplicate') {
-      return res.status(400).json({ error: 'That email is already registered. Try logging in.' });
+  return res.status(400).json({ error: `That ${e.field} has already been taken.` });
+}
     }
     console.error(e);
     res.status(500).json({ error: 'Server error: ' + e.message });
