@@ -65,7 +65,7 @@ async function createUser({ name, email, hash }) {
       .insert({ name, email, hash })
       .select('id, name, email')
       .single();
-    iif (error) {
+    if (error) {
   if (error.code === '23505') {
     const field = (error.message || '').includes('users_name_lower_idx') ? 'username' : 'email';
     throw Object.assign(new Error('duplicate'), { status: 400, field });
