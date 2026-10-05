@@ -39,10 +39,23 @@ function saveUsers(users) {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 }
 
+// Escape % _ \ so ilike treats them as plain characters
+function escapeLike(s) {
+  return s.replace(/[\\%_]/g, '\\$&');
+}
+
 async function findByEmail(email) {
-  async function findByName(name) {
   if (supabase) {
-    const { data, error } = await supabase.from('users').select('id').ilike('name', name).limit(1);
+    const { data, error } = await supabase.from('users').select('*').ilike('email', escapeLike(email)).limit(1);
+    if (error) throw new Error(error.message);
+    return data[0] || null;
+  }
+  return loadUsers().find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
+}
+
+async function findByName(name) {
+  if (supabase) {
+    const { data, error } = await supabase.from('users').select('id').ilike('name', escapeLike(name)).limit(1);
     if (error) throw new Error(error.message);
     return data[0] || null;
   }
@@ -66,12 +79,13 @@ async function createUser({ name, email, hash }) {
       .select('id, name, email')
       .single();
     if (error) {
-  if (error.code === '23505') {
-    const field = (error.message || '').includes('users_name_lower_idx') ? 'username' : 'email';
-    throw Object.assign(new Error('duplicate'), { status: 400, field });
-  }
-  throw new Error(error.message);
-}
+      if (error.code === '23505') {
+        const field = (error.message || '').includes('users_name_lower_idx') ? 'username' : 'email';
+        throw Object.assign(new Error('duplicate'), { status: 400, field });
+      }
+      throw new Error(error.message);
+    }
+    return data;
   }
   const users = loadUsers();
   const user = { id: Date.now().toString(), name, email, hash, createdAt: new Date().toISOString() };
@@ -100,8 +114,9 @@ function auth(req, res, next) {
 app.post('/api/signup', async (req, res) => {
   try {
     let { name = '', email = '', password = '' } = req.body;
-    name = name.trim();
-    email = email.trim();
+    name = String(name).trim();
+    email = String(email).trim();
+    password = String(password);
 
     if (!name) return res.status(400).json({ error: 'Username is required.' });
     if (!email || !password) return res.status(400).json({ error: 'Email and password are required.' });
@@ -116,14 +131,12 @@ app.post('/api/signup', async (req, res) => {
 
     const hash = await bcrypt.hash(password, 10);
     const user = await createUser({ name, email, hash });
-    // ...rest unchanged
 
     const token = signToken(user);
     res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
   } catch (e) {
     if (e.status === 400 && e.message === 'duplicate') {
-  return res.status(400).json({ error: `That ${e.field} has already been taken.` });
-}
+      return res.status(400).json({ error: `That ${e.field} has already been taken.` });
     }
     console.error(e);
     res.status(500).json({ error: 'Server error: ' + e.message });
@@ -134,7 +147,7 @@ app.post('/api/signup', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   try {
     const { email = '', password = '' } = req.body;
-    const user = await findByEmail(email);
+    const user = await findByEmail(String(email).trim());
     if (!user) return res.status(400).json({ error: 'No account found for that email.' });
 
     const ok = await bcrypt.compare(password, user.hash);
