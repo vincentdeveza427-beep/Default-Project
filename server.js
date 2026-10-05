@@ -40,12 +40,13 @@ function saveUsers(users) {
 }
 
 async function findByEmail(email) {
+  async function findByName(name) {
   if (supabase) {
-    const { data, error } = await supabase.from('users').select('*').ilike('email', email).limit(1);
+    const { data, error } = await supabase.from('users').select('id').ilike('name', name).limit(1);
     if (error) throw new Error(error.message);
     return data[0] || null;
   }
-  return loadUsers().find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
+  return loadUsers().find(u => (u.name || '').toLowerCase() === name.toLowerCase()) || null;
 }
 
 async function findById(id) {
@@ -96,16 +97,24 @@ function auth(req, res, next) {
 // Sign up
 app.post('/api/signup', async (req, res) => {
   try {
-    const { name = '', email = '', password = '' } = req.body;
+    let { name = '', email = '', password = '' } = req.body;
+    name = name.trim();
+    email = email.trim();
+
+    if (!name) return res.status(400).json({ error: 'Username is required.' });
     if (!email || !password) return res.status(400).json({ error: 'Email and password are required.' });
     if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters.' });
 
+    if (await findByName(name)) {
+      return res.status(400).json({ error: 'That username has already been taken.' });
+    }
     if (await findByEmail(email)) {
-      return res.status(400).json({ error: 'That email is already registered. Try logging in.' });
+      return res.status(400).json({ error: 'That email has already been taken. Try logging in.' });
     }
 
     const hash = await bcrypt.hash(password, 10);
     const user = await createUser({ name, email, hash });
+    // ...rest unchanged
 
     const token = signToken(user);
     res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
