@@ -97,6 +97,19 @@ body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:va
   var KEY = 'sd_timed_' + setFile;
   var frame = document.getElementById('frame');
   var attempt = null, timer = null, frameReady = false, pendingSubmit = false, crossOrigin = false;
+  
+  function saveResult(){
+  var token = localStorage.getItem('sd_token'); if(!token) return;
+  var w = win(); if(!w) return;
+  var r;
+  try{ r = JSON.parse(w.eval('(function(){var s=0,u=0;QUESTIONS.forEach(function(q,i){if(userAnswers[i]===null)u++;else if(userAnswers[i]===q[2])s++;});return JSON.stringify({s:s,u:u,t:QUESTIONS.length});})()')); }catch(e){ return; }
+  var d = new Date();
+  var day = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  fetch('/api/activity', { method:'POST', keepalive:true,
+    headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token },
+    body: JSON.stringify({ mode:'exam', set:letter, score:r.s, total:r.t, unanswered:r.u,
+      durationSec: Math.round((Math.min(Date.now(), attempt.end) - attempt.start)/1000), day:day }) }).catch(function(){});
+}
 
   function $(id){ return document.getElementById(id); }
   function show(id){ $(id).classList.remove('hidden'); }
@@ -221,7 +234,7 @@ body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:va
 
   function finish(reason){
     if(attempt.finished) return;
-    attempt.finished = true; attempt.reason = reason; writeAttempt();
+    attempt.finished = true; attempt.reason = reason; writeAttempt();saveResult();
     clearInterval(timer);
     $('clock').className = 'done';
     if(reason === 'time'){

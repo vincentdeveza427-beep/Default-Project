@@ -205,9 +205,11 @@ submitBtn.onclick = async () => {
   } catch { authErr.textContent = 'Cannot reach server. Run "npm start" first.'; }
 };
 function renderUser(u) {
-  topbar.innerHTML = '<span class="user">' + (u.name || u.email) + '</span><button id="logoutBtn">Log out</button>';
+  topbar.innerHTML = '<a class="user" href="progress.html" style="text-decoration:none">My Progress</a><span class="user" id="userName"></span><button id="logoutBtn">Log out</button>';
+  document.getElementById('userName').textContent = u.name || u.email;
   document.getElementById('logoutBtn').onclick = () => { localStorage.removeItem('sd_token'); location.reload(); };
 }
+
 (async () => {
   const token = localStorage.getItem('sd_token');
   if (!token) return;
