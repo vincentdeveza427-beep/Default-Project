@@ -39,6 +39,9 @@ function saveUsers(users) {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 }
 
+// Basic email format: something@something.tld (no spaces)
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 // Escape % _ \ so ilike treats them as plain characters
 function escapeLike(s) {
   return s.replace(/[\\%_]/g, '\\$&');
@@ -120,6 +123,7 @@ app.post('/api/signup', async (req, res) => {
 
     if (!name) return res.status(400).json({ error: 'Username is required.' });
     if (!email || !password) return res.status(400).json({ error: 'Email and password are required.' });
+    if (!EMAIL_RE.test(email) || email.length > 254) return res.status(400).json({ error: 'Please enter a valid email address.' });
     if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters.' });
 
     if (await findByName(name)) {
