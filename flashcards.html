@@ -264,7 +264,7 @@ function flush(){
 }
 document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'hidden') flush(); });
 
-  function extract(html){
+    function extract(html){
     var m = html.match(/const QUESTIONS\s*=\s*(\[[\s\S]*?\]);\s*\n\s*const letters/);
     if(!m) m = html.match(/const QUESTIONS\s*=\s*(\[[\s\S]*\]);/);
     if(!m) return null;
