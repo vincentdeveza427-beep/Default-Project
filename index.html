@@ -33,8 +33,11 @@
   .modal input{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;margin:6px 0;font-size:14px}
   .modal .row{display:flex;gap:8px;margin-top:12px}
   .modal .err{color:#dc2626;font-size:13px;min-height:18px;margin-top:6px}
+  .modal .ok{color:#16a34a;font-size:13px;min-height:18px;margin-top:6px}
+  .modal .link{font-size:13px;color:#2563eb;cursor:pointer;font-weight:600;background:none;border:0;padding:4px 0;margin-top:4px;display:inline-block}
   .btn{flex:1;padding:10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;font-weight:700;cursor:pointer}
   .btn.primary{background:#2563eb;color:#fff;border-color:#2563eb}
+  .btn:disabled{opacity:.6;cursor:wait}
   .hidden{display:none !important}
   .mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
   .mode-card{display:flex;flex-direction:column;gap:10px;text-align:left;font:inherit;color:inherit;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:26px;cursor:pointer;transition:.18s}
@@ -99,10 +102,14 @@
   <div class="modal">
     <h3 id="modalTitle">Sign up</h3>
     <p id="modalSub">Create an account to track your drills.</p>
-    <input id="nameField" placeholder="Username" />
-    <input id="emailField" type="email" placeholder="Email" />
+    <input id="nameField" placeholder="Username" autocomplete="username" />
+    <input id="emailField" type="email" placeholder="Email" autocomplete="email" />
+    <input id="codeField" placeholder="6-digit code from your email" inputmode="numeric" maxlength="6" autocomplete="one-time-code" />
     <input id="passField" type="password" placeholder="Password (min 6 chars)" />
+    <button class="link" id="forgotLink" type="button">Forgot password?</button>
+    <button class="link" id="backLink" type="button">&larr; Back to log in</button>
     <div class="err" id="authErr"></div>
+    <div class="ok" id="authOk"></div>
     <div class="row">
       <button class="btn" id="cancelBtn">Cancel</button>
       <button class="btn primary" id="submitBtn">Sign up</button>
@@ -168,48 +175,85 @@ window.addEventListener('popstate', syncFromHash);
 syncFromHash();
 
 // --- Auth (talks to backend in server.js) ---
-let mode = 'signup';
-const modalBg = document.getElementById('modalBg');
-const modalTitle = document.getElementById('modalTitle');
-const submitBtn = document.getElementById('submitBtn');
-const authErr = document.getElementById('authErr');
-const topbar = document.getElementById('topbar');
-function openModal(m) {
+let mode = 'signup';   // signup | login | forgot | reset
+const $ = id => document.getElementById(id);
+const modalBg = $('modalBg');
+const submitBtn = $('submitBtn');
+const authErr = $('authErr');
+const authOk = $('authOk');
+const topbar = $('topbar');
+
+const MODE_TEXT = {
+  signup: ['Sign up', 'Create an account to track your drills.', 'Sign up'],
+  login:  ['Log in', 'Welcome back.', 'Log in'],
+  forgot: ['Forgot password', 'Enter your account email and we will send you a 6-digit code.', 'Send code'],
+  reset:  ['Reset password', 'Enter the code we emailed you and choose a new password.', 'Reset password']
+};
+function openModal(m, notice) {
   mode = m;
-  modalTitle.textContent = m === 'signup' ? 'Sign up' : 'Log in';
-  submitBtn.textContent = m === 'signup' ? 'Sign up' : 'Log in';
-  document.getElementById('nameField').style.display = m === 'signup' ? 'block' : 'none';
+  const t = MODE_TEXT[m];
+  $('modalTitle').textContent = t[0];
+  $('modalSub').textContent = t[1];
+  submitBtn.textContent = t[2];
+  $('nameField').classList.toggle('hidden', m !== 'signup');
+  $('codeField').classList.toggle('hidden', m !== 'reset');
+  $('passField').classList.toggle('hidden', m === 'forgot');
+  $('passField').placeholder = m === 'reset' ? 'New password (min 6 chars)' : 'Password (min 6 chars)';
+  $('passField').autocomplete = m === 'login' ? 'current-password' : 'new-password';
+  $('forgotLink').classList.toggle('hidden', m !== 'login');
+  $('backLink').classList.toggle('hidden', m !== 'forgot' && m !== 'reset');
+  $('passField').value = '';
+  $('codeField').value = '';
   authErr.textContent = '';
+  authOk.textContent = notice || '';
   modalBg.classList.add('open');
 }
-document.getElementById('signupBtn').onclick = () => openModal('signup');
-document.getElementById('loginBtn').onclick = () => openModal('login');
-document.getElementById('cancelBtn').onclick = () => modalBg.classList.remove('open');
+$('signupBtn').onclick = () => openModal('signup');
+$('loginBtn').onclick = () => openModal('login');
+$('forgotLink').onclick = () => openModal('forgot');
+$('backLink').onclick = () => openModal('login');
+$('cancelBtn').onclick = () => modalBg.classList.remove('open');
 modalBg.addEventListener('click', e => { if (e.target === modalBg) modalBg.classList.remove('open'); });
-submitBtn.onclick = async () => {
-  authErr.textContent = '';
-  const body = {
-    name: document.getElementById('nameField').value,
-    email: document.getElementById('emailField').value.trim(),
-    password: document.getElementById('passField').value
-  };
-  try {
-    const r = await fetch('/api/' + (mode === 'signup' ? 'signup' : 'login'), {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
-    });
-    const data = await r.json();
-    if (!r.ok) { authErr.textContent = data.error || 'Something went wrong.'; return; }
-    localStorage.setItem('sd_token', data.token);
-    modalBg.classList.remove('open');
-    renderUser(data.user);
-  } catch { authErr.textContent = 'Cannot reach server. Run "npm start" first.'; }
-};
-function renderUser(u) {
-  topbar.innerHTML = '<a class="user" href="progress.html" style="text-decoration:none">My Progress</a><span class="user" id="userName"></span><button id="logoutBtn">Log out</button>';
-  document.getElementById('userName').textContent = u.name || u.email;
-  document.getElementById('logoutBtn').onclick = () => { localStorage.removeItem('sd_token'); location.reload(); };
+
+async function post(url, body) {
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  let data = {};
+  try { data = await r.json(); } catch {}
+  return { ok: r.ok, data };
 }
 
+submitBtn.onclick = async () => {
+  authErr.textContent = '';
+  authOk.textContent = '';
+  const email = $('emailField').value.trim();
+  submitBtn.disabled = true;
+  try {
+    if (mode === 'signup' || mode === 'login') {
+      const { ok, data } = await post('/api/' + mode, {
+        name: $('nameField').value, email, password: $('passField').value
+      });
+      if (!ok) { authErr.textContent = data.error || 'Something went wrong.'; return; }
+      localStorage.setItem('sd_token', data.token);
+      modalBg.classList.remove('open');
+      renderUser(data.user);
+    } else if (mode === 'forgot') {
+      const { ok, data } = await post('/api/forgot', { email });
+      if (!ok) { authErr.textContent = data.error || 'Something went wrong.'; return; }
+      openModal('reset', data.message + ' Check your spam folder too.');
+    } else if (mode === 'reset') {
+      const { ok, data } = await post('/api/reset', { email, code: $('codeField').value.trim(), password: $('passField').value });
+      if (!ok) { authErr.textContent = data.error || 'Something went wrong.'; return; }
+      openModal('login', data.message);
+    }
+  } catch { authErr.textContent = 'Cannot reach the server. Please try again.'; }
+  finally { submitBtn.disabled = false; }
+};
+
+function renderUser(u) {
+  topbar.innerHTML = '<a class="user" href="progress.html" style="text-decoration:none">My Progress</a><span class="user" id="userName"></span><button id="logoutBtn">Log out</button>';
+  document.getElementById('userName').textContent = u.name || u.email;   // textContent: safe against HTML in usernames
+  document.getElementById('logoutBtn').onclick = () => { localStorage.removeItem('sd_token'); location.reload(); };
+}
 (async () => {
   const token = localStorage.getItem('sd_token');
   if (!token) return;
