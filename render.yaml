@@ -11,6 +11,9 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_KEY
         sync: false
+      # Teacher accounts: comma-separated emails that get the admin dashboard (admin.html).
+      - key: ADMIN_EMAILS
+        sync: false
       # Password-reset email. Use EITHER Brevo (works on Render free) OR Gmail (needs a paid Render plan).
       - key: BREVO_API_KEY
         sync: false

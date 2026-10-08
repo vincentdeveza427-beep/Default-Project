@@ -14,6 +14,8 @@
 .hud .pill b{color:var(--accent)}
 .hud .combo{border-color:var(--amber);color:var(--amber);transition:transform .2s}
 .hud .combo.bump{transform:scale(1.18)}
+.pill.ok{color:var(--good);border-color:rgba(52,211,153,.5)}
+.pill.warn{color:var(--amber);border-color:rgba(255,200,87,.5)}
 .counts{display:flex;justify-content:center;gap:18px;font-weight:800;font-size:.92rem;margin:4px 0 10px}
 .counts .n{color:var(--accent2)} .counts .l{color:var(--bad)} .counts .d{color:var(--good)}
 .bar{height:8px;background:#0a1830;border-radius:99px;overflow:hidden;border:1px solid var(--line)}
@@ -59,13 +61,14 @@
 </div></header>
 
 <div class="wrap">
-  <div class="head"><h1 id="title">Flashcards</h1><p>Spaced repetition (Anki-style). Every review earns XP when you are logged in.</p></div>
+  <div class="head"><h1 id="title">Flashcards</h1><p>Spaced repetition (Anki-style). Log in to earn XP and keep your progress on every device.</p></div>
   <div id="loading" class="msg">Loading cards...</div>
   <div id="error" class="msg hidden"><b id="errTitle">Could not load this drill.</b><br><span id="errDetail"></span><br><br><a href="index.html">Back to home</a></div>
   <div id="app" class="hidden">
     <div class="hud">
       <span class="pill">Session <b id="sXp">+0 XP</b></span>
       <span class="pill">Reviewed <b id="sRev">0</b></span>
+      <span class="pill hidden" id="syncPill"></span>
       <span class="pill combo hidden" id="combo">🔥 x0</span>
     </div>
     <div class="counts" id="counts"></div>
@@ -113,7 +116,10 @@
   var setFile = params.get('set') || '';
   var valid = /^science-drill-\d+\.html$/.test(setFile);
   var letters = ['A','B','C','D'];
-  var KEY = 'sd_anki_' + setFile;
+  // Progress is stored per account on this device AND synced to the server when logged in.
+  var uid = window.SD ? SD.uid() : null;
+  var OLD_KEY = 'sd_anki_' + setFile;
+  var KEY = uid ? 'sd_anki_' + uid + '_' + setFile : OLD_KEY;
   function $(id){ return document.getElementById(id); }
   function fail(why){
     $('loading').classList.add('hidden'); $('error').classList.remove('hidden');
@@ -135,6 +141,7 @@
   var CFG = { steps: [1, 10], lapseSteps: [10], gradIvl: 1, startEase: 2.5, minEase: 1.3, hardMult: 1.2, ivlMod: 1.0,
               newIvlPct: 0, minIvl: 1, maxIvl: 36500, learnAhead: 20, rollover: 4 };
   // card.s: 0 new, 1 learning, 2 review, 3 relearning.  card.due: ms timestamp (learning) or day number (review)
+  // card.t: ms timestamp of the last review (used to merge progress from different devices)
 
   function now(){ return Date.now(); }
   function today(){
@@ -142,7 +149,7 @@
     var local = n.getTime() - n.getTimezoneOffset() * 60000;
     return Math.floor((local - CFG.rollover * 3600000) / 86400000);
   }
-  function newCard(){ return { s: 0, step: 0, due: 0, ivl: 0, ease: CFG.startEase, lapses: 0, reps: 0 }; }
+  function newCard(stamp){ return { s: 0, step: 0, due: 0, ivl: 0, ease: CFG.startEase, lapses: 0, reps: 0, t: stamp || 0 }; }
 
   function fuzzed(ivl){
     var lo, hi;
@@ -222,18 +229,88 @@
   var Q = [], S = null, cur = -1, last = -1, flipped = false;
   var sessionXp = 0, sessionRev = 0, combo = 0;
 
-  function freshState(limit){
-    var cards = []; for(var i = 0; i < Q.length; i++) cards.push(newCard());
-    return { cards: cards, day: today(), newToday: 0, newLimit: limit || 20 };
+  function freshState(limit, stamp){
+    var cards = []; for(var i = 0; i < Q.length; i++) cards.push(newCard(stamp));
+    return { cards: cards, day: today(), newToday: 0, newLimit: limit || 20, saved: now() };
   }
   function loadState(){
-    var st = null;
-    try{ st = JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+    var st = null, raw = null;
+    try{
+      raw = localStorage.getItem(KEY);
+      // one-time move of progress saved before accounts were tracked per user
+      if(raw === null && uid){
+        var old = localStorage.getItem(OLD_KEY);
+        if(old !== null){ raw = old; localStorage.setItem(KEY, old); localStorage.removeItem(OLD_KEY); }
+      }
+      st = JSON.parse(raw);
+    }catch(e){}
     if(!st || !st.cards || st.cards.length !== Q.length){ st = freshState(st && st.newLimit); }
     if(st.day !== today()){ st.day = today(); st.newToday = 0; }
     S = st;
   }
-  function saveState(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+  function saveLocal(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+  function saveState(){ S.saved = now(); saveLocal(); schedulePush(); }
+
+  // ---------- cloud sync of the card state (only when logged in) ----------
+  var syncT = null, dirty = false;
+  function setSync(txt, cls){
+    var p = $('syncPill');
+    if(!uid){ p.classList.add('hidden'); return; }
+    p.className = 'pill ' + (cls || ''); p.textContent = txt;
+  }
+  function authHdr(){ return { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('sd_token') }; }
+
+  // For every card keep whichever copy was reviewed most recently (this device or the server).
+  function mergeStates(a, b){
+    if(!b || !Array.isArray(b.cards) || b.cards.length !== a.cards.length) return a;
+    var out = { cards: [], day: today(), newToday: 0, newLimit: a.newLimit, saved: Math.max(a.saved || 0, b.saved || 0) };
+    for(var i = 0; i < a.cards.length; i++){
+      var ca = a.cards[i], cb = b.cards[i], ta = ca.t || 0, tb = cb.t || 0;
+      var useB = tb > ta || (tb === ta && ((cb.reps || 0) > (ca.reps || 0) || ((cb.reps || 0) === (ca.reps || 0) && cb.s > ca.s)));
+      out.cards.push(useB ? cb : ca);
+    }
+    if((b.saved || 0) > (a.saved || 0) && b.newLimit) out.newLimit = b.newLimit;
+    var an = a.day === today() ? a.newToday : 0, bn = b.day === today() ? b.newToday : 0;
+    out.newToday = Math.max(an, bn);
+    return out;
+  }
+
+  function pull(){
+    if(!uid) return Promise.resolve();
+    setSync('☁ Syncing...', 'warn');
+    var ctl = window.AbortController ? new AbortController() : null;
+    var to = setTimeout(function(){ if(ctl) ctl.abort(); }, 6000);
+    return fetch('/api/sync/' + setLetter, { headers: authHdr(), signal: ctl ? ctl.signal : undefined })
+      .then(function(r){
+        if(r.status === 401){ setSync('☁ Log in again to sync', 'warn'); return 'auth'; }
+        if(!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      })
+      .then(function(d){
+        if(d === 'auth') return;
+        if(d && d.state){ S = mergeStates(S, d.state); saveLocal(); }
+        return push();
+      })
+      .catch(function(){ setSync('☁ Offline - saved on this device', 'warn'); })
+      .then(function(){ clearTimeout(to); });
+  }
+  function push(keep){
+    if(!uid || !S) return Promise.resolve();
+    return fetch('/api/sync/' + setLetter, { method: 'PUT', keepalive: !!keep, headers: authHdr(), body: JSON.stringify({ state: S }) })
+      .then(function(r){
+        if(r.status === 401){ setSync('☁ Log in again to sync', 'warn'); return; }
+        if(!r.ok) throw new Error('http ' + r.status);
+        dirty = false; setSync('☁ Synced', 'ok');
+      })
+      .catch(function(){ dirty = true; setSync('☁ Offline - will retry', 'warn'); });
+  }
+  function schedulePush(){
+    if(!uid) return;
+    dirty = true; clearTimeout(syncT);
+    syncT = setTimeout(function(){ push(); }, 3000);
+  }
+  window.addEventListener('online', function(){ if(dirty) push(); });
+  setInterval(function(){ if(dirty && uid) push(); }, 30000);
 
   // ---------- sync with account (debounced) ----------
   var pend = { reviews:0, again:0, hard:0, good:0 }, sendT = null;
@@ -258,7 +335,9 @@
       headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token }, body: JSON.stringify(body) })
       .then(function(){ return window.SD ? SD.check() : null; }).then(hud).catch(function(){});
   }
-  document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'hidden') flush(); });
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'hidden'){ flush(); if(dirty) push(true); }
+  });
 
     function extract(html){
     var m = html.match(/const QUESTIONS\s*=\s*(\[[\s\S]*?\]);\s*\n\s*const letters/);
@@ -384,6 +463,7 @@
     var c0 = S.cards[cur];
     if(c0.s === 0) S.newToday++;
     var nc = rate(c0, r, true);
+    nc.t = now();
     var learned = c0.reps === 0 && nc.s === 2;      // first time this card graduates
     S.cards[cur] = nc;
     saveState();
@@ -398,8 +478,7 @@
     render();
   }
 
-  function start(){
-    loadState();
+  function begin(){
     cur = pickNext();
     resetFlip();
     render();
@@ -408,9 +487,12 @@
   fetch(setFile).then(function(r){ if(!r.ok) throw 'missing'; return r.text(); }).then(function(html){
     Q = extract(html);
     if(!Q || !Q.length) throw 'parse';
-    $('loading').classList.add('hidden');
-    $('app').classList.remove('hidden');
-    start();
+    loadState();
+    return pull().then(function(){
+      $('loading').classList.add('hidden');
+      $('app').classList.remove('hidden');
+      begin();
+    });
   }).catch(function(e){ fail(typeof e === 'string' ? e : 'missing'); });
 
   if(window.SD && SD.token()) SD.check().then(hud);
@@ -426,8 +508,11 @@
     render();
   };
   $('resetBtn').onclick = function(){
-    if(!confirm('Erase all spaced-repetition progress for this set?')) return;
-    S = freshState(S.newLimit); saveState(); last = -1; combo = 0; cur = pickNext(); resetFlip(); render();
+    if(!confirm('Erase all spaced-repetition progress for this set? This also clears it on your other devices.')) return;
+    // cards get a fresh timestamp so the reset wins over older copies on other devices
+    S = freshState(S.newLimit, now()); saveLocal();
+    clearTimeout(syncT); dirty = true; push();
+    last = -1; combo = 0; cur = pickNext(); resetFlip(); render();
   };
   document.addEventListener('keydown', function(e){
     if(!S || e.target.tagName === 'SELECT') return;
@@ -440,7 +525,7 @@
     if(S && cur < 0){ var nx = pickNext(); if(nx >= 0){ cur = nx; resetFlip(); render(); } else { render(); } }
   }, 15000);
 
-  window.__anki = { rate: rate, CFG: CFG, state: function(){ return S; }, cur: function(){ return cur; } };
+  window.__anki = { rate: rate, CFG: CFG, state: function(){ return S; }, cur: function(){ return cur; }, merge: mergeStates };
 })();
 </script>
 </body>

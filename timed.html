@@ -7,12 +7,14 @@
 <link rel="stylesheet" href="theme.css">
 <style>
 html,body{height:100%}
-#intro,#ended,#bad{max-width:580px;margin:7vh auto;padding:0 16px}
+#intro,#ended,#bad,#needLogin{max-width:580px;margin:7vh auto;padding:0 16px}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px}
 .panel h1{margin:0 0 6px;font-size:1.6rem;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .panel p{color:var(--muted);line-height:1.55;margin:8px 0}
 .panel ul{color:var(--muted);line-height:1.65;padding-left:20px;margin:10px 0 16px;font-size:.92rem}
-.panel label{display:block;font-weight:700;font-size:.88rem;color:var(--muted);margin:14px 0 6px}
+.who{display:flex;align-items:center;gap:10px;background:#0c1a30;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:14px 0 4px;font-size:.92rem}
+.who span{color:var(--muted)}
+.who b{color:var(--text)}
 .reward{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 4px}
 .err{color:var(--bad);font-size:.85rem;min-height:1.2em;margin-top:6px}
 .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
@@ -38,6 +40,12 @@ html,body{height:100%}
   <div class="row"><a class="btn" href="index.html">Back to home</a></div>
 </div></div>
 
+<div id="needLogin" class="hidden"><div class="panel">
+  <h1 id="nlTitle">Log in required</h1>
+  <p id="nlText">Timed exams are saved to your account so your teacher can see your result. Please log in (or sign up) on the home page first, then come back and start the exam.</p>
+  <div class="row"><a class="btn" href="index.html">Go to home page</a></div>
+</div></div>
+
 <div id="intro" class="hidden"><div class="panel">
   <h1 id="introTitle">Timed Mode</h1>
   <p>You have <b style="color:var(--text)">3 hours</b> to finish this drill.</p>
@@ -48,10 +56,9 @@ html,body{height:100%}
     <li>You can submit early. The timer stops once your submission goes through.</li>
     <li>The timer keeps running even if you close or refresh this page.</li>
     <li>"Reveal All Answers" is turned off in timed mode.</li>
-    <li>Log in on the home page first so your score earns XP and badges.</li>
+    <li>Your result is saved to your account automatically.</li>
   </ul>
-  <label for="nameIn">Name / Student ID</label>
-  <input id="nameIn" class="field" type="text" placeholder="e.g. Juan Dela Cruz" autocomplete="off">
+  <div class="who"><span>Taking this exam as</span><b id="who"></b></div>
   <div class="err" id="introErr"></div>
   <div class="row">
     <button class="btn" id="startBtn">Start 3-hour timer</button>
@@ -87,24 +94,9 @@ html,body{height:100%}
   var valid = /^science-drill-\d+\.html$/.test(setFile);
   var num = valid ? parseInt(setFile.match(/\d+/)[0], 10) : 0;
   var letter = valid ? String.fromCharCode(64 + num) : '';
-  var KEY = 'sd_timed_' + setFile;
+  var KEY = null, PENDING_KEY = null, user = null;
   var frame = document.getElementById('frame');
   var attempt = null, timer = null, frameReady = false, pendingSubmit = false, crossOrigin = false;
-
-  function saveResult(){
-    var token = localStorage.getItem('sd_token'); if(!token) return;
-    var w = win(); if(!w) return;
-    var r;
-    try{ r = JSON.parse(w.eval('(function(){var s=0,u=0;QUESTIONS.forEach(function(q,i){if(userAnswers[i]===null)u++;else if(userAnswers[i]===q[2])s++;});return JSON.stringify({s:s,u:u,t:QUESTIONS.length});})()')); }catch(e){ return; }
-    var d = new Date();
-    var day = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    fetch('/api/activity', { method:'POST', keepalive:true,
-      headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token },
-      body: JSON.stringify({ mode:'exam', set:letter, score:r.s, total:r.t, unanswered:r.u,
-        durationSec: Math.round((Math.min(Date.now(), attempt.end) - attempt.start)/1000), day:day }) })
-      .then(function(){ if(window.SD) SD.check({ xp:true }); })      // announces XP, level-ups and new badges
-      .catch(function(){});
-  }
 
   function $(id){ return document.getElementById(id); }
   function show(id){ $(id).classList.remove('hidden'); }
@@ -117,20 +109,74 @@ html,body{height:100%}
     return h + ':' + (m < 10 ? '0' : '') + m + ':' + (x < 10 ? '0' : '') + x;
   }
   function win(){ try{ var w = frame.contentWindow; void w.document.body; return w; }catch(e){ return null; } }
+  function blocked(title, text){ $('nlTitle').textContent = title; $('nlText').textContent = text; show('needLogin'); }
+  function displayName(){ return (user && (user.name || user.email)) || ''; }
+
+  // ---------- saving results (with a retry queue if the network fails) ----------
+  function postResult(body){
+    var token = SD.token();
+    if(!token) return Promise.reject(new Error('no token'));
+    return fetch('/api/activity', { method:'POST', keepalive:true,
+      headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token }, body: JSON.stringify(body) })
+      .then(function(r){ if(!r.ok && r.status !== 400) throw new Error('http ' + r.status); });
+  }
+  function readQueue(){ try{ return JSON.parse(localStorage.getItem(PENDING_KEY)) || []; }catch(e){ return []; } }
+  function writeQueue(q){ try{ if(q.length) localStorage.setItem(PENDING_KEY, JSON.stringify(q)); else localStorage.removeItem(PENDING_KEY); }catch(e){} }
+  function stash(body){ var q = readQueue(); q.push(body); writeQueue(q); }
+  function flushPending(){
+    var q = readQueue(); if(!q.length) return;
+    var left = [];
+    q.reduce(function(p, body){
+      return p.then(function(){ return postResult(body); }).catch(function(){ left.push(body); });
+    }, Promise.resolve()).then(function(){ writeQueue(left); if(left.length < q.length && window.SD) SD.check({ xp:true }); });
+  }
+
+  function saveResult(){
+    var w = win(); if(!w) return;
+    var r;
+    try{ r = JSON.parse(w.eval('(function(){var s=0,u=0;QUESTIONS.forEach(function(q,i){if(userAnswers[i]===null)u++;else if(userAnswers[i]===q[2])s++;});return JSON.stringify({s:s,u:u,t:QUESTIONS.length});})()')); }catch(e){ return; }
+    var d = new Date();
+    var day = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    var body = { mode:'exam', set:letter, score:r.s, total:r.t, unanswered:r.u,
+      durationSec: Math.round((Math.min(Date.now(), attempt.end) - attempt.start)/1000), day:day };
+    postResult(body)
+      .then(function(){ if(window.SD) SD.check({ xp:true }); })     // announces XP, level-ups and new badges
+      .catch(function(){ stash(body); });
+  }
 
   if(!valid){ show('bad'); return; }
   $('introTitle').textContent = 'Timed Mode - Set ' + letter;
   $('setLabel').textContent = 'Set ' + letter;
   document.title = 'Timed Mode - Set ' + letter;
 
-  attempt = readAttempt();
-  if(attempt && attempt.finished){
-    $('endedMsg').textContent = 'You already finished a timed attempt for Set ' + letter + (attempt.name ? ' as ' + attempt.name : '') + '. You can start a new attempt if your teacher allows it.';
-    show('ended');
-  } else if(attempt && attempt.end){
-    startSession();
-  } else {
-    show('intro');
+  // ---------- login is required ----------
+  if(!SD.token()){ blocked('Log in required', 'Timed exams are saved to your account so your teacher can see your result. Please log in (or sign up) on the home page first, then come back and start the exam.'); return; }
+  fetch('/api/me', { headers:{ Authorization:'Bearer ' + SD.token() } })
+    .then(function(r){
+      if(r.status === 401 || r.status === 404){ try{ localStorage.removeItem('sd_token'); }catch(e){} return null; }
+      if(!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    })
+    .then(function(u){
+      if(!u){ blocked('Please log in again', 'Your session has expired. Log in on the home page, then come back to this exam.'); return; }
+      user = u; init();
+    })
+    .catch(function(){ blocked('Cannot reach the server', 'Check your internet connection and reload this page. You must be online to start or resume a timed exam.'); });
+
+  function init(){
+    KEY = 'sd_timed_' + setFile + '_' + user.id;
+    PENDING_KEY = 'sd_pending_' + user.id;
+    $('who').textContent = displayName();
+    flushPending();
+    attempt = readAttempt();
+    if(attempt && attempt.finished){
+      $('endedMsg').textContent = 'You already finished a timed attempt for Set ' + letter + ' as ' + displayName() + '. You can start a new attempt if your teacher allows it.';
+      show('ended');
+    } else if(attempt && attempt.end){
+      startSession();
+    } else {
+      show('intro');
+    }
   }
 
   $('newBtn').onclick = function(){
@@ -139,11 +185,9 @@ html,body{height:100%}
   };
 
   $('startBtn').onclick = function(){
-    var name = $('nameIn').value.trim();
-    if(!name){ $('introErr').textContent = 'Please enter your name / student ID.'; $('nameIn').focus(); return; }
     try{ localStorage.removeItem('sciDrillProgress_' + letter); }catch(e){}
     var now = Date.now();
-    attempt = { name: name, start: now, end: now + TOTAL, finished: false };
+    attempt = { name: displayName(), uid: user.id, start: now, end: now + TOTAL, finished: false };
     writeAttempt();
     hide('intro');
     startSession();
@@ -157,7 +201,7 @@ html,body{height:100%}
     timer = setInterval(tick, 1000);
   }
 
-  var STYLE_OPEN = '#revealBtn{display:none !important;}';
+  var STYLE_OPEN = '#revealBtn{display:none !important;} #studentName{pointer-events:none;opacity:.8;}';
   var STYLE_LOCK = '.option{pointer-events:none !important;} #checkBtn,#resetBtn,#revealBtn,#startOverBtn{display:none !important;} #studentName{pointer-events:none;}';
 
   function addStyle(w, css, id){
@@ -174,9 +218,11 @@ html,body{height:100%}
     if(!w){ crossOrigin = true; return; }
     addStyle(w, STYLE_OPEN, 'sd-timed-open');
     try{
+      // the name always comes from the logged-in account, never typed by hand
       var inp = w.document.getElementById('studentName');
-      if(inp && !inp.value.trim()){
-        inp.value = attempt.name;
+      if(inp){
+        inp.value = attempt.name || displayName();
+        inp.readOnly = true;
         inp.dispatchEvent(new w.Event('input', { bubbles: true }));
       }
     }catch(e){}
@@ -218,7 +264,7 @@ html,body{height:100%}
           w.confirm = function(){ return true; };
           w.alert = function(){};
           var inp = w.document.getElementById('studentName');
-          if(inp && !inp.value.trim()){ inp.value = attempt.name; }
+          if(inp && !inp.value.trim()){ inp.value = attempt.name || displayName(); }
           w.checkAnswers();
         }
       }catch(e){}

@@ -13,6 +13,15 @@ const PORT = process.env.PORT || 3000;
 const SECRET = process.env.JWT_SECRET || 'change-this-secret-in-production';
 const USERS_FILE = path.join(__dirname, 'users.json');
 
+// Comma-separated emails that are always admins (teacher accounts), e.g. ADMIN_EMAILS=teacher@school.com
+const ADMIN_EMAILS = String(process.env.ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+function effectiveRole(u) {
+  if (u && u.role === 'admin') return 'admin';
+  if (u && u.email && ADMIN_EMAILS.includes(String(u.email).toLowerCase())) return 'admin';
+  return 'student';
+}
+function publicUser(u) { return { id: u.id, name: u.name, email: u.email, role: effectiveRole(u) }; }
+
 // Supabase (used when env vars are set, e.g. on Render).
 // Set SUPABASE_URL + SUPABASE_SERVICE_KEY in env. Locally without them,
 // the app falls back to users.json so it still works offline.
@@ -38,8 +47,8 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", 'data:'],
       fontSrc: ["'self'", 'data:'],
-      // drills post scores to your Google Apps Script web app
-      connectSrc: ["'self'", 'https://script.google.com', 'https://script.googleusercontent.com'],
+      // scores now go to this server (Supabase); Google Apps Script is no longer used
+      connectSrc: ["'self'"],
       frameSrc: ["'self'"],
       frameAncestors: ["'self'"],
       objectSrc: ["'none'"],
@@ -72,6 +81,10 @@ const forgotLimiter = rateLimit({ ...baseLimit, windowMs: 15 * 60 * 1000, limit:
   message: limitMsg('Too many reset requests. Please wait 15 minutes and try again.') });
 const resetLimiter = rateLimit({ ...baseLimit, windowMs: 15 * 60 * 1000, limit: 10,
   message: limitMsg('Too many attempts. Please wait 15 minutes and try again.') });
+// Flashcard sync is limited per logged-in user (a whole class may share one school IP).
+const syncLimiter = rateLimit({ ...baseLimit, windowMs: 60 * 1000, limit: 120,
+  keyGenerator: (req) => 'u:' + (req.user && req.user.id),
+  message: limitMsg('Syncing too fast. Please wait a moment.') });
 
 // ---- storage layer (Supabase or local file) ----
 function loadUsers() {
@@ -138,10 +151,29 @@ async function createUser({ name, email, hash }) {
     return data;
   }
   const users = loadUsers();
-  const user = { id: Date.now().toString(), name, email, hash, createdAt: new Date().toISOString() };
+  const user = { id: Date.now().toString(), name, email, hash, role: 'student', createdAt: new Date().toISOString() };
   users.push(user);
   saveUsers(users);
   return { id: user.id, name: user.name, email: user.email };
+}
+
+// Pages through Supabase results (hosted projects usually cap a single response at 1000 rows).
+async function fetchAllRows(build) {
+  const out = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await build(from, from + 999);
+    if (error) throw new Error(error.message);
+    out.push(...data);
+    if (data.length < 1000) break;
+  }
+  return out;
+}
+
+async function listAllUsers() {
+  if (supabase) {
+    return fetchAllRows((a, b) => supabase.from('users').select('*').order('created_at').order('id').range(a, b));
+  }
+  return loadUsers().map(u => ({ ...u, created_at: u.createdAt }));
 }
 
 // ---- activity (exam attempts + flashcard study), per user ----
@@ -161,6 +193,13 @@ async function listActivity(userId) {
     return data;
   }
   return loadActivity().filter(r => r.user_id === userId);
+}
+
+async function listAllActivity() {
+  if (supabase) {
+    return fetchAllRows((a, b) => supabase.from('activity').select('*').order('created_at').order('id').range(a, b));
+  }
+  return loadActivity();
 }
 
 // Exams insert a row per attempt. Flashcards keep one row per user/set/day (reviews add up).
@@ -194,6 +233,57 @@ async function recordActivity(userId, a) {
     rows.push({ id: Date.now().toString() + Math.random().toString(36).slice(2, 6), user_id: userId, ...a, created_at: nowIso, updated_at: nowIso });
   }
   saveActivityFile(rows);
+}
+
+// ---- flashcard spaced-repetition state (one row per user + set) ----
+const FLASH_FILE = path.join(__dirname, 'flashstate.json');
+function loadFlash() { try { return JSON.parse(fs.readFileSync(FLASH_FILE, 'utf8')); } catch { return {}; } }
+
+async function getFlashState(userId, set) {
+  if (supabase) {
+    const { data, error } = await supabase.from('flashcard_state').select('state, updated_at')
+      .eq('user_id', userId).eq('set_letter', set).limit(1);
+    if (error) throw new Error(error.message);
+    return data[0] || null;
+  }
+  return loadFlash()[userId + ':' + set] || null;
+}
+async function putFlashState(userId, set, state) {
+  const updated_at = new Date().toISOString();
+  if (supabase) {
+    const { error } = await supabase.from('flashcard_state')
+      .upsert({ user_id: userId, set_letter: set, state, updated_at }, { onConflict: 'user_id,set_letter' });
+    if (error) throw new Error(error.message);
+    return;
+  }
+  const all = loadFlash();
+  all[userId + ':' + set] = { state, updated_at };
+  fs.writeFileSync(FLASH_FILE, JSON.stringify(all));
+}
+
+// Accept only the fields the flashcard scheduler uses, with sane types and sizes.
+function cleanFlashState(st) {
+  if (!st || typeof st !== 'object' || !Array.isArray(st.cards) || st.cards.length < 1 || st.cards.length > 300) return null;
+  const num = v => typeof v === 'number' && Number.isFinite(v);
+  const cards = [];
+  for (const c of st.cards) {
+    if (!c || typeof c !== 'object') return null;
+    const o = {};
+    for (const k of ['s', 'step', 'due', 'ivl', 'ease', 'lapses', 'reps']) {
+      if (!num(c[k])) return null;
+      o[k] = c[k];
+    }
+    if (o.s < 0 || o.s > 3 || o.s % 1 !== 0) return null;
+    o.t = num(c.t) ? c.t : 0;
+    cards.push(o);
+  }
+  return {
+    cards,
+    day: num(st.day) ? st.day : 0,
+    newToday: Math.max(0, Math.min(1000, Math.floor(num(st.newToday) ? st.newToday : 0))),
+    newLimit: Math.max(1, Math.min(1000, Math.floor(num(st.newLimit) ? st.newLimit : 20))),
+    saved: num(st.saved) ? st.saved : Date.now()
+  };
 }
 
 // ---- password reset codes (one active code per user) ----
@@ -296,6 +386,18 @@ function auth(req, res, next) {
   }
 }
 
+// Role is always read from the database (not the token), so removing someone's admin role takes effect immediately.
+async function requireAdmin(req, res, next) {
+  try {
+    const u = await findById(req.user.id);
+    if (!u || effectiveRole(u) !== 'admin') return res.status(403).json({ error: 'Admins only.' });
+    next();
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+}
+
 // Sign up
 app.post('/api/signup', signupLimiter, async (req, res) => {
   try {
@@ -320,7 +422,7 @@ app.post('/api/signup', signupLimiter, async (req, res) => {
     const user = await createUser({ name, email, hash });
 
     const token = signToken(user);
-    res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+    res.json({ token, user: publicUser(user) });
   } catch (e) {
     if (e.status === 400 && e.message === 'duplicate') {
       return res.status(400).json({ error: `That ${e.field} has already been taken.` });
@@ -341,7 +443,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
     if (!ok) return res.status(400).json({ error: 'Incorrect email or password.' });
 
     const token = signToken(user);
-    res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+    res.json({ token, user: publicUser(user) });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Server error: ' + e.message });
@@ -412,7 +514,7 @@ app.get('/api/me', auth, async (req, res) => {
   try {
     const user = await findById(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found.' });
-    res.json({ id: user.id, name: user.name, email: user.email });
+    res.json(publicUser(user));
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Server error: ' + e.message });
@@ -452,6 +554,75 @@ app.post('/api/activity', auth, async (req, res) => {
 app.get('/api/activity', auth, async (req, res) => {
   try {
     res.json(await listActivity(req.user.id));
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+});
+
+// ---- flashcard cloud sync ----
+app.get('/api/sync/:set', auth, syncLimiter, async (req, res) => {
+  try {
+    const set = String(req.params.set).toUpperCase();
+    if (!/^[A-Z]$/.test(set)) return res.status(400).json({ error: 'Invalid set.' });
+    const row = await getFlashState(req.user.id, set);
+    res.json(row ? { state: row.state, updated_at: row.updated_at } : { state: null });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+});
+
+app.put('/api/sync/:set', auth, syncLimiter, async (req, res) => {
+  try {
+    const set = String(req.params.set).toUpperCase();
+    if (!/^[A-Z]$/.test(set)) return res.status(400).json({ error: 'Invalid set.' });
+    const state = cleanFlashState((req.body || {}).state);
+    if (!state) return res.status(400).json({ error: 'Invalid flashcard state.' });
+    await putFlashState(req.user.id, set, state);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+});
+
+// ---- teacher / admin ----
+// One call returns a per-student summary and every exam attempt. The page filters, sorts and exports CSV in the browser.
+app.get('/api/admin/data', auth, requireAdmin, async (req, res) => {
+  try {
+    const [users, acts] = await Promise.all([listAllUsers(), listAllActivity()]);
+    const stats = new Map(users.map(u => [u.id, {
+      id: u.id, name: u.name || '', email: u.email, role: effectiveRole(u), joined: u.created_at || null,
+      exams: 0, pctSum: 0, best: 0, reviews: 0, learnedBySet: {}, last: null
+    }]));
+    const attempts = [];
+    for (const r of acts) {
+      const s = stats.get(r.user_id);
+      if (!s) continue;
+      const day = r.day ? String(r.day).slice(0, 10) : String(r.created_at || '').slice(0, 10);
+      if (day && (!s.last || day > s.last)) s.last = day;
+      const pct = r.total ? (r.score / r.total) * 100 : 0;
+      if (r.mode === 'exam') {
+        s.exams++; s.pctSum += pct; s.best = Math.max(s.best, pct);
+        attempts.push({
+          user_id: s.id, name: s.name, email: s.email, set: r.set_letter, score: r.score, total: r.total,
+          pct: Math.round(pct * 10) / 10, unanswered: r.unanswered || 0,
+          minutes: r.duration_sec ? Math.round(r.duration_sec / 6) / 10 : null, day, at: r.created_at
+        });
+      } else if (r.mode === 'flashcards') {
+        s.reviews += r.reviews || 0;
+        s.learnedBySet[r.set_letter] = Math.max(s.learnedBySet[r.set_letter] || 0, r.score || 0);
+      }
+    }
+    attempts.sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    const students = [...stats.values()].map(s => ({
+      id: s.id, name: s.name, email: s.email, role: s.role, joined: s.joined,
+      exams: s.exams, avg: s.exams ? Math.round((s.pctSum / s.exams) * 10) / 10 : null,
+      best: s.exams ? Math.round(s.best * 10) / 10 : null,
+      reviews: s.reviews, learned: Object.values(s.learnedBySet).reduce((a, b) => a + b, 0), last: s.last
+    }));
+    res.json({ students, attempts });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Server error: ' + e.message });
