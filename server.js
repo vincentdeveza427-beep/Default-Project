@@ -34,7 +34,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       // pages use inline <script>/<style>; Chart.js comes from cdnjs
-      scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com'],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://cdnjs.cloudflare.com'],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", 'data:'],
       fontSrc: ["'self'", 'data:'],
