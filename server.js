@@ -53,9 +53,10 @@ app.use(express.json({ limit: '50kb' }));
 
 // Only serve the website pages. Without this, express.static(__dirname) would also expose
 // server.js, users.json (password hashes), activity.json, package.json, etc.
+// theme.css and game.js are the only non-HTML files allowed (shared styles + gamification logic).
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) return next();
-  if (/^\/(?:[A-Za-z0-9_-]+\.html)?$/.test(req.path)) return next();
+  if (/^\/(?:[A-Za-z0-9_-]+\.html|theme\.css|game\.js)?$/.test(req.path)) return next();
   res.status(404).send('Not found');
 });
 app.use(express.static(__dirname));

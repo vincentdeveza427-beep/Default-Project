@@ -3,268 +3,261 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Progress - Science Drill</title>
+<title>Dashboard - Science Drills</title>
+<link rel="stylesheet" href="theme.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root{--bg1:#071b2e;--accent:#28e0c5;--accent2:#5aa9ff;--card:#0f2740;--border:#1c3f5e;--text:#eaf6ff;--muted:#9db4c7;--good:#2ecc71;--bad:#ff5f6d;--amber:#ffcc66;}
-*{box-sizing:border-box;}
-body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text);min-height:100vh;padding-bottom:50px;
- background:radial-gradient(circle at 20% 10%,#123456 0%,var(--bg1) 45%,#050f1a 100%);}
-.wrap{max-width:1000px;margin:0 auto;padding:0 16px;}
-header{padding:22px 0 8px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
-header h1{margin:0;font-size:clamp(1.4rem,4vw,2rem);background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
-a{color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem;}
-select{background:#0a1e33;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:.85rem;}
-.hidden{display:none !important;}
-.msg{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:34px;text-align:center;color:var(--muted);line-height:1.7;margin-top:30px;}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0;}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;}
-.stat b{display:block;font-size:1.6rem;margin-bottom:2px;}
-.stat span{color:var(--muted);font-size:.78rem;}
-.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px;}
-.panel h2{margin:0 0 4px;font-size:1.05rem;}
-.panel p.sub{margin:0 0 12px;color:var(--muted);font-size:.8rem;}
-.chartbox{position:relative;height:280px;}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.empty{color:var(--muted);font-size:.88rem;padding:30px 0;text-align:center;}
-ul.ins{margin:0;padding-left:18px;color:var(--text);line-height:1.8;font-size:.93rem;}
-ul.ins li span{color:var(--muted);}
-@media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr);}.two{grid-template-columns:1fr;}}
+.msg{margin-top:40px;text-align:center;color:var(--muted);line-height:1.8;padding:40px}
+.pagehead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:24px 0 14px}
+.pagehead h2{font-size:1.3rem}
+select{background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:inherit;font-size:.88rem}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.kpi b{display:block;font-size:1.65rem;font-weight:900;line-height:1.2}
+.kpi span{color:var(--muted);font-size:.76rem;font-weight:600}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chartwrap h3{font-size:1rem}
+.chartbox{position:relative;height:270px}
+.empty{color:var(--muted);font-size:.86rem;text-align:center;padding:60px 10px}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,14px);grid-auto-columns:14px;gap:4px;overflow-x:auto;padding-bottom:6px}
+.heat i{border-radius:4px;background:#0c1a30;border:1px solid #14284a}
+.heat i.l1{background:#0f4a4a;border-color:#0f4a4a}.heat i.l2{background:#12806f;border-color:#12806f}
+.heat i.l3{background:#1fb99a;border-color:#1fb99a}.heat i.l4{background:var(--accent);border-color:var(--accent)}
+.legend{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:.72rem;margin-top:8px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+ul.ins{margin:0;padding:0;list-style:none}
+ul.ins li{padding:9px 0;border-top:1px solid var(--line);font-size:.9rem;display:flex;gap:10px}
+ul.ins li:first-child{border-top:0}
+ul.ins li span{color:var(--muted)}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tabs button{background:var(--surface);border:1px solid var(--line);color:var(--muted);font:inherit;font-weight:700;font-size:.82rem;border-radius:999px;padding:6px 14px;cursor:pointer}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#04222f}
+.agrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:40px}
+.ach{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--tc);border-radius:14px;padding:14px;display:flex;gap:12px}
+.ach .ic{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:1.6rem;background:#0c1a30}
+.ach.locked .ic{filter:grayscale(1);opacity:.35}
+.ach.locked{border-top-color:var(--line)}
+.ach h4{margin:0;font-size:.92rem}
+.ach p{margin:2px 0 8px;color:var(--muted);font-size:.76rem;line-height:1.4}
+.ach .bar{height:5px;background:#0a1830;border-radius:99px;overflow:hidden}
+.ach .bar i{display:block;height:100%;background:var(--tc);border-radius:99px}
+.ach .meta{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-top:5px;font-weight:700}
+.ach .tier{color:var(--tc)}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.agrid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.agrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1 id="title">My Progress</h1>
-    <div style="display:flex;gap:12px;align-items:center;">
-      <select id="setSel"></select>
-      <a href="index.html">&larr; Home</a>
-    </div>
-  </header>
+<header class="nav"><div class="container in">
+  <a class="brand" href="index.html"><span class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#04222f" stroke-width="2"><circle cx="12" cy="12" r="2" fill="#04222f"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></svg></span>Science Drills</a>
+  <nav class="links"><a href="index.html">Home</a><a class="on" href="progress.html">Dashboard</a></nav>
+  <div class="right"><a class="btn ghost sm" href="index.html">&larr; Back</a></div>
+</div></header>
 
-  <div id="msg" class="msg">Loading your progress...</div>
-
+<main class="container">
+  <div id="msg" class="card msg">Loading your progress...</div>
   <div id="main" class="hidden">
-    <div class="stats" id="stats"></div>
+    <div class="card" style="margin-top:24px"><div class="player" id="player"></div></div>
 
-    <div class="panel">
-      <h2>Exam mode: score over time</h2>
-      <p class="sub">Each point is one finished timed attempt (percent correct).</p>
-      <div class="chartbox"><canvas id="cExam"></canvas></div>
-      <div class="empty hidden" id="eExam">No timed attempts yet. Finish a Timed Mode drill while logged in to see your scores here.</div>
-    </div>
+    <div class="pagehead"><h2>Analytics</h2><label style="color:var(--muted);font-size:.85rem">Filter <select id="setSel"></select></label></div>
+    <div class="kpis" id="kpis"></div>
 
-    <div class="panel">
-      <h2>Flashcard mode: cards learned</h2>
-      <p class="sub">Cards that graduated from learning, per set, by study day.</p>
-      <div class="chartbox"><canvas id="cFlash"></canvas></div>
-      <div class="empty hidden" id="eFlash">No flashcard study yet. Review some cards while logged in to see progress here.</div>
+    <div class="card chartwrap" style="margin-bottom:16px">
+      <h3>Exam scores over time</h3><p class="sub">Each dot is one timed attempt, coloured by set. The dashed line is the 75% pass mark.</p>
+      <div class="chartbox"><canvas id="cTrend"></canvas></div><div class="empty hidden">No timed attempts yet. Finish a timed exam while logged in to see your trend.</div>
     </div>
 
     <div class="two">
-      <div class="panel">
-        <h2>Cards reviewed per day</h2>
-        <p class="sub">Flashcard reviews over time.</p>
-        <div class="chartbox"><canvas id="cReviews"></canvas></div>
-        <div class="empty hidden" id="eReviews">No reviews yet.</div>
-      </div>
-      <div class="panel">
-        <h2>Average exam score by set</h2>
-        <p class="sub">Across all your timed attempts.</p>
-        <div class="chartbox"><canvas id="cSets"></canvas></div>
-        <div class="empty hidden" id="eSets">No timed attempts yet.</div>
-      </div>
+      <div class="card chartwrap"><h3>XP earned</h3><p class="sub">Cumulative XP from studying (excludes badge bonuses).</p>
+        <div class="chartbox"><canvas id="cXp"></canvas></div><div class="empty hidden">Study to start earning XP.</div></div>
+      <div class="card chartwrap"><h3>Strengths by set</h3><p class="sub">Average exam score vs. flashcards learned, per set.</p>
+        <div class="chartbox"><canvas id="cRadar"></canvas></div><div class="empty hidden">No data yet.</div></div>
+    </div>
+
+    <div class="card chartwrap" style="margin-bottom:16px">
+      <h3>Study activity</h3><p class="sub">Last 18 weeks. Darker squares mean more reviews or exams that day.</p>
+      <div class="heat" id="heat"></div>
+      <div class="legend">Less <i style="background:#0c1a30"></i><i style="background:#0f4a4a"></i><i style="background:#12806f"></i><i style="background:#1fb99a"></i><i style="background:var(--accent)"></i> More</div>
     </div>
 
     <div class="two">
-      <div class="panel">
-        <h2>Answer breakdown</h2>
-        <p class="sub">All exam questions combined.</p>
-        <div class="chartbox"><canvas id="cBreak"></canvas></div>
-        <div class="empty hidden" id="eBreak">No timed attempts yet.</div>
-      </div>
-      <div class="panel">
-        <h2>Analytics</h2>
-        <p class="sub">What your history says.</p>
-        <ul class="ins" id="insights"></ul>
-      </div>
+      <div class="card chartwrap"><h3>Flashcard reviews, last 14 days</h3><p class="sub">How each review was rated.</p>
+        <div class="chartbox"><canvas id="cReviews"></canvas></div><div class="empty hidden">No flashcard reviews yet.</div></div>
+      <div class="card chartwrap"><h3>Speed vs. accuracy</h3><p class="sub">Minutes used (x) against score (y) for each exam.</p>
+        <div class="chartbox"><canvas id="cScatter"></canvas></div><div class="empty hidden">No timed attempts yet.</div></div>
     </div>
+
+    <div class="two">
+      <div class="card chartwrap"><h3>Answer breakdown</h3><p class="sub">All exam questions combined.</p>
+        <div class="chartbox"><canvas id="cBreak"></canvas></div><div class="empty hidden">No timed attempts yet.</div></div>
+      <div class="card"><h3 style="font-size:1rem">Insights</h3><p class="sub">What your history says.</p><ul class="ins" id="insights"></ul></div>
+    </div>
+
+    <div class="pagehead"><h2>Achievements <span id="achCount" style="color:var(--muted);font-size:.9rem;font-weight:700"></span></h2></div>
+    <div class="tabs" id="tabs"><button class="on" data-f="all">All</button><button data-f="done">Unlocked</button><button data-f="todo">Locked</button></div>
+    <div class="agrid" id="ach"></div>
   </div>
-</div>
+</main>
+<div style="height:30px"></div>
 
+<script src="game.js"></script>
 <script>
-(function(){
-  var token = localStorage.getItem('sd_token');
-  var ALL = [], charts = {};
-  var COLORS = ['#28e0c5','#5aa9ff','#ffcc66','#ff5f6d','#b48cff','#2ecc71'];
-  function $(id){ return document.getElementById(id); }
-  function color(letter){ return COLORS[(letter.charCodeAt(0) - 65) % COLORS.length]; }
-  function msg(t){ $('msg').classList.remove('hidden'); $('main').classList.add('hidden'); $('msg').innerHTML = t; }
-  function pct(r){ return r.total ? Math.round(r.score / r.total * 1000) / 10 : 0; }
-  function avg(a){ return a.length ? a.reduce(function(x, y){ return x + y; }, 0) / a.length : 0; }
-  function r1(n){ return Math.round(n * 10) / 10; }
-  function dayOf(r){ return r.day ? String(r.day).slice(0, 10) : String(r.created_at).slice(0, 10); }
-  function short(d){ var p = d.split('-'); return p[1] + '/' + p[2]; }
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var ALL = [], S = null, F = null, charts = {}, tab = 'all', user = null;
+  var C = SD.COLORS, fmt = function (n) { return Math.round(n).toLocaleString(); };
+  function msg(t) { $('msg').classList.remove('hidden'); $('main').classList.add('hidden'); $('msg').innerHTML = t; }
+  function r1(n) { return Math.round(n * 10) / 10; }
+  function short(d) { var p = d.split('-'); return p[1] + '/' + p[2]; }
 
-  if(!token){ msg('Please log in on the <a href="index.html">homepage</a> to see your progress.'); return; }
+  if (!SD.token()) { msg('Please log in on the <a href="index.html">home page</a> to see your dashboard.'); return; }
 
-  fetch('/api/activity', { headers: { Authorization: 'Bearer ' + token } })
-    .then(function(r){ if(r.status === 401) throw 'auth'; if(!r.ok) throw 'err'; return r.json(); })
-    .then(function(rows){ ALL = rows; init(); })
-    .catch(function(e){
-      if(e === 'auth'){ localStorage.removeItem('sd_token'); msg('Your session expired. Please log in again on the <a href="index.html">homepage</a>.'); }
-      else msg('Could not load your progress. Make sure the server is running and try again.');
-    });
+  fetch('/api/me', { headers: { Authorization: 'Bearer ' + SD.token() } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (u) { user = u; if (S) renderPlayer(); }).catch(function () {});
+  SD.check().then(function (s) {
+    if (!SD.token()) { msg('Your session expired. Please log in again on the <a href="index.html">home page</a>.'); return; }
+    if (!s) { msg('Could not load your progress. Make sure the server is running and try again.'); return; }
+    S = s; ALL = s.rows; init();
+  });
 
-  fetch('/api/me', { headers: { Authorization: 'Bearer ' + token } })
-    .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(u){ if(u) $('title').textContent = (u.name || u.email) + "'s Progress"; })
-    .catch(function(){});
-
-  function init(){
-    var letters = {};
-    ALL.forEach(function(r){ letters[r.set_letter] = 1; });
+  function init() {
     var sel = $('setSel');
-    sel.innerHTML = '<option value="">All sets</option>' + Object.keys(letters).sort().map(function(l){ return '<option value="' + l + '">Set ' + l + '</option>'; }).join('');
+    sel.innerHTML = '<option value="">All sets</option>' + SD.SETS.map(function (L) { return '<option value="' + L + '">Set ' + L + '</option>'; }).join('');
     sel.onchange = draw;
+    Chart.defaults.color = '#8ea5bf'; Chart.defaults.borderColor = 'rgba(31,53,85,.8)';
+    Chart.defaults.font.family = "Inter,'Segoe UI',system-ui,sans-serif";
     $('msg').classList.add('hidden'); $('main').classList.remove('hidden');
-    Chart.defaults.color = '#9db4c7';
-    Chart.defaults.borderColor = 'rgba(28,63,94,.7)';
+    renderPlayer(); renderAch();
+    $('tabs').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; tab = b.dataset.f; Array.prototype.forEach.call($('tabs').children, function (x) { x.classList.toggle('on', x === b); }); renderAch(); };
     draw();
   }
 
-  function show(canvasId, emptyId, has){
-    $(canvasId).parentNode.classList.toggle('hidden', !has);
-    $(emptyId).classList.toggle('hidden', has);
-  }
-  function make(id, cfg){
-    if(charts[id]) charts[id].destroy();
-    charts[id] = new Chart($(id), cfg);
+  function renderPlayer() {
+    var l = S.lvl;
+    $('player').innerHTML = '<div class="avatar" style="--p:' + l.pct.toFixed(1) + '"><div><small>LEVEL</small><b>' + l.level + '</b></div></div>' +
+      '<div class="pinfo"><div class="pname" id="pn"></div><div class="prank">' + l.title + '</div><div class="xpbar"><i style="width:' + l.pct.toFixed(1) + '%"></i></div>' +
+      '<div class="xpmeta"><span>' + fmt(l.into) + ' / ' + fmt(l.need) + ' XP to level ' + (l.level + 1) + '</span><span>' + fmt(S.xp) + ' XP total</span></div>' +
+      '<div class="pstats"><span class="pill">🔥 ' + S.streak + '<em>day streak</em></span><span class="pill">🏆 ' + S.bestStreak + '<em>best streak</em></span>' +
+      '<span class="pill">🏅 ' + S.unlocked + '/' + S.achievements.length + '<em>badges</em></span><span class="pill">✨ ' + fmt(S.bonusXp) + '<em>badge bonus XP</em></span></div></div>';
+    $('pn').textContent = user ? (user.name || user.email) : 'Your progress';
   }
 
-  function draw(){
+  function renderAch() {
+    var list = S.achievements.slice().sort(function (a, b) { return (b.done - a.done) || (b.ratio - a.ratio); })
+      .filter(function (a) { return tab === 'all' || (tab === 'done' ? a.done : !a.done); });
+    $('achCount').textContent = S.unlocked + ' / ' + S.achievements.length;
+    $('ach').innerHTML = list.map(function (a) {
+      var t = SD.TIER[a.tier];
+      return '<div class="ach ' + (a.done ? '' : 'locked') + '" style="--tc:' + t.color + '"><div class="ic">' + a.icon + '</div><div style="flex:1;min-width:0"><h4>' + a.name + '</h4><p>' + a.desc + '</p>' +
+        '<div class="bar"><i style="width:' + (a.ratio * 100).toFixed(0) + '%"></i></div><div class="meta"><span>' + (a.done ? 'Unlocked' : Math.floor(a.cur) + a.unit + ' / ' + a.goal + a.unit) + '</span><span class="tier">' + t.name + ' · +' + a.xp + ' XP</span></div></div></div>';
+    }).join('') || '<div class="empty" style="grid-column:1/-1">Nothing here yet.</div>';
+  }
+
+  function box(id) { return $(id).closest('.chartwrap'); }
+  function toggle(id, has) {
+    var w = box(id); w.querySelector('.chartbox').classList.toggle('hidden', !has); w.querySelector('.empty').classList.toggle('hidden', has);
+    if (!has && charts[id]) { charts[id].destroy(); delete charts[id]; }
+  }
+  function make(id, cfg) { if (charts[id]) charts[id].destroy(); cfg.options = cfg.options || {}; cfg.options.maintainAspectRatio = false; charts[id] = new Chart($(id), cfg); }
+
+  function draw() {
     var f = $('setSel').value;
-    var rows = ALL.filter(function(r){ return !f || r.set_letter === f; });
-    var exams = rows.filter(function(r){ return r.mode === 'exam'; });
-    var flash = rows.filter(function(r){ return r.mode === 'flashcards'; });
-    var sets = Array.from(new Set(rows.map(function(r){ return r.set_letter; }))).sort();
+    F = SD.compute(ALL.filter(function (r) { return !f || r.set_letter === f; }));
+    var ex = F.exams;
 
-    // ---- summary cards ----
-    var examPct = exams.map(pct);
-    var latestLearned = 0;
-    Array.from(new Set(flash.map(function(r){ return r.set_letter; }))).forEach(function(s){
-      var mine = flash.filter(function(r){ return r.set_letter === s; });
-      latestLearned += mine[mine.length - 1].score;
-    });
-    var totalReviews = flash.reduce(function(a, r){ return a + r.reviews; }, 0);
-    var days = Array.from(new Set(rows.map(dayOf))).sort();
-    var streak = 0;
-    (function(){
-      var set = {}; days.forEach(function(d){ set[d] = 1; });
-      var d = new Date(); function key(x){ return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); }
-      if(!set[key(d)]) d.setDate(d.getDate() - 1);
-      while(set[key(d)]){ streak++; d.setDate(d.getDate() - 1); }
-    })();
-    var cards = [
-      [exams.length, 'Timed exams finished'],
-      [exams.length ? r1(avg(examPct)) + '%' : '-', 'Average exam score'],
-      [exams.length ? Math.max.apply(null, examPct) + '%' : '-', 'Best exam score'],
-      [latestLearned, 'Flashcards learned'],
-      [totalReviews, 'Flashcard reviews'],
-      [days.length, 'Study days'],
-      [streak, 'Day streak'],
-      [exams.length ? exams.reduce(function(a, r){ return a + r.score; }, 0) : '-', 'Exam questions correct']
-    ];
-    $('stats').innerHTML = cards.map(function(c){ return '<div class="stat"><b>' + c[0] + '</b><span>' + c[1] + '</span></div>'; }).join('');
+    // KPIs
+    var learnedF = SD.SETS.reduce(function (a, L) { return a + F.perSet[L].learned; }, 0);
+    var k = [[ex.length, 'Timed exams finished'], [ex.length ? r1(F.avgPct) + '%' : '-', 'Average score'], [ex.length ? r1(F.bestPct) + '%' : '-', 'Best score'], [F.correct, 'Exam questions correct'],
+             [learnedF, 'Flashcards learned'], [fmt(F.reviews), 'Flashcard reviews'], [F.days.length, 'Study days'], [S.streak + ' 🔥', 'Current streak']];
+    $('kpis').innerHTML = k.map(function (c) { return '<div class="kpi"><b>' + c[0] + '</b><span>' + c[1] + '</span></div>'; }).join('');
 
-    // ---- exam line chart ----
-    show('cExam', 'eExam', exams.length > 0);
-    if(exams.length){
-      make('cExam', { type: 'line',
-        data: { labels: exams.map(function(e, i){ return '#' + (i + 1) + ' (' + short(dayOf(e)) + ')'; }),
-          datasets: sets.filter(function(s){ return exams.some(function(e){ return e.set_letter === s; }); }).map(function(s){
-            return { label: 'Set ' + s, spanGaps: true, tension: .25, borderColor: color(s), backgroundColor: color(s), pointRadius: 4,
-              data: exams.map(function(e){ return e.set_letter === s ? pct(e) : null; }) };
-          }) },
-        options: { maintainAspectRatio: false, scales: { y: { min: 0, max: 100, title: { display: true, text: '% correct' } } } } });
+    // trend
+    toggle('cTrend', ex.length > 0);
+    if (ex.length) {
+      var pc = ex.map(function (e) { return r1(e.pct); });
+      var ma = pc.map(function (_, i) { var a = pc.slice(Math.max(0, i - 2), i + 1); return r1(a.reduce(function (x, y) { return x + y; }, 0) / a.length); });
+      make('cTrend', { type: 'line', data: { labels: ex.map(function (_, i) { return '#' + (i + 1); }), datasets: [
+        { label: 'Score %', data: pc, borderColor: '#5aa9ff', backgroundColor: '#5aa9ff', pointBackgroundColor: ex.map(function (e) { return C[e.set]; }), pointRadius: 6, pointHoverRadius: 8, tension: .3 },
+        { label: '3-attempt average', data: ma, borderColor: '#28e0c5', borderWidth: 2, pointRadius: 0, tension: .35 },
+        { label: 'Pass mark (75%)', data: pc.map(function () { return 75; }), borderColor: '#ffc857', borderDash: [6, 6], pointRadius: 0, borderWidth: 1.5 }] },
+        options: { interaction: { mode: 'index', intersect: false }, scales: { y: { min: 0, max: 100, title: { display: true, text: '% correct' } } },
+          plugins: { tooltip: { callbacks: { title: function (it) { var e = ex[it[0].dataIndex]; return 'Set ' + e.set + ' · ' + e.day; } } } } } });
     }
 
-    // ---- flashcard learned chart (carry last value forward per set) ----
-    var fDays = Array.from(new Set(flash.map(dayOf))).sort();
-    show('cFlash', 'eFlash', fDays.length > 0);
-    if(fDays.length){
-      var fSets = Array.from(new Set(flash.map(function(r){ return r.set_letter; }))).sort();
-      make('cFlash', { type: 'line',
-        data: { labels: fDays.map(short),
-          datasets: fSets.map(function(s){
-            var last = null;
-            return { label: 'Set ' + s, tension: .25, borderColor: color(s), backgroundColor: color(s), pointRadius: 4, spanGaps: true,
-              data: fDays.map(function(d){
-                var r = flash.filter(function(x){ return x.set_letter === s && dayOf(x) === d; })[0];
-                if(r) last = r.score; return last; }) };
-          }) },
-        options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'cards learned' } } } } });
-    }
+    // XP
+    toggle('cXp', F.timeline.length > 0);
+    if (F.timeline.length) make('cXp', { type: 'line', data: { labels: F.timeline.map(function (t) { return short(t.day); }), datasets: [{ label: 'Total XP', data: F.timeline.map(function (t) { return t.cum; }), borderColor: '#28e0c5', backgroundColor: 'rgba(40,224,197,.15)', fill: true, tension: .3, pointRadius: 3 }] },
+      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
 
-    // ---- reviews per day ----
-    show('cReviews', 'eReviews', fDays.length > 0);
-    if(fDays.length){
-      make('cReviews', { type: 'bar',
-        data: { labels: fDays.map(short), datasets: [{ label: 'Reviews', backgroundColor: '#5aa9ff',
-          data: fDays.map(function(d){ return flash.filter(function(x){ return dayOf(x) === d; }).reduce(function(a, x){ return a + x.reviews; }, 0); }) }] },
-        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
-    }
+    // radar
+    var anyRadar = SD.SETS.some(function (L) { return F.perSet[L].attempts || F.perSet[L].learned; });
+    toggle('cRadar', anyRadar);
+    if (anyRadar) make('cRadar', { type: 'radar', data: { labels: SD.SETS.map(function (L) { return 'Set ' + L; }), datasets: [
+      { label: 'Avg exam %', data: SD.SETS.map(function (L) { return r1(F.perSet[L].avg); }), borderColor: '#5aa9ff', backgroundColor: 'rgba(90,169,255,.2)' },
+      { label: 'Cards learned %', data: SD.SETS.map(function (L) { return r1(F.perSet[L].learned / 150 * 100); }), borderColor: '#ffc857', backgroundColor: 'rgba(255,200,87,.15)' }] },
+      options: { scales: { r: { min: 0, max: 100, ticks: { backdropColor: 'transparent', stepSize: 25 }, grid: { color: 'rgba(31,53,85,.9)' }, angleLines: { color: 'rgba(31,53,85,.9)' } } } } });
 
-    // ---- avg by set ----
-    var eSets = Array.from(new Set(exams.map(function(r){ return r.set_letter; }))).sort();
-    show('cSets', 'eSets', eSets.length > 0);
-    var bySet = eSets.map(function(s){ return r1(avg(exams.filter(function(e){ return e.set_letter === s; }).map(pct))); });
-    if(eSets.length){
-      make('cSets', { type: 'bar',
-        data: { labels: eSets.map(function(s){ return 'Set ' + s; }), datasets: [{ label: 'Avg %', data: bySet, backgroundColor: eSets.map(color) }] },
-        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100 } } } });
+    // heatmap
+    var today = new Date(), start = new Date(today); start.setDate(start.getDate() - (17 * 7 + today.getDay()));
+    var cells = '';
+    for (var d = new Date(start); d <= today; d.setDate(d.getDate() + 1)) {
+      var key = SD.dkey(d), a = F.dayAct[key], v = a ? a.reviews + a.exams * 60 : 0;
+      var lv = v === 0 ? 0 : v < 20 ? 1 : v < 60 ? 2 : v < 150 ? 3 : 4;
+      cells += '<i class="l' + lv + '" title="' + key + (a ? ': ' + a.reviews + ' reviews, ' + a.exams + ' exams' : ': no activity') + '"></i>';
     }
+    $('heat').innerHTML = cells;
 
-    // ---- answer breakdown ----
-    var cor = 0, un = 0, tot = 0;
-    exams.forEach(function(e){ cor += e.score; un += e.unanswered; tot += e.total; });
-    show('cBreak', 'eBreak', tot > 0);
-    if(tot){
-      make('cBreak', { type: 'doughnut',
-        data: { labels: ['Correct', 'Wrong', 'Unanswered'], datasets: [{ data: [cor, tot - cor - un, un], backgroundColor: ['#2ecc71', '#ff5f6d', '#ffcc66'], borderWidth: 0 }] },
-        options: { maintainAspectRatio: false } });
-    }
+    // reviews last 14 days
+    var days = [], i;
+    for (i = 13; i >= 0; i--) { var dd = new Date(); dd.setDate(dd.getDate() - i); days.push(SD.dkey(dd)); }
+    var has = days.some(function (x) { return F.flashDaily[x]; });
+    toggle('cReviews', has);
+    if (has) make('cReviews', { type: 'bar', data: { labels: days.map(short), datasets: [
+      { label: 'Very Hard', backgroundColor: '#ff6b7a', data: days.map(function (x) { return (F.flashDaily[x] || {}).again || 0; }) },
+      { label: 'Hard', backgroundColor: '#ffc857', data: days.map(function (x) { return (F.flashDaily[x] || {}).hard || 0; }) },
+      { label: 'Easy', backgroundColor: '#34d399', data: days.map(function (x) { return (F.flashDaily[x] || {}).good || 0; }) }] },
+      options: { scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } } });
 
-    // ---- analytics insights ----
-    var ins = [];
-    if(exams.length){
-      ins.push('Average exam score: <b>' + r1(avg(examPct)) + '%</b> over ' + exams.length + ' attempt' + (exams.length === 1 ? '' : 's') + '.');
-      if(exams.length >= 2){
-        var d = r1(examPct[examPct.length - 1] - examPct[0]);
-        ins.push('Latest vs first attempt: <b style="color:' + (d >= 0 ? 'var(--good)' : 'var(--bad)') + '">' + (d >= 0 ? '+' : '') + d + ' points</b>.');
+    // scatter
+    var sc = ex.filter(function (e) { return e.dur !== null; });
+    toggle('cScatter', sc.length > 0);
+    if (sc.length) make('cScatter', { type: 'scatter', data: { datasets: [{ label: 'Exam', data: sc.map(function (e) { return { x: r1(e.dur), y: r1(e.pct) }; }), pointBackgroundColor: sc.map(function (e) { return C[e.set]; }), pointRadius: 7, pointHoverRadius: 9 }] },
+      options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { var e = sc[c.dataIndex]; return 'Set ' + e.set + ': ' + c.parsed.y + '% in ' + c.parsed.x + ' min'; } } } },
+        scales: { x: { min: 0, max: 180, title: { display: true, text: 'minutes used' } }, y: { min: 0, max: 100, title: { display: true, text: '% correct' } } } } });
+
+    // breakdown
+    var tot = F.questionsTotal, wrong = tot - F.correct - F.unansweredTotal;
+    toggle('cBreak', tot > 0);
+    if (tot) make('cBreak', { type: 'doughnut', data: { labels: ['Correct', 'Wrong', 'Unanswered'], datasets: [{ data: [F.correct, Math.max(0, wrong), F.unansweredTotal], backgroundColor: ['#34d399', '#ff6b7a', '#ffc857'], borderWidth: 0 }] },
+      options: { cutout: '65%', plugins: { legend: { position: 'bottom' } } } });
+
+    insights(f);
+  }
+
+  function insights(f) {
+    var ins = [], ex = F.exams;
+    if (ex.length) {
+      ins.push('🎯 Average exam score <b>' + r1(F.avgPct) + '%</b> over ' + ex.length + ' attempt' + (ex.length === 1 ? '' : 's') + '.');
+      if (ex.length >= 2) { var d = r1(ex[ex.length - 1].pct - ex[0].pct); ins.push((d >= 0 ? '📈' : '📉') + ' Latest vs first attempt: <b style="color:' + (d >= 0 ? 'var(--good)' : 'var(--bad)') + '">' + (d >= 0 ? '+' : '') + d + ' points</b>.'); }
+      var withAtt = SD.SETS.filter(function (L) { return F.perSet[L].attempts; });
+      if (withAtt.length >= 2) {
+        withAtt.sort(function (a, b) { return F.perSet[b].avg - F.perSet[a].avg; });
+        var hi = withAtt[0], lo = withAtt[withAtt.length - 1];
+        ins.push('💪 Strongest set: <b>Set ' + hi + '</b> (' + r1(F.perSet[hi].avg) + '% avg).');
+        ins.push('🛠️ Needs the most work: <b>Set ' + lo + '</b> (' + r1(F.perSet[lo].avg) + '% avg).');
       }
-      if(eSets.length >= 2){
-        var hi = bySet.indexOf(Math.max.apply(null, bySet)), lo = bySet.indexOf(Math.min.apply(null, bySet));
-        if(hi !== lo){
-          ins.push('Strongest set: <b>Set ' + eSets[hi] + '</b> (' + bySet[hi] + '%).');
-          ins.push('Needs the most work: <b>Set ' + eSets[lo] + '</b> (' + bySet[lo] + '%).');
-        }
-      }
-      var durs = exams.filter(function(e){ return e.duration_sec; }).map(function(e){ return e.duration_sec; });
-      if(durs.length) ins.push('Average time used: <b>' + Math.round(avg(durs) / 60) + ' min</b> of 180.');
-      ins.push('Average unanswered per exam: <b>' + r1(un / exams.length) + '</b>' + (un / exams.length >= 5 ? ' <span>(try to answer every item)</span>' : '') + '.');
+      var durs = ex.filter(function (e) { return e.dur !== null; }).map(function (e) { return e.dur; });
+      if (durs.length) ins.push('⏱️ Average time used: <b>' + Math.round(durs.reduce(function (a, b) { return a + b; }, 0) / durs.length) + ' min</b> of 180.');
+      var ua = F.unansweredTotal / ex.length;
+      ins.push('❓ Average unanswered per exam: <b>' + r1(ua) + '</b>' + (ua >= 5 ? ' <span>(unanswered counts as wrong, so guess!)</span>' : '') + '.');
     }
-    if(flash.length){
-      var A = 0, H = 0, G = 0;
-      flash.forEach(function(r){ A += r.again; H += r.hard; G += r.good; });
-      var n = A + H + G;
-      if(n){
-        ins.push('Flashcard ratings: <b>' + Math.round(G / n * 100) + '% Easy</b>, ' + Math.round(H / n * 100) + '% Hard, ' + Math.round(A / n * 100) + '% Very Hard.');
-        ins.push('Average <b>' + Math.round(totalReviews / fDays.length) + ' reviews</b> per study day.');
-      }
+    if (F.reviews) {
+      ins.push('🃏 Flashcard ratings: <b>' + Math.round(F.goodPct) + '% Easy</b>, ' + Math.round(F.hard / F.reviews * 100) + '% Hard, ' + Math.round(F.again / F.reviews * 100) + '% Very Hard.');
+      var fd = Object.keys(F.flashDaily).length;
+      ins.push('📅 About <b>' + Math.round(F.reviews / fd) + ' reviews</b> per flashcard study day.');
     }
-    if(!ins.length) ins.push('<span>Nothing to analyze yet. Finish an exam or review some flashcards while logged in.</span>');
-    $('insights').innerHTML = ins.map(function(t){ return '<li>' + t + '</li>'; }).join('');
+    if (!f && S.nextUp) ins.push('🏅 Closest badge: <b>' + S.nextUp.name + '</b> (' + Math.round(S.nextUp.ratio * 100) + '% there).');
+    if (!ins.length) ins.push('<span>Nothing to analyze yet. Finish an exam or review some flashcards while logged in.</span>');
+    $('insights').innerHTML = ins.map(function (t) { return '<li>' + t + '</li>'; }).join('');
   }
 })();
 </script>

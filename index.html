@@ -1,103 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Science Drills - Home</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science Drills</title>
+<link rel="stylesheet" href="theme.css">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#f8fafc;color:#0f172a;min-height:100vh}
-  header{text-align:center;padding:56px 20px 16px;background:linear-gradient(180deg,#eff6ff 0%,#f8fafc 100%);border-bottom:1px solid #e2e8f0;position:relative;overflow:hidden}
-  header::before{content:"⚛ ⚗ 🧬 🌍";position:absolute;top:12px;left:0;right:0;text-align:center;letter-spacing:24px;opacity:.15;font-size:20px}
-  .logo{width:48px;height:48px;margin:0 auto 12px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#06b6d4);display:grid;place-items:center}
-  h1{font-size:40px;letter-spacing:-.03em}
-  h1 span{background:linear-gradient(90deg,#2563eb,#06b6d4);-webkit-background-clip:text;background-clip:text;color:transparent}
-  header p{color:#64748b;margin-top:8px;font-size:17px}
-  .wrap{max-width:900px;margin:0 auto;padding:28px 16px 60px}
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-  .set-card{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:22px;transition:.18s}
-  .set-card:hover{transform:translateY(-3px);border-color:#93c5fd;box-shadow:0 10px 30px rgba(15,23,42,.08)}
-  .badge{align-self:flex-start;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
-  .set-card h2{font-size:20px}
-  .set-card p{color:#64748b;font-size:14px;line-height:1.5}
-  .start{margin-top:auto;padding-top:8px;font-weight:700;font-size:14px;color:#2563eb}
-  footer{text-align:center;color:#94a3b8;font-size:13px;padding:28px}
-  .topbar{position:absolute;top:14px;right:16px;display:flex;gap:8px;align-items:center}
-  .topbar button,.topbar .user{font-size:13px;font-weight:600;padding:8px 14px;border-radius:999px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;color:#0f172a}
-  .topbar .primary{background:#2563eb;border-color:#2563eb;color:#fff}
-  .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;place-items:center;z-index:50;padding:16px}
-  .modal-bg.open{display:grid}
-  .modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-  .modal h3{font-size:20px;margin-bottom:4px}
-  .modal p{font-size:13px;color:#64748b;margin-bottom:14px}
-  .modal input{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;margin:6px 0;font-size:14px}
-  .modal .row{display:flex;gap:8px;margin-top:12px}
-  .modal .err{color:#dc2626;font-size:13px;min-height:18px;margin-top:6px}
-  .modal .ok{color:#16a34a;font-size:13px;min-height:18px;margin-top:6px}
-  .modal .link{font-size:13px;color:#2563eb;cursor:pointer;font-weight:600;background:none;border:0;padding:4px 0;margin-top:4px;display:inline-block}
-  .btn{flex:1;padding:10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;font-weight:700;cursor:pointer}
-  .btn.primary{background:#2563eb;color:#fff;border-color:#2563eb}
-  .btn:disabled{opacity:.6;cursor:wait}
-  .hidden{display:none !important}
-  .mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-  .mode-card{display:flex;flex-direction:column;gap:10px;text-align:left;font:inherit;color:inherit;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:26px;cursor:pointer;transition:.18s}
-  .mode-card:hover{transform:translateY(-3px);border-color:#93c5fd;box-shadow:0 10px 30px rgba(15,23,42,.08)}
-  .mode-icon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:#eff6ff}
-  .mode-card h2{font-size:22px}
-  .mode-card p{color:#64748b;font-size:14px;line-height:1.55}
-  .mode-card ul{color:#64748b;font-size:13px;line-height:1.7;padding-left:18px}
-  .stepbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-  .link-btn{background:none;border:0;color:#2563eb;font-weight:700;font-size:14px;cursor:pointer}
-  .mode-pill{font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
-  @media(max-width:700px){.grid,.mode-grid{grid-template-columns:1fr}h1{font-size:30px}}
+.hero{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin:26px 0 8px}
+.welcome h1{font-size:clamp(1.8rem,4.5vw,2.6rem);line-height:1.15;margin:6px 0 10px}
+.welcome h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.welcome p{color:var(--muted);margin:0 0 18px;max-width:520px}
+.feat{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.next{margin-top:14px;display:flex;align-items:center;gap:12px;background:#0c1a30;border:1px dashed var(--line);border-radius:12px;padding:10px 14px;font-size:.85rem}
+.next .ic{font-size:1.5rem}
+.next .bar{height:6px;background:#0a1830;border-radius:99px;overflow:hidden;margin-top:5px}
+.next .bar i{display:block;height:100%;background:var(--amber);border-radius:99px}
+.quests h3{font-size:1rem;display:flex;justify-content:space-between;align-items:center}
+.quest{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.quest:first-of-type{border-top:0}
+.quest .chk{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;font-weight:900;color:transparent}
+.quest.done .chk{background:var(--good);border-color:var(--good);color:#04220f}
+.quest .qt{flex:1;font-size:.88rem;font-weight:600}
+.quest .qb{height:5px;background:#0a1830;border-radius:99px;overflow:hidden;margin-top:5px}
+.quest .qb i{display:block;height:100%;background:var(--accent2)}
+.quest.done .qb i{background:var(--good)}
+.quest small{color:var(--muted);font-weight:600}
+.sechead{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:30px 0 14px}
+.sechead h2{font-size:1.3rem}
+.modeinfo{color:var(--muted);font-size:.85rem;margin-top:4px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.set{display:flex;flex-direction:column;gap:12px;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;transition:transform .18s,border-color .18s,box-shadow .18s}
+.set:hover{transform:translateY(-4px);border-color:var(--c);box-shadow:0 14px 34px rgba(0,0,0,.35)}
+.set .top{display:flex;gap:14px;align-items:center}
+.set .letter{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-weight:900;font-size:1.4rem;color:#04222f;background:var(--c)}
+.set h3{font-size:1.05rem}
+.set p{margin:2px 0 0;color:var(--muted);font-size:.8rem;line-height:1.4}
+.meter{font-size:.74rem;color:var(--muted)}
+.meter .row{display:flex;justify-content:space-between;margin-bottom:4px;font-weight:600}
+.meter .bar{height:6px;background:#0a1830;border-radius:99px;overflow:hidden}
+.meter .bar i{display:block;height:100%;background:var(--c);border-radius:99px}
+.set .go{margin-top:auto;font-weight:800;font-size:.86rem;color:var(--c)}
+.badges{display:flex;gap:10px;flex-wrap:wrap}
+.bdg{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:1.6rem;background:var(--surface);border:1px solid var(--line)}
+.bdg.off{filter:grayscale(1);opacity:.28}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:40px 0}
+@media(max-width:860px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header>
-  <div class="topbar" id="topbar">
-    <button id="loginBtn">Log in</button>
-    <button id="signupBtn" class="primary">Sign up</button>
+<header class="nav"><div class="container in">
+  <a class="brand" href="index.html"><span class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#04222f" stroke-width="2"><circle cx="12" cy="12" r="2" fill="#04222f"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></svg></span>Science Drills</a>
+  <nav class="links"><a class="on" href="index.html">Home</a><a href="progress.html">Dashboard</a></nav>
+  <div class="right" id="topbar">
+    <button class="btn ghost sm" id="loginBtn">Log in</button>
+    <button class="btn sm" id="signupBtn">Sign up</button>
   </div>
-  <div class="logo">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><circle cx="12" cy="12" r="2" fill="white" stroke="white"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></svg>
-  </div>
-  <h1>Science <span>Drills</span></h1>
-  <p id="headSub">Choose how you want to practice</p>
-</header>
-<div class="wrap" id="modeStep">
-  <div class="mode-grid">
-    <button class="mode-card" id="modeTimed" type="button">
-      <div class="mode-icon">&#9201;</div>
-      <h2>Timed Mode</h2>
-      <p>Take a drill like an exam.</p>
-      <ul>
-        <li>3 hours on the clock once you open a drill</li>
-        <li>Answers are submitted automatically when time runs out</li>
-        <li>No more answering after that</li>
-      </ul>
-      <div class="start">Choose Timed Mode &rarr;</div>
-    </button>
-    <button class="mode-card" id="modeFlash" type="button">
-      <div class="mode-icon">&#128196;</div>
-      <h2>Flashcard Mode</h2>
-      <p>Study at your own pace.</p>
-      <ul>
-        <li>One question at a time, tap to reveal the answer</li>
-        <li>Mark cards as "Got it" or "Still learning"</li>
-        <li>No timer and no score is recorded</li>
-      </ul>
-      <div class="start">Choose Flashcard Mode &rarr;</div>
-    </button>
-  </div>
-</div>
-<div class="wrap hidden" id="setStep">
-  <div class="stepbar">
-    <button class="link-btn" id="changeMode" type="button">&larr; Change mode</button>
-    <span class="mode-pill" id="modePill"></span>
+</div></header>
+
+<main class="container">
+  <section class="hero">
+    <div class="card welcome" id="heroMain"></div>
+    <div class="card quests" id="questCard"></div>
+  </section>
+
+  <div class="sechead">
+    <div><h2>Choose a drill set</h2><div class="modeinfo" id="modeInfo"></div></div>
+    <div class="seg" id="seg"><button data-mode="timed">⏱ Timed exam</button><button data-mode="flashcards">🃏 Flashcards</button></div>
   </div>
   <div class="grid" id="setGrid"></div>
-</div>
+
+  <div class="sechead"><div><h2>Achievements</h2><div class="modeinfo" id="badgeInfo"></div></div><a class="btn ghost sm" href="progress.html">Open dashboard →</a></div>
+  <div class="badges" id="badges"></div>
+</main>
 <footer>Science Drill Reviewer</footer>
+
 <div class="modal-bg" id="modalBg">
   <div class="modal">
     <h3 id="modalTitle">Sign up</h3>
@@ -110,91 +87,97 @@
     <button class="link" id="backLink" type="button">&larr; Back to log in</button>
     <div class="err" id="authErr"></div>
     <div class="ok" id="authOk"></div>
-    <div class="row">
-      <button class="btn" id="cancelBtn">Cancel</button>
-      <button class="btn primary" id="submitBtn">Sign up</button>
-    </div>
+    <div class="row"><button class="btn ghost" id="cancelBtn">Cancel</button><button class="btn" id="submitBtn">Sign up</button></div>
   </div>
 </div>
+
+<script src="game.js"></script>
 <script>
-// ADD NEW DRILL SETS HERE. Set href to "" for "Coming soon".
 const SETS = [
-  { title: "Set A", badge: "150 questions", description: "Earth Science, Astronomy and Physics.", href: "science-drill-1.html" },
-  { title: "Set B", badge: "150 questions", description: "Physics, Chemistry, and Biology.", href: "science-drill-2.html" },
-  { title: "Set C", badge: "150 questions", description: "Biology, Earth Science, Astronomy, Physics, and Chemistry.", href: "science-drill-3.html" },
-  { title: "Set D", badge: "150 questions", description: "Biology, Earth Science, and Physics", href: "science-drill-4.html" },
-  { title: "Set E", badge: "150 questions", description: "Earth Science, Physics, Chemistry and Biology.", href: "science-drill-5.html" },
-  { title: "Set F", badge: "150 questions", description: "Physics and Chemistry", href: "science-drill-6.html" },
+  { title: "Set A", description: "Earth Science, Astronomy and Physics.", href: "science-drill-1.html" },
+  { title: "Set B", description: "Physics, Chemistry, and Biology.", href: "science-drill-2.html" },
+  { title: "Set C", description: "Biology, Earth Science, Astronomy, Physics, and Chemistry.", href: "science-drill-3.html" },
+  { title: "Set D", description: "Biology, Earth Science, and Physics.", href: "science-drill-4.html" },
+  { title: "Set E", description: "Earth Science, Physics, Chemistry and Biology.", href: "science-drill-5.html" },
+  { title: "Set F", description: "Physics and Chemistry.", href: "science-drill-6.html" }
 ];
-const grid = document.getElementById('setGrid');
-const modeStep = document.getElementById('modeStep');
-const setStep = document.getElementById('setStep');
-const headSub = document.getElementById('headSub');
-const modePill = document.getElementById('modePill');
 const MODES = {
-  timed: { page: 'timed.html', pill: 'Timed Mode - 3 hours', badgeExtra: ' \u00b7 3 hours', cta: 'Start timed drill \u2192' },
-  flashcards: { page: 'flashcards.html', pill: 'Flashcard Mode', badgeExtra: '', cta: 'Study flashcards \u2192' }
+  timed: { page: 'timed.html', cta: 'Start timed exam →', info: '3 hours on the clock. Earn 5 XP per correct answer plus a bonus for 60%+ scores.' },
+  flashcards: { page: 'flashcards.html', cta: 'Study flashcards →', info: 'Spaced repetition at your own pace. Earn 2 XP per review and 10 XP per card learned.' }
 };
-function renderSets(mode){
-  const m = MODES[mode];
-  grid.innerHTML = '';
-  SETS.forEach(function(s){
-    const available = !!s.href;
-    const card = document.createElement(available ? 'a' : 'div');
-    card.className = 'set-card';
-    if(available) card.href = m.page + '?set=' + encodeURIComponent(s.href);
-    card.innerHTML = '<span class="badge">'+s.badge+(available ? m.badgeExtra : '')+'</span><h2>'+s.title+'</h2><p>'+s.description+'</p>' + (available ? '<div class="start">'+m.cta+'</div>' : '<div class="start">Coming soon</div>');
-    grid.appendChild(card);
-  });
-  modePill.textContent = m.pill;
-}
-function showModes(){
-  setStep.classList.add('hidden');
-  modeStep.classList.remove('hidden');
-  headSub.textContent = 'Choose how you want to practice';
-}
-function showSets(mode){
-  renderSets(mode);
-  modeStep.classList.add('hidden');
-  setStep.classList.remove('hidden');
-  headSub.textContent = 'Choose a drill set to begin';
-}
-function chooseMode(mode){
-  showSets(mode);
-  history.pushState(null, '', '#' + mode);
-}
-document.getElementById('modeTimed').onclick = function(){ chooseMode('timed'); };
-document.getElementById('modeFlash').onclick = function(){ chooseMode('flashcards'); };
-document.getElementById('changeMode').onclick = function(){ history.pushState(null, '', location.pathname + location.search); showModes(); };
-function syncFromHash(){
-  const h = location.hash.replace('#','');
-  if(MODES[h]) showSets(h); else showModes();
-}
-window.addEventListener('hashchange', syncFromHash);
-window.addEventListener('popstate', syncFromHash);
-syncFromHash();
-
-// --- Auth (talks to backend in server.js) ---
-let mode = 'signup';   // signup | login | forgot | reset
 const $ = id => document.getElementById(id);
-const modalBg = $('modalBg');
-const submitBtn = $('submitBtn');
-const authErr = $('authErr');
-const authOk = $('authOk');
-const topbar = $('topbar');
+let mode = 'timed', stats = null, user = null;
+const fmt = n => Math.round(n).toLocaleString();
 
+/* ---------- rendering ---------- */
+function renderHero() {
+  const hero = $('heroMain'), qc = $('questCard');
+  if (!stats) {
+    hero.innerHTML = '<div class="eyebrow">General science review</div><h1>Study smarter. <span>Level up.</span></h1>' +
+      '<p>Practice timed exams or spaced-repetition flashcards. Log in to earn XP, unlock achievements and see detailed analytics of how you improve.</p>' +
+      '<button class="btn" id="heroSignup">Create free account</button> <button class="btn ghost" id="heroLogin">I have an account</button>' +
+      '<div class="feat"><span class="pill">✨ XP &amp; levels</span><span class="pill">🏅 25 achievements</span><span class="pill">📊 Progress charts</span><span class="pill">🔥 Daily streaks</span></div>';
+    $('heroSignup').onclick = () => openModal('signup'); $('heroLogin').onclick = () => openModal('login');
+    qc.innerHTML = '<h3>Daily goals</h3><p class="sub">Log in to track daily goals and keep your streak alive.</p>' +
+      ['🃏 Review 20 flashcards', '⏱️ Finish a timed exam', '🎯 Score 75%+ on an exam'].map(t => '<div class="quest"><div class="chk">✓</div><div class="qt">' + t + '</div></div>').join('');
+    return;
+  }
+  const l = stats.lvl;
+  hero.innerHTML = '<div class="player"><div class="avatar" style="--p:' + l.pct.toFixed(1) + '"><div><small>LEVEL</small><b>' + l.level + '</b></div></div>' +
+    '<div class="pinfo"><div class="pname" id="pn"></div><div class="prank">' + l.title + '</div><div class="xpbar"><i style="width:' + l.pct.toFixed(1) + '%"></i></div>' +
+    '<div class="xpmeta"><span>' + fmt(l.into) + ' / ' + fmt(l.need) + ' XP to level ' + (l.level + 1) + '</span><span>' + fmt(stats.xp) + ' XP total</span></div></div></div>' +
+    '<div class="pstats"><span class="pill">🔥 ' + stats.streak + '<em>day streak</em></span><span class="pill">🏅 ' + stats.unlocked + '/' + stats.achievements.length + '<em>badges</em></span>' +
+    '<span class="pill">📝 ' + stats.examCount + '<em>exams</em></span><span class="pill">🃏 ' + stats.learned + '<em>cards learned</em></span></div>' +
+    (stats.nextUp ? '<div class="next"><span class="ic">' + stats.nextUp.icon + '</span><div style="flex:1"><b>Next badge: ' + stats.nextUp.name + '</b><div class="meter"><div class="bar"><i style="width:' + (stats.nextUp.ratio * 100).toFixed(0) + '%"></i></div></div></div><span style="color:var(--muted);font-weight:700">' + Math.floor(stats.nextUp.cur) + stats.nextUp.unit + ' / ' + stats.nextUp.goal + stats.nextUp.unit + '</span></div>' : '');
+  $('pn').textContent = user ? (user.name || user.email) : '';
+  const done = stats.quests.filter(q => q.done).length;
+  qc.innerHTML = '<h3>Daily goals <small style="color:var(--muted);font-weight:700">' + done + '/' + stats.quests.length + '</small></h3><p class="sub">Resets every day. Keep your streak going.</p>' +
+    stats.quests.map(q => '<div class="quest ' + (q.done ? 'done' : '') + '"><div class="chk">✓</div><div class="qt">' + q.icon + ' ' + q.label +
+      '<div class="qb"><i style="width:' + (q.ratio * 100).toFixed(0) + '%"></i></div></div><small>' + Math.min(q.cur, q.goal) + (q.unit || '') + '/' + q.goal + (q.unit || '') + '</small></div>').join('');
+}
+
+function renderSets() {
+  const m = MODES[mode];
+  $('modeInfo').textContent = m.info;
+  document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+  $('setGrid').innerHTML = SETS.map((s, i) => {
+    const L = String.fromCharCode(65 + i), c = SD.COLORS[L], ps = stats && stats.perSet[L];
+    let meter = '<div class="meter"><div class="row"><span>150 questions</span><span>Log in to track mastery</span></div></div>';
+    if (ps) {
+      meter = mode === 'flashcards'
+        ? '<div class="meter"><div class="row"><span>Mastery</span><span>' + ps.learned + ' / 150 learned</span></div><div class="bar"><i style="width:' + (ps.learned / 150 * 100).toFixed(0) + '%"></i></div></div>'
+        : '<div class="meter"><div class="row"><span>Best exam score</span><span>' + (ps.attempts ? Math.round(ps.best) + '% · ' + ps.attempts + ' attempt' + (ps.attempts > 1 ? 's' : '') : 'Not attempted')
+          + '</span></div><div class="bar"><i style="width:' + Math.round(ps.best) + '%"></i></div></div>';
+    }
+    return '<a class="set" style="--c:' + c + '" href="' + m.page + '?set=' + encodeURIComponent(s.href) + '"><div class="top"><div class="letter">' + L + '</div><div><h3>' + s.title + '</h3><p>' + s.description + '</p></div></div>' + meter + '<div class="go">' + m.cta + '</div></a>';
+  }).join('');
+}
+
+function renderBadges() {
+  if (!stats) { $('badgeInfo').textContent = 'Log in to start unlocking badges.'; $('badges').innerHTML = SD.ACHIEVEMENTS.slice(0, 12).map(a => '<div class="bdg off" title="' + a.name + '">' + a.icon + '</div>').join(''); return; }
+  $('badgeInfo').textContent = stats.unlocked + ' of ' + stats.achievements.length + ' unlocked';
+  const sorted = stats.achievements.slice().sort((a, b) => (b.done - a.done) || (b.ratio - a.ratio));
+  $('badges').innerHTML = sorted.slice(0, 14).map(a => '<div class="bdg ' + (a.done ? '' : 'off') + '" title="' + a.name + ': ' + a.desc + '">' + a.icon + '</div>').join('');
+}
+function renderAll() { renderHero(); renderSets(); renderBadges(); }
+
+/* ---------- mode toggle (kept in the URL hash) ---------- */
+function syncFromHash() { const h = location.hash.replace('#', ''); mode = MODES[h] ? h : mode; renderSets(); }
+document.querySelectorAll('#seg button').forEach(b => b.onclick = () => { mode = b.dataset.mode; history.replaceState(null, '', '#' + mode); renderSets(); });
+window.addEventListener('hashchange', syncFromHash);
+
+/* ---------- auth (talks to server.js) ---------- */
+let amode = 'signup';
+const modalBg = $('modalBg'), submitBtn = $('submitBtn'), authErr = $('authErr'), authOk = $('authOk');
 const MODE_TEXT = {
-  signup: ['Sign up', 'Create an account to track your drills.', 'Sign up'],
-  login:  ['Log in', 'Welcome back.', 'Log in'],
+  signup: ['Sign up', 'Create an account to earn XP and track your progress.', 'Sign up'],
+  login: ['Log in', 'Welcome back.', 'Log in'],
   forgot: ['Forgot password', 'Enter your account email and we will send you a 6-digit code.', 'Send code'],
-  reset:  ['Reset password', 'Enter the code we emailed you and choose a new password.', 'Reset password']
+  reset: ['Reset password', 'Enter the code we emailed you and choose a new password.', 'Reset password']
 };
 function openModal(m, notice) {
-  mode = m;
-  const t = MODE_TEXT[m];
-  $('modalTitle').textContent = t[0];
-  $('modalSub').textContent = t[1];
-  submitBtn.textContent = t[2];
+  amode = m; const t = MODE_TEXT[m];
+  $('modalTitle').textContent = t[0]; $('modalSub').textContent = t[1]; submitBtn.textContent = t[2];
   $('nameField').classList.toggle('hidden', m !== 'signup');
   $('codeField').classList.toggle('hidden', m !== 'reset');
   $('passField').classList.toggle('hidden', m === 'forgot');
@@ -202,10 +185,8 @@ function openModal(m, notice) {
   $('passField').autocomplete = m === 'login' ? 'current-password' : 'new-password';
   $('forgotLink').classList.toggle('hidden', m !== 'login');
   $('backLink').classList.toggle('hidden', m !== 'forgot' && m !== 'reset');
-  $('passField').value = '';
-  $('codeField').value = '';
-  authErr.textContent = '';
-  authOk.textContent = notice || '';
+  $('passField').value = ''; $('codeField').value = '';
+  authErr.textContent = ''; authOk.textContent = notice || '';
   modalBg.classList.add('open');
 }
 $('signupBtn').onclick = () => openModal('signup');
@@ -217,30 +198,25 @@ modalBg.addEventListener('click', e => { if (e.target === modalBg) modalBg.class
 
 async function post(url, body) {
   const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  let data = {};
-  try { data = await r.json(); } catch {}
+  let data = {}; try { data = await r.json(); } catch {}
   return { ok: r.ok, data };
 }
-
 submitBtn.onclick = async () => {
-  authErr.textContent = '';
-  authOk.textContent = '';
+  authErr.textContent = ''; authOk.textContent = '';
   const email = $('emailField').value.trim();
   submitBtn.disabled = true;
   try {
-    if (mode === 'signup' || mode === 'login') {
-      const { ok, data } = await post('/api/' + mode, {
-        name: $('nameField').value, email, password: $('passField').value
-      });
+    if (amode === 'signup' || amode === 'login') {
+      const { ok, data } = await post('/api/' + amode, { name: $('nameField').value, email, password: $('passField').value });
       if (!ok) { authErr.textContent = data.error || 'Something went wrong.'; return; }
       localStorage.setItem('sd_token', data.token);
       modalBg.classList.remove('open');
-      renderUser(data.user);
-    } else if (mode === 'forgot') {
+      boot(data.user);
+    } else if (amode === 'forgot') {
       const { ok, data } = await post('/api/forgot', { email });
       if (!ok) { authErr.textContent = data.error || 'Something went wrong.'; return; }
       openModal('reset', data.message + ' Check your spam folder too.');
-    } else if (mode === 'reset') {
+    } else if (amode === 'reset') {
       const { ok, data } = await post('/api/reset', { email, code: $('codeField').value.trim(), password: $('passField').value });
       if (!ok) { authErr.textContent = data.error || 'Something went wrong.'; return; }
       openModal('login', data.message);
@@ -249,18 +225,26 @@ submitBtn.onclick = async () => {
   finally { submitBtn.disabled = false; }
 };
 
-function renderUser(u) {
-  topbar.innerHTML = '<a class="user" href="progress.html" style="text-decoration:none">My Progress</a><span class="user" id="userName"></span><button id="logoutBtn">Log out</button>';
-  document.getElementById('userName').textContent = u.name || u.email;   // textContent: safe against HTML in usernames
-  document.getElementById('logoutBtn').onclick = () => { localStorage.removeItem('sd_token'); location.reload(); };
+function renderNav() {
+  const tb = $('topbar');
+  tb.innerHTML = '<a class="lvlchip" href="progress.html"><b id="navLvl">1</b><span class="nm" id="navName"></span></a><button class="btn ghost sm" id="logoutBtn">Log out</button>';
+  $('navName').textContent = user.name || user.email;          // textContent: safe against HTML in usernames
+  $('navLvl').textContent = stats ? stats.lvl.level : '1';
+  $('logoutBtn').onclick = () => { localStorage.removeItem('sd_token'); location.reload(); };
 }
+async function boot(u) {
+  user = u; stats = null; renderNav(); renderAll();
+  stats = await SD.check();
+  renderNav(); renderAll();
+}
+
 (async () => {
-  const token = localStorage.getItem('sd_token');
-  if (!token) return;
+  syncFromHash(); renderAll();
+  if (!SD.token()) return;
   try {
-    const r = await fetch('/api/me', { headers: { Authorization: 'Bearer ' + token } });
+    const r = await fetch('/api/me', { headers: { Authorization: 'Bearer ' + SD.token() } });
     if (!r.ok) return;
-    renderUser(await r.json());
+    boot(await r.json());
   } catch {}
 })();
 </script>

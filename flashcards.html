@@ -4,82 +4,82 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Flashcard Mode - Science Drill</title>
+<link rel="stylesheet" href="theme.css">
 <style>
-:root{
-  --bg1:#071b2e; --accent:#28e0c5; --accent2:#5aa9ff;
-  --card:#0f2740; --card-border:#1c3f5e; --text:#eaf6ff; --muted:#9db4c7;
-  --correct:#2ecc71; --wrong:#ff5f6d; --amber:#ffcc66;
-}
-*{box-sizing:border-box;}
-body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text);min-height:100vh;padding-bottom:50px;
-  background:radial-gradient(circle at 20% 10%, #123456 0%, var(--bg1) 45%, #050f1a 100%);}
-.hidden{display:none !important;}
-.wrap{max-width:760px;margin:0 auto;padding:0 16px;}
-header{padding:22px 16px 10px;text-align:center;}
-header h1{margin:0;font-size:clamp(1.4rem,4vw,2rem);background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
-header p{color:var(--muted);margin:6px 0 0;font-size:.92rem;}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 12px;}
-.top a{color:var(--accent);text-decoration:none;font-weight:700;font-size:.88rem;}
-.counts{display:flex;gap:14px;font-weight:700;font-size:.95rem;}
-.counts .n{color:#5aa9ff;} .counts .l{color:#ff5f6d;} .counts .d{color:#2ecc71;}
-.counts span.on{text-decoration:underline;}
-.bar{height:8px;background:#0a2033;border-radius:6px;overflow:hidden;border:1px solid var(--card-border);margin-bottom:6px;}
-.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s;}
-.barlabel{color:var(--muted);font-size:.78rem;text-align:right;margin-bottom:12px;}
-.tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin-bottom:14px;color:var(--muted);font-size:.82rem;}
-.tools select{background:#0a1e33;color:var(--text);border:1px solid var(--card-border);border-radius:8px;padding:6px 8px;font-size:.82rem;}
-.chip{background:transparent;color:var(--accent);border:1.5px solid var(--accent);border-radius:30px;padding:7px 14px;font-weight:700;font-size:.82rem;cursor:pointer;}
-.scene{perspective:1200px;}
-.card{display:grid;transform-style:preserve-3d;transition:transform .45s;cursor:pointer;min-height:320px;}
-.card.flipped{transform:rotateY(180deg);}
-.face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border:1px solid var(--card-border);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:12px;}
-.face.back{transform:rotateY(180deg);border-color:rgba(46,204,113,.5);box-shadow:0 0 0 1px rgba(46,204,113,.2) inset;}
-.tag{align-self:flex-start;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(90,169,255,.15);color:var(--accent2);border:1px solid rgba(90,169,255,.4);}
-.back .tag{background:rgba(46,204,113,.12);color:var(--correct);border-color:rgba(46,204,113,.4);}
-.q{font-size:1.05rem;line-height:1.55;font-weight:600;}
-.qsmall{font-size:.88rem;line-height:1.5;color:var(--muted);}
-.opts{display:flex;flex-direction:column;gap:7px;margin-top:4px;}
-.opt{display:flex;gap:10px;align-items:center;background:#0a1e33;border:1px solid var(--card-border);border-radius:10px;padding:9px 12px;font-size:.92rem;}
-.opt b{flex:none;width:24px;height:24px;border-radius:50%;background:#132c45;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted);}
-.ans{background:rgba(46,204,113,.12);border:1px solid var(--correct);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;font-size:1.05rem;font-weight:700;}
-.ans b{flex:none;width:32px;height:32px;border-radius:50%;background:var(--correct);color:#04220f;display:flex;align-items:center;justify-content:center;}
-.hint{margin-top:auto;color:var(--muted);font-size:.78rem;text-align:center;}
-.bottom{margin-top:18px;}
-.show{display:block;margin:0 auto;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04222f;border:none;padding:13px 40px;border-radius:30px;font-weight:800;font-size:1rem;cursor:pointer;}
-.rate{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.rate button{border:none;border-radius:14px;padding:12px 6px;cursor:pointer;font-weight:800;font-size:.95rem;display:flex;flex-direction:column;gap:3px;align-items:center;}
-.rate button small{font-weight:600;font-size:.75rem;opacity:.85;}
-.rate .vh{background:#ff5f6d;color:#2a0407;}
-.rate .hd{background:#ffcc66;color:#332400;}
-.rate .ez{background:#2ecc71;color:#04220f;}
-.legend{color:var(--muted);font-size:.74rem;text-align:center;margin-top:10px;line-height:1.5;}
-.msg{text-align:center;color:var(--muted);padding:50px 10px;line-height:1.7;}
-.msg a{color:var(--accent);}
-.msg h2{color:var(--text);margin:0 0 6px;}
-@media(max-width:480px){.q{font-size:1rem;}.rate button{font-size:.85rem;}}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 50px}
+.head{text-align:center;margin:22px 0 14px}
+.head h1{font-size:1.6rem}
+.head p{color:var(--muted);margin:4px 0 0;font-size:.88rem}
+.hud{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}
+.hud .pill b{color:var(--accent)}
+.hud .combo{border-color:var(--amber);color:var(--amber);transition:transform .2s}
+.hud .combo.bump{transform:scale(1.18)}
+.counts{display:flex;justify-content:center;gap:18px;font-weight:800;font-size:.92rem;margin:4px 0 10px}
+.counts .n{color:var(--accent2)} .counts .l{color:var(--bad)} .counts .d{color:var(--good)}
+.bar{height:8px;background:#0a1830;border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s}
+.barlabel{color:var(--muted);font-size:.76rem;text-align:right;margin:5px 0 14px}
+.tools{display:flex;gap:10px;justify-content:center;align-items:center;margin-bottom:14px;color:var(--muted);font-size:.82rem}
+.tools select{background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit}
+.scene{perspective:1200px;position:relative}
+.card3{display:grid;transform-style:preserve-3d;transition:transform .45s;cursor:pointer;min-height:330px}
+.card3.flipped{transform:rotateY(180deg)}
+.face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:12px}
+.face.back{transform:rotateY(180deg);border-color:rgba(52,211,153,.5)}
+.tag{align-self:flex-start;font-size:.72rem;font-weight:800;padding:4px 10px;border-radius:99px;background:rgba(90,169,255,.14);color:var(--accent2);border:1px solid rgba(90,169,255,.35)}
+.back .tag{background:rgba(52,211,153,.12);color:var(--good);border-color:rgba(52,211,153,.4)}
+.q{font-size:1.08rem;line-height:1.55;font-weight:700}
+.qsmall{font-size:.88rem;line-height:1.5;color:var(--muted)}
+.opts{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+.opt{display:flex;gap:10px;align-items:center;background:#0c1a30;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:.92rem}
+.opt b{flex:none;width:24px;height:24px;border-radius:50%;background:#15294a;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted)}
+.ans{background:rgba(52,211,153,.1);border:1px solid var(--good);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;font-size:1.05rem;font-weight:800}
+.ans b{flex:none;width:32px;height:32px;border-radius:50%;background:var(--good);color:#04220f;display:flex;align-items:center;justify-content:center}
+.hint{margin-top:auto;color:var(--muted);font-size:.78rem;text-align:center}
+.bottom{margin-top:18px}
+.show{display:block;margin:0 auto;padding:13px 44px;font-size:1rem}
+.rate{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.rate button{border:0;border-radius:14px;padding:12px 6px;cursor:pointer;font-weight:900;font-size:.95rem;display:flex;flex-direction:column;gap:3px;align-items:center;font-family:inherit;transition:transform .12s}
+.rate button:hover{transform:translateY(-2px)}
+.rate button small{font-weight:700;font-size:.74rem;opacity:.85}
+.rate .vh{background:#ff6b7a;color:#2a0407}.rate .hd{background:#ffc857;color:#332400}.rate .ez{background:#34d399;color:#04220f}
+.legend{color:var(--muted);font-size:.74rem;text-align:center;margin-top:12px;line-height:1.5}
+.msg{text-align:center;color:var(--muted);padding:50px 10px;line-height:1.7}
+.msg h2{color:var(--text);margin:0 0 6px}
+.xppop{position:absolute;left:50%;top:40%;transform:translateX(-50%);font-weight:900;font-size:1.5rem;color:var(--accent);pointer-events:none;text-shadow:0 2px 12px rgba(0,0,0,.6);animation:rise 1s ease-out forwards;z-index:5;white-space:nowrap}
+.xppop.big{color:var(--amber);font-size:1.8rem}
+@keyframes rise{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-70px)}}
 </style>
 </head>
 <body>
-<header>
-  <h1 id="title">Flashcards</h1>
-  <p>Spaced repetition study mode (Anki-style). No timer and no score is recorded.</p>
-</header>
+<header class="nav"><div class="container in">
+  <a class="brand" href="index.html"><span class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#04222f" stroke-width="2"><circle cx="12" cy="12" r="2" fill="#04222f"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></svg></span>Science Drills</a>
+  <nav class="links"><a href="index.html">Home</a><a href="progress.html">Dashboard</a></nav>
+  <div class="right"><a class="lvlchip hidden" id="lvlChip" href="progress.html"><b id="hudLvl">1</b><span class="nm" id="hudXp"></span></a></div>
+</div></header>
+
 <div class="wrap">
-  <div class="top"><a href="index.html">&larr; Home</a><div class="counts" id="counts"></div></div>
+  <div class="head"><h1 id="title">Flashcards</h1><p>Spaced repetition (Anki-style). Every review earns XP when you are logged in.</p></div>
   <div id="loading" class="msg">Loading cards...</div>
-  <div id="error" class="msg hidden"><b id="errTitle">Could not load this drill.</b><br><span id="errDetail"></span><br><br><a href="index.html">Back to homepage</a></div>
+  <div id="error" class="msg hidden"><b id="errTitle">Could not load this drill.</b><br><span id="errDetail"></span><br><br><a href="index.html">Back to home</a></div>
   <div id="app" class="hidden">
+    <div class="hud">
+      <span class="pill">Session <b id="sXp">+0 XP</b></span>
+      <span class="pill">Reviewed <b id="sRev">0</b></span>
+      <span class="pill combo hidden" id="combo">🔥 x0</span>
+    </div>
+    <div class="counts" id="counts"></div>
     <div class="bar"><i id="fill"></i></div>
     <div class="barlabel" id="barLabel"></div>
     <div class="tools">
       <label>New cards/day
         <select id="newLimit"><option>10</option><option>20</option><option>50</option><option>100</option><option>150</option></select>
       </label>
-      <button class="chip" id="resetBtn">Reset progress</button>
+      <button class="btn ghost sm" id="resetBtn">Reset progress</button>
     </div>
     <div id="done" class="msg hidden"></div>
     <div id="deck">
-      <div class="scene"><div class="card" id="card">
+      <div class="scene" id="scene"><div class="card3" id="card">
         <div class="face front">
           <span class="tag" id="fTag"></span>
           <div class="q" id="fQ"></div>
@@ -94,18 +94,19 @@ header p{color:var(--muted);margin:6px 0 0;font-size:.92rem;}
         </div>
       </div></div>
       <div class="bottom">
-        <button class="show" id="showBtn">Show Answer</button>
+        <button class="btn show" id="showBtn">Show Answer</button>
         <div class="rate hidden" id="rate">
           <button class="vh" data-r="again">Very Hard<small id="tVH"></small></button>
           <button class="hd" data-r="hard">Hard<small id="tHD"></small></button>
           <button class="ez" data-r="good">Easy<small id="tEZ"></small></button>
         </div>
-        <div class="legend">Shortcuts: Space = show answer, 1 = Very Hard, 2 = Hard, 3 = Easy.<br>Cards are shown in random order. The time under each button is when you will see the card again.</div>
+        <div class="legend">Shortcuts: Space = show answer, 1 = Very Hard, 2 = Hard, 3 = Easy.<br>Cards appear in random order. The time under each button is when you will see the card again.</div>
       </div>
     </div>
   </div>
 </div>
 
+<script src="game.js"></script>
 <script>
 (function(){
   var params = new URLSearchParams(location.search);
@@ -117,8 +118,8 @@ header p{color:var(--muted);margin:6px 0 0;font-size:.92rem;}
   function fail(why){
     $('loading').classList.add('hidden'); $('error').classList.remove('hidden');
     var msg = {
-      link: 'This link has no valid drill set. Open the homepage, choose Flashcard Mode, then pick a set.',
-      file: 'Flashcards cannot load when the page is opened straight from a folder (file://). Open the website address instead (for example your GitHub Pages link).',
+      link: 'This link has no valid drill set. Open the home page, choose Flashcards, then pick a set.',
+      file: 'Flashcards cannot load when the page is opened straight from a folder (file://). Open the website address instead.',
       missing: 'The drill file for this set was not found. Make sure that set\'s HTML file (science-drill-N.html) is uploaded in the same folder.',
       parse: 'The drill file loaded but its questions could not be read.'
     };
@@ -131,22 +132,9 @@ header p{color:var(--muted);margin:6px 0 0;font-size:.92rem;}
   document.title = 'Flashcards - Set ' + setLetter;
 
   // ---------- Anki (SM-2, v2 scheduler) settings: Anki's defaults ----------
-  var CFG = {
-    steps: [1, 10],        // learning steps (minutes)
-    lapseSteps: [10],      // relearning steps (minutes)
-    gradIvl: 1,            // graduating interval (days)
-    startEase: 2.5,        // starting ease 250%
-    minEase: 1.3,
-    hardMult: 1.2,         // hard interval 120%
-    ivlMod: 1.0,           // interval modifier 100%
-    newIvlPct: 0,          // new interval after a lapse 0%
-    minIvl: 1,
-    maxIvl: 36500,
-    learnAhead: 20,        // learn-ahead limit (minutes)
-    rollover: 4            // day starts at 4 am
-  };
-  // card.s: 0 new, 1 learning, 2 review, 3 relearning
-  // card.due: ms timestamp (learning / relearning) or day number (review)
+  var CFG = { steps: [1, 10], lapseSteps: [10], gradIvl: 1, startEase: 2.5, minEase: 1.3, hardMult: 1.2, ivlMod: 1.0,
+              newIvlPct: 0, minIvl: 1, maxIvl: 36500, learnAhead: 20, rollover: 4 };
+  // card.s: 0 new, 1 learning, 2 review, 3 relearning.  card.due: ms timestamp (learning) or day number (review)
 
   function now(){ return Date.now(); }
   function today(){
@@ -196,7 +184,6 @@ header p{color:var(--muted);margin:6px 0 0;font-size:.92rem;}
       }
       return c;
     }
-    // review card
     var ivl = c.ivl, delay = Math.max(0, td - c.due);
     if(r === 'again'){
       c.lapses++;
@@ -233,6 +220,7 @@ header p{color:var(--muted);margin:6px 0 0;font-size:.92rem;}
 
   // ---------- state ----------
   var Q = [], S = null, cur = -1, last = -1, flipped = false;
+  var sessionXp = 0, sessionRev = 0, combo = 0;
 
   function freshState(limit){
     var cards = []; for(var i = 0; i < Q.length; i++) cards.push(newCard());
@@ -247,22 +235,30 @@ header p{color:var(--muted);margin:6px 0 0;font-size:.92rem;}
   }
   function saveState(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
+  // ---------- sync with account (debounced) ----------
   var pend = { reviews:0, again:0, hard:0, good:0 }, sendT = null;
-function localDay(){ var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
-function track(r){
-  pend.reviews++; if(r === 'again') pend.again++; else if(r === 'hard') pend.hard++; else pend.good++;
-  clearTimeout(sendT); sendT = setTimeout(flush, 4000);
-}
-function flush(){
-  var token = localStorage.getItem('sd_token');
-  if(!token || !pend.reviews || !S) return;
-  var body = { mode:'flashcards', set:setLetter, total:Q.length, score:queues().graduated, day:localDay(),
-    reviews:pend.reviews, again:pend.again, hard:pend.hard, good:pend.good };
-  pend = { reviews:0, again:0, hard:0, good:0 };
-  fetch('/api/activity', { method:'POST', keepalive:true,
-    headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token }, body: JSON.stringify(body) }).catch(function(){});
-}
-document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'hidden') flush(); });
+  function localDay(){ var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+  function track(r){
+    pend.reviews++; if(r === 'again') pend.again++; else if(r === 'hard') pend.hard++; else pend.good++;
+    clearTimeout(sendT); sendT = setTimeout(flush, 4000);
+  }
+  function hud(s){
+    if(!s) return;
+    $('lvlChip').classList.remove('hidden');
+    $('hudLvl').textContent = s.lvl.level;
+    $('hudXp').textContent = Math.round(s.lvl.into) + ' / ' + Math.round(s.lvl.need) + ' XP';
+  }
+  function flush(){
+    var token = localStorage.getItem('sd_token');
+    if(!token || !pend.reviews || !S) return;
+    var body = { mode:'flashcards', set:setLetter, total:Q.length, score:queues().graduated, day:localDay(),
+      reviews:pend.reviews, again:pend.again, hard:pend.hard, good:pend.good };
+    pend = { reviews:0, again:0, hard:0, good:0 };
+    fetch('/api/activity', { method:'POST', keepalive:true,
+      headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token }, body: JSON.stringify(body) })
+      .then(function(){ return window.SD ? SD.check() : null; }).then(hud).catch(function(){});
+  }
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'hidden') flush(); });
 
   function extract(html){
     var m = html.match(/const QUESTIONS\s*=\s*(\[[\s\S]*?\]);\s*\n\s*const letters/);
@@ -341,9 +337,14 @@ document.addEventListener('visibilitychange', function(){ if(document.visibility
     $('fill').style.width = (q.graduated / Q.length * 100) + '%';
     $('barLabel').textContent = q.graduated + ' of ' + Q.length + ' cards learned';
     $('newLimit').value = String(S.newLimit);
+    $('sXp').textContent = '+' + sessionXp + ' XP';
+    $('sRev').textContent = sessionRev;
+    var cb = $('combo');
+    cb.classList.toggle('hidden', combo < 3);
+    cb.textContent = '🔥 x' + combo;
     if(cur < 0){
       $('deck').classList.add('hidden'); $('done').classList.remove('hidden');
-      $('done').innerHTML = '<h2>Done for now!</h2>You finished every card that is due.<br>' + waitText() + '<br><a href="index.html">Back to homepage</a>';
+      $('done').innerHTML = '<h2>🎉 Done for now!</h2>You finished every card that is due' + (sessionXp ? ' and earned <b style="color:var(--accent)">+' + sessionXp + ' XP</b> this session' : '') + '.<br>' + waitText() + '<br><br><a class="btn" href="progress.html">See my dashboard</a>';
       return;
     }
     $('done').classList.add('hidden'); $('deck').classList.remove('hidden');
@@ -370,12 +371,27 @@ document.addEventListener('visibilitychange', function(){ if(document.visibility
     $('rate').classList.remove('hidden');
   }
 
-  function answer(r){track(r);
+  function pop(text, big){
+    var p = document.createElement('div');
+    p.className = 'xppop' + (big ? ' big' : ''); p.textContent = text;
+    $('scene').appendChild(p);
+    setTimeout(function(){ p.remove(); }, 1000);
+  }
+
+  function answer(r){
     if(cur < 0 || !flipped) return;
+    track(r);
     var c0 = S.cards[cur];
     if(c0.s === 0) S.newToday++;
-    S.cards[cur] = rate(c0, r, true);
+    var nc = rate(c0, r, true);
+    var learned = c0.reps === 0 && nc.s === 2;      // first time this card graduates
+    S.cards[cur] = nc;
     saveState();
+    var gain = 2 + (learned ? 10 : 0);
+    sessionXp += gain; sessionRev++;
+    combo = r === 'again' ? 0 : combo + 1;
+    pop(learned ? '+' + gain + ' XP  Learned!' : '+' + gain + ' XP', learned);
+    if(combo >= 3){ var cb = $('combo'); cb.classList.add('bump'); setTimeout(function(){ cb.classList.remove('bump'); }, 200); }
     last = cur;
     cur = pickNext();
     resetFlip();
@@ -397,6 +413,8 @@ document.addEventListener('visibilitychange', function(){ if(document.visibility
     start();
   }).catch(function(e){ fail(typeof e === 'string' ? e : 'missing'); });
 
+  if(window.SD && SD.token()) SD.check().then(hud);
+
   $('showBtn').onclick = showAnswer;
   $('card').onclick = function(){ if(!flipped) showAnswer(); };
   Array.prototype.forEach.call(document.querySelectorAll('#rate button'), function(b){
@@ -409,7 +427,7 @@ document.addEventListener('visibilitychange', function(){ if(document.visibility
   };
   $('resetBtn').onclick = function(){
     if(!confirm('Erase all spaced-repetition progress for this set?')) return;
-    S = freshState(S.newLimit); saveState(); last = -1; cur = pickNext(); resetFlip(); render();
+    S = freshState(S.newLimit); saveState(); last = -1; combo = 0; cur = pickNext(); resetFlip(); render();
   };
   document.addEventListener('keydown', function(e){
     if(!S || e.target.tagName === 'SELECT') return;
@@ -418,12 +436,10 @@ document.addEventListener('visibilitychange', function(){ if(document.visibility
     else if(flipped && e.key === '2') answer('hard');
     else if(flipped && e.key === '3') answer('good');
   });
-  // when waiting for the next learning card, check again every 15 seconds
   setInterval(function(){
     if(S && cur < 0){ var nx = pickNext(); if(nx >= 0){ cur = nx; resetFlip(); render(); } else { render(); } }
   }, 15000);
 
-  // expose a tiny hook for automated tests
   window.__anki = { rate: rate, CFG: CFG, state: function(){ return S; }, cur: function(){ return cur; } };
 })();
 </script>
