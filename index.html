@@ -228,7 +228,7 @@ submitBtn.onclick = async () => {
 
 function renderNav() {
   const tb = $('topbar');
-  tb.innerHTML = '<a class="lvlchip" href="progress.html"><b id="navLvl">1</b><span class="nm" id="navName"></span></a><button class="btn ghost sm" id="logoutBtn">Log out</button>';
+  tb.innerHTML = (user.role === 'admin' ? '<a class="btn ghost sm" href="admin.html">Teacher</a>' : '') + '<a class="lvlchip" href="progress.html"><b id="navLvl">1</b><span class="nm" id="navName"></span></a><button class="btn ghost sm" id="logoutBtn">Log out</button>';
   $('navName').textContent = user.name || user.email;          // textContent: safe against HTML in usernames
   $('navLvl').textContent = stats ? stats.lvl.level : '1';
   $('logoutBtn').onclick = () => { localStorage.removeItem('sd_token'); location.reload(); };
