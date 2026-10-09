@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Science Drills</title>
 <link rel="stylesheet" href="theme.css">
+<script src="intro.js"></script>
 <style>
 .hero{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin:26px 0 8px}
 .welcome h1{font-size:clamp(1.8rem,4.5vw,2.6rem);line-height:1.15;margin:6px 0 10px}
@@ -227,7 +228,7 @@ submitBtn.onclick = async () => {
 
 function renderNav() {
   const tb = $('topbar');
-  tb.innerHTML = (user.role === 'admin' ? '<a class="btn ghost sm" href="admin.html">Teacher</a>' : '') + '<a class="lvlchip" href="progress.html"><b id="navLvl">1</b><span class="nm" id="navName"></span></a><button class="btn ghost sm" id="logoutBtn">Log out</button>';
+  tb.innerHTML = '<a class="lvlchip" href="progress.html"><b id="navLvl">1</b><span class="nm" id="navName"></span></a><button class="btn ghost sm" id="logoutBtn">Log out</button>';
   $('navName').textContent = user.name || user.email;          // textContent: safe against HTML in usernames
   $('navLvl').textContent = stats ? stats.lvl.level : '1';
   $('logoutBtn').onclick = () => { localStorage.removeItem('sd_token'); location.reload(); };
