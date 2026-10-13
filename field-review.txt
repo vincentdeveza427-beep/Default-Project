@@ -1,0 +1,692 @@
+FIELD TAGS TO DOUBLE-CHECK (344 of 900 questions)
+Codes: B=Biology  C=Chemistry  P=Physics  E=Earth Science  A=Astronomy
+To fix one, open question-fields.json, find the set letter, and change the letter at that question number.
+
+Set A Q1  -> C   [E:1 A:0 P:0 C:1.8 B:1]
+   What mechanical and chemical processes cause even the hardest rock to break down into smaller particles?
+Set A Q4  -> E   [E:0 A:0 P:0.5 C:0 B:0]
+   Which of the following can be used to determine if the 18k ring offered to you by a friend is a fancy or a tru
+Set A Q5  -> B   [E:1.5 A:0 P:0.2 C:0.3 B:1.8]
+   Fishermen are advised not to drink ocean water because it can cause
+Set A Q9  -> B   [E:0 A:0 P:0.5 C:0 B:0]
+   Where does the pickup needle on a phonograph move the fastest across the record?
+Set A Q11  -> E   [E:0.8 A:1.3 P:0 C:0 B:0]
+   Why do we see the sun rise in the east?
+Set A Q13  -> A   [E:0.2 A:0 P:0 C:0.2 B:0.2]
+   If you are to cook eggs by boiling and you are in a high mountain, you have to:
+Set A Q14  -> A   [E:1.3 A:0 P:1 C:0.3 B:0.3]
+   What do we call the intermittent springs which eject columns of water with great force at certain intervals?
+Set A Q18  -> E   [E:1.3 A:0.5 P:0.4 C:0.3 B:0]
+   Vibrations of the earth are produced by rapid release of energy and are radiated in all direction from a sourc
+Set A Q20  -> P   [E:0.3 A:1 P:0 C:0 B:0]
+   How much is the tilt of the earth?
+Set A Q22  -> E   [E:1 A:0 P:0 C:0 B:0]
+   Which is the softest and hardest mineral in the correct order?
+Set A Q24  -> A   [E:0.3 A:1.8 P:0.7 C:0.2 B:1]
+   Without the sun, there will be no life on earth because:
+Set A Q26  -> E   [E:1 A:0 P:0 C:1 B:0.2]
+   The photo chemical smog results from the automobile pollutants reacting with:
+Set A Q27  -> E   [E:0 A:0 P:0 C:0 B:0]
+   Which of this is malleable?
+Set A Q30  -> C   [E:0 A:0 P:0 C:0 B:1.3]
+   Growth and development are synonymous, respectively with which of the following?
+Set A Q32  -> E   [E:1.6 A:0 P:0 C:0.8 B:1.3]
+   Certain substances are classified as water pollutants, others as air pollutants and still others are land poll
+Set A Q34  -> E   [E:1.5 A:0 P:0 C:0.3 B:1.5]
+   Which is not true about the concentration of methane gas in the atmosphere?
+Set A Q36  -> E   [E:1 A:0 P:0 C:0 B:0]
+   Which reference passes through both the geographic North Pole and the geographic South Pole?
+Set A Q38  -> A   [E:0 A:0 P:0 C:0 B:0]
+   The best reason for discouraging the use of plastic is:
+Set A Q43  -> E   [E:1.3 A:0.8 P:0 C:0 B:0]
+   An observer watching a sailing ship at sea notes that the ship appears to be "sinking" as it moves away. Which
+Set A Q46  -> E   [E:1 A:0 P:0 C:0 B:0]
+   The majority of people experience the worst jet-lag when flying in which of the following directions?
+Set A Q49  -> E   [E:0.8 A:0.5 P:0 C:0 B:0]
+   The core of the earth is thought to be composed of which of the following?
+Set A Q51  -> E   [E:0.3 A:0.5 P:0 C:0 B:0]
+   The true shape of the earth is best described as a:
+Set A Q55  -> E   [E:1.3 A:0 P:0.2 C:1 B:0.2]
+   Which is generally considered the most important factor in the metamorphism of rocks?
+Set A Q58  -> E   [E:0.5 A:0 P:0 C:0 B:0]
+   The study of inland waters, also called freshwater science, is
+Set A Q60  -> E   [E:1 A:0.8 P:0 C:0 B:0]
+   The field of science which covers the gaseous parts of the Earth is - .
+Set A Q64  -> P   [E:0.8 A:2 P:2.5 C:0 B:0]
+   Light from two closely spaced stars will NOT produce a steady interference pattern at the earth's surface beca
+Set A Q65  -> E   [E:1.5 A:1.5 P:0 C:0 B:0]
+   Which is the most accepted theory that the universe originated from a superball that exploded, hurling materia
+Set A Q67  -> A   [E:0 A:0.5 P:0 C:0.5 B:0.2]
+   The sun is mostly made of which gas?
+Set A Q71  -> A   [E:1.5 A:2 P:0 C:0 B:0]
+   Which of these events gives us evidence that the Earth is spherical?
+Set A Q74  -> A   [E:0.6 A:1.3 P:0 C:0 B:0]
+   The length of an earth day is determined by the time required for approximately on:
+Set A Q76  -> A   [E:0 A:0.5 P:0 C:0.2 B:0]
+   What is the most abundant gas in the sun?
+Set A Q79  -> A   [E:0 A:1 P:0.5 C:0 B:0]
+   Which one of the following is NOT one of Kepler's laws?
+Set A Q80  -> A   [E:0 A:1 P:0.5 C:0 B:0]
+   Black holes appear black for what basic reason?
+Set A Q84  -> A   [E:0 A:1.5 P:0 C:1.2 B:0]
+   What event is believed to create elements heavier than iron?
+Set A Q86  -> A   [E:0.2 A:1 P:0.6 C:0.5 B:0]
+   Which of the following is NOT a physical characteristic of a terrestrial planet?
+Set A Q89  -> A   [E:0 A:1 P:0 C:0 B:0]
+   The vernal equinox indicates the beginning of
+Set A Q93  -> A   [E:2 A:2.8 P:1.5 C:0.3 B:0.3]
+   Tidal bulges in the ocean are due
+Set A Q95  -> A   [E:1.8 A:2.5 P:0.4 C:0.3 B:0]
+   The moon is very hot on the side facing the Sun and very cold on the dark side. This extreme temperature diffe
+Set A Q100  -> A   [E:0 A:1 P:0.5 C:0 B:0]
+   Which of the following is NOT a general physical feature of the Moon's surface?
+Set A Q104  -> A   [E:0.2 A:1.8 P:0.8 C:0 B:0]
+   You would have the largest mass of gold if your chunk of gold weighed 1N on which heavenly body?
+Set A Q105  -> P   [E:0.2 A:1 P:1.5 C:0 B:0]
+   What explains the common belief that stars seem to twinkle?
+Set A Q107  -> A   [E:0.3 A:1.3 P:0 C:0 B:0]
+   After the Earth completes one revolution, we experience a
+Set A Q112  -> A   [E:0.5 A:2.3 P:1.4 C:0 B:0]
+   An object weights 30 N on earth. A second object weight 30 N on the moon. Which of the two objects has the gre
+Set A Q114  -> P   [E:0 A:0 P:1 C:0 B:0]
+   An unfortunate bug splatters against the windshield of a moving car. Compared to the acceleration of the car, 
+Set A Q116  -> P   [E:0 A:0 P:0 C:0 B:0]
+   In a darkened room in front of a white wall, you cast shadows of your hand by red and green colored lamps. How
+Set A Q122  -> P   [E:0.3 A:0 P:1 C:0.8 B:0.3]
+   If an object made of a material whose specific gravity is less than one is immerse in water, it will:
+Set A Q123  -> P   [E:0 A:0 P:1.4 C:0.3 B:0]
+   When rubbed with a silk handkerchief, a glass plate loses some electrons. What is the charge of the rubbed pla
+Set A Q127  -> P   [E:0 A:0 P:0.7 C:0.2 B:0]
+   Which is the best way of determining the volume of an irregular object?
+Set A Q133  -> P   [E:0 A:0 P:1.4 C:0.3 B:0]
+   A 1200 W turbo broiler is operated for 45 minutes to cook a whole chicken. How many kilowatt hours of electric
+Set A Q136  -> P   [E:0.6 A:0 P:0 C:0 B:0]
+   A tire has a volume of 300 cu cm. man pumped 200 ml of air into the tire while other man managed to pump anoth
+Set A Q140  -> P   [E:0 A:0 P:0.5 C:0 B:0]
+   A ring and disk roll down a hill together. Which reaches the bottom first?
+Set A Q142  -> A   [E:0.8 A:2.3 P:1.4 C:0 B:0]
+   Compared to its weight on earth, how much will a ten kg object weigh on the moon?
+Set A Q143  -> P   [E:0 A:0 P:0.8 C:0 B:0]
+   A bag of groceries has a mass of ten kilograms. What is its weight?
+Set A Q144  -> P   [E:0 A:0 P:1 C:0 B:0]
+   What is the speed of a jet plane that flies 7,200 km in nine hours?
+Set A Q145  -> P   [E:0 A:0 P:0.4 C:0 B:0]
+   A three month old baby's weight can be expressed either in terms of a large unit, such as a kilogram or a smal
+Set B Q3  -> P   [E:0 A:0 P:1.4 C:0 B:0]
+   A free floating astronaut pushes a floating package in space. If the mass of the astronaut is greater than tha
+Set B Q6  -> P   [E:0 A:0 P:2 C:0 B:1.5]
+   The following illustrates the Doppler Shift experiences, EXCEPT:
+Set B Q8  -> P   [E:0.2 A:0 P:0.6 C:0.3 B:0]
+   Below are different quantities and their corresponding units - symbols. Which is not a correct pair?
+Set B Q9  -> P   [E:0 A:0 P:0.4 C:0 B:0]
+   A student raised a book with a weight of 3 N from the floor to the table which is 2 m high. How much work has 
+Set B Q10  -> P   [E:0 A:0 P:1 C:0 B:0]
+   A bicycle slows down from 3.0 m/s to a stop in 6.0 seconds. What is the bicycle's final velocity?
+Set B Q15  -> C   [E:0.3 A:0 P:0.4 C:1.3 B:0]
+   The temperature at which a substance changes from the liquid phase to the gas phase is called ______.
+Set B Q16  -> C   [E:0 A:0 P:0.4 C:1.2 B:0]
+   What is true of different substances having equal number of mole?
+Set B Q17  -> C   [E:0 A:0 P:0 C:0 B:0.5]
+   Which of the following illustrates a physical change?
+Set B Q22  -> C   [E:0 A:0 P:0 C:1.5 B:1]
+   When a pure crystalline yellowish substance is heated in a vacuum, a greenish gas and a red powdery substance 
+Set B Q25  -> C   [E:0 A:0 P:0 C:1.3 B:0]
+   Which statement is/are true? I. Flammability and conductivity are chemical properties II. Volume and boiling p
+Set B Q28  -> C   [E:0.2 A:0 P:0.2 C:1.3 B:0]
+   Which property of a pure substance is similar to that of a solution?
+Set B Q33  -> P   [E:0 A:0 P:0.8 C:0 B:0.3]
+   The half-life of A is ten hours while that of B is twenty hours. Which statement is CORRECT?
+Set B Q36  -> C   [E:0 A:0 P:0 C:0.2 B:0]
+   What type of gas is an indicator of a crude oil deposit?
+Set B Q38  -> C   [E:0 A:0 P:0 C:0 B:0.5]
+   Why is it not advisable to drink soft drinks when one is hungry?
+Set B Q39  -> C   [E:0 A:0 P:0 C:1 B:0]
+   How many mole of C₆H₆ are there in 195 g of C₆H₆?
+Set B Q41  -> C   [E:0 A:0 P:0 C:1.2 B:0]
+   The fermentation of sugar cane, beet or corn produces a fuel material called:
+Set B Q42  -> C   [E:0 A:0 P:0 C:0 B:0]
+   Which of the following will have a zero dipole moment?
+Set B Q43  -> C   [E:0.5 A:0 P:0 C:0.5 B:0]
+   Halo-halo; heterogeneous as homogeneous.
+Set B Q44  -> C   [E:0 A:0 P:0 C:1.5 B:1]
+   An unknown fruit juice has a bitter taste which is similar to the characteristic of a/an:
+Set B Q45  -> C   [E:0 A:0 P:1 C:0 B:0]
+   Of the states of matter, which has the weakest intermolecular forces of attraction?
+Set B Q49  -> C   [E:0.3 A:0 P:0.4 C:1.3 B:0]
+   Two substances have to be separated. Both are temperature sensitive and have almost the same boiling points. W
+Set B Q55  -> B   [E:0 A:0 P:0 C:0 B:1]
+   Four chromatids would be considered a:
+Set B Q56  -> B   [E:0 A:0 P:0 C:0 B:0]
+   All human senses have
+Set B Q57  -> P   [E:0 A:0 P:1.5 C:0 B:1]
+   Why do most leaves look green in sunlight?
+Set B Q65  -> B   [E:0 A:0 P:1 C:0 B:1.5]
+   There are short-day and long-day plants which respond to varying periods of light and darkness. What do we cal
+Set B Q68  -> B   [E:0 A:0 P:0.2 C:0.5 B:1.5]
+   Respiration is a process common to all. What takes place during this process?
+Set B Q70  -> B   [E:1 A:0 P:0 C:0.2 B:1]
+   The formation of goosebumps on your skin in cold weather is an example of a (an) ___ response
+Set B Q74  -> B   [E:0 A:0 P:0 C:0 B:1]
+   It receives blood from the body via the venae cavae
+Set B Q75  -> B   [E:0 A:0 P:0 C:0 B:1]
+   It is the most common dietary deficiency in less industrialized countries
+Set B Q77  -> B   [E:0 A:0 P:0.2 C:1.7 B:2.5]
+   Which of the following statement about enzymes is false?
+Set B Q78  -> B   [E:0 A:0 P:0 C:2.7 B:3.2]
+   Proteins, nucleic acids, lipids, and carbohydrates all have certain characteristics in common, which of the fo
+Set B Q79  -> B   [E:0 A:0 P:0 C:0 B:1]
+   Which of the following is an isomer of glucose?
+Set B Q80  -> B   [E:0 A:0 P:0 C:1 B:0.5]
+   Monosaccharides are simple sugars with formula given by (CH₂O)ₙ. Which of the following is not made up of mono
+Set B Q81  -> B   [E:0 A:0 P:0 C:1.2 B:0.5]
+   Nonenzymatic glycosylation or glycation creates glycoproteins by:
+Set B Q82  -> B   [E:0 A:0 P:0 C:0.3 B:0.5]
+   Which of the following is a 5-carbon sugar?
+Set B Q83  -> B   [E:0 A:0 P:0 C:1 B:0]
+   The optimum pH of pepsin is:
+Set B Q84  -> C   [E:0 A:0 P:0 C:1.7 B:1.5]
+   A catabolic enzyme:
+Set B Q85  -> C   [E:0 A:0 P:0 C:1.7 B:1.5]
+   An anabolic enzyme:
+Set B Q88  -> B   [E:0 A:0 P:0 C:0.5 B:1]
+   Amylase has all of the following properties except:
+Set B Q89  -> C   [E:0 A:0 P:0.2 C:1.5 B:1.5]
+   The function of a protein is determined primarily by:
+Set B Q91  -> C   [E:0 A:0 P:0 C:2.7 B:2.5]
+   Amino acids in a protein are joined by:
+Set B Q98  -> B   [E:0 A:0 P:0 C:0 B:0]
+   What was the outstanding contribution of the two US zoologists namely, Kevin de Queiroz and Jacques Gauthier?
+Set B Q99  -> B   [E:0 A:0 P:0 C:0.5 B:0]
+   Who was the Swedish naturalist who introduced the two-part scientific name?
+Set B Q120  -> C   [E:0 A:0 P:1.4 C:1.3 B:1]
+   What organism harness energy from light and must obtain inorganic form?
+Set B Q121  -> C   [E:0 A:0 P:0.4 C:1.9 B:1.3]
+   What organism extract energy from inorganic substances and uses carbon dioxide as a carbon source?
+Set B Q125  -> B   [E:0 A:0 P:0 C:0 B:1]
+   All flowering plants belong to
+Set B Q129  -> B   [E:0 A:0 P:0 C:0 B:0.5]
+   Binomial nomenclature is responsible in ________.
+Set B Q135  -> B   [E:0 A:0 P:0 C:0 B:0]
+   Tumors that remain at their site of origin are called ___
+Set B Q139  -> B   [E:0 A:0 P:0 C:0 B:1]
+   How many cells are in the human body?
+Set B Q145  -> B   [E:0 A:0 P:0.6 C:1.5 B:2]
+   Which is the energy storage compound used to do all forms of work of the cell?
+Set B Q146  -> B   [E:0 A:0 P:0 C:0 B:0.5]
+   Which of the following is/are the sites of translation?
+Set C Q4  -> B   [E:1.5 A:0 P:0.2 C:0.3 B:1.8]
+   Fishermen are advised not to drink ocean water because it can cause
+Set C Q8  -> A   [E:1 A:1.8 P:0 C:0 B:0.5]
+   The all-embracing term referring to the field of science dealing with planet Earth is
+Set C Q9  -> E   [E:0 A:0.3 P:0.4 C:0.3 B:0]
+   Many forms of energy in use today can be traced back to ____.
+Set C Q10  -> E   [E:1 A:0 P:0 C:0 B:0]
+   One atmosphere is equal to ____ cm or ____ inches of mercury.
+Set C Q20  -> E   [E:1 A:0 P:0 C:0 B:0]
+   Which of the following is FALSE?
+Set C Q21  -> E   [E:0 A:0.5 P:0 C:0 B:0]
+   In the Southern Hemisphere, which direction does the wind rotate around a low?
+Set C Q22  -> E   [E:1 A:0 P:0 C:0.5 B:0.2]
+   Which is the third most abundant gas in the atmosphere?
+Set C Q23  -> E   [E:1 A:0 P:0.2 C:0.3 B:1]
+   The simple, common method of classifying minerals depends on which general property?
+Set C Q25  -> E   [E:0 A:0 P:0 C:0 B:0]
+   What is a cold front advancing under a warm front called?
+Set C Q27  -> E   [E:1.3 A:0 P:0 C:0 B:0]
+   Which of the following air masses would be expected to be cold and dry?
+Set C Q28  -> E   [E:0.6 A:0 P:0.4 C:0.3 B:0]
+   The circulation of air to heat a room is an example of
+Set C Q29  -> E   [E:1 A:0 P:0 C:0 B:0]
+   Which of the following is NOT essential to the Bergeron process?
+Set C Q30  -> E   [E:1.3 A:0.5 P:0 C:0 B:0]
+   Which of the following is NOT a name labelling part of Earth's interior structure?
+Set C Q31  -> E   [E:1.3 A:0.8 P:0.5 C:0 B:0]
+   Air moving from the poles towards the equator turns west. The primary cause of the global deflection is ____.
+Set C Q34  -> E   [E:1 A:0 P:0 C:0 B:0]
+   You are travelling west by jet and cross three time zone boundaries. If your watch right now is 3PM. When you 
+Set C Q35  -> E   [E:1.3 A:0 P:0.8 C:0 B:0]
+   The boundary between the mass of warmer air and mass of colder air is called ____.
+Set C Q37  -> E   [E:1.3 A:0.5 P:0 C:1.3 B:0.3]
+   The two most abundant elements in Earth's crust are
+Set C Q38  -> E   [E:0.8 A:1.3 P:1.3 C:0.6 B:0]
+   Only about 50% of the solar energy directed toward Earth penetrates directly to the surface. What happens to t
+Set C Q39  -> E   [E:0.3 A:0.5 P:0 C:0 B:0]
+   An observer is standing on the eastern side of a cliff where a sailing ship can be seen. After a while, the sh
+Set C Q40  -> E   [E:1 A:0 P:0 C:0 B:0]
+   How many standard time zones are there?
+Set C Q42  -> E   [E:1.5 A:0 P:0.9 C:0.5 B:0.2]
+   Which of the following are agents that cause erosion?
+Set C Q43  -> E   [E:1 A:0 P:0 C:0 B:0]
+   Absolute geologic time is based upon ____.
+Set C Q47  -> A   [E:0 A:0.5 P:0.4 C:1.1 B:0]
+   Which processes produces the tremendous energy of the sun?
+Set C Q48  -> A   [E:0.2 A:1 P:0.2 C:0.2 B:0]
+   The two factors that determine the magnitude of stars are
+Set C Q50  -> E   [E:2.3 A:2.3 P:0.2 C:0.2 B:0]
+   If you are told that Earth's diameter is 12,756 km at the equator and 12,714 km at the poles, what conclusions
+Set C Q51  -> A   [E:0.3 A:1 P:1 C:0 B:0]
+   Which motion of the Earth causes the occurrence of the phenomenon experience night and day?
+Set C Q56  -> C   [E:0 A:1.3 P:0.4 C:1.6 B:0]
+   What makes the sun give off tremendous amount of energy?
+Set C Q57  -> E   [E:2.3 A:1.5 P:0 C:0.2 B:0.2]
+   According to astronauts, typhoons do not occur on the moon, because
+Set C Q59  -> P   [E:0 A:0.5 P:0.4 C:1.1 B:0]
+   Which process produces the tremendous energy of the sun?
+Set C Q61  -> A   [E:0.5 A:1.3 P:0 C:0 B:0]
+   Why do we see the sun rise in the east and set in the west?
+Set C Q64  -> P   [E:0 A:0 P:1 C:0 B:0]
+   What is the term used for a fluid that flows steadily?
+Set C Q72  -> P   [E:0 A:0 P:0.9 C:0.3 B:0]
+   A crane lifts a 4,000 lb concrete slab 10 feet above the ground in five seconds. If it does the same task in t
+Set C Q74  -> A   [E:0 A:2.8 P:2 C:0 B:0]
+   If the force of gravity suddenly stopped acting on the planets, they will ____.
+Set C Q75  -> P   [E:0 A:0 P:0.4 C:0.3 B:0]
+   What would be the volume in liters of 640 g of oil if the density of the oil is 0.8 g/mL?
+Set C Q78  -> P   [E:0 A:0.5 P:1 C:0 B:0]
+   If the plot of v vs t is a horizontal line located in the positive vertical axis, what is its acceleration?
+Set C Q80  -> P   [E:0 A:0 P:1 C:0 B:0]
+   How does an airbag prevent a passenger of a car from getting injured during an accident?
+Set C Q85  -> P   [E:0.5 A:0 P:0.7 C:1 B:0.5]
+   A dam is thicker at the bottom than at the top because:
+Set C Q86  -> E   [E:2 A:0.3 P:2 C:0 B:0]
+   When a person whirls a rock on the end of a string and maintains it in uniform circular motion, the force exer
+Set C Q88  -> P   [E:0.3 A:0 P:1 C:0.3 B:0.3]
+   A water balloon is dropped from the roof of a tall building. What is the balloon's initial velocity?
+Set C Q90  -> P   [E:0.3 A:0 P:1.4 C:1.3 B:0]
+   Two bodies with different temperatures, 75°C and 45°C, were put near each other until they are in thermal equi
+Set C Q91  -> P   [E:0 A:0 P:0 C:0 B:0]
+   The image a camera forms on the film is:
+Set C Q93  -> C   [E:0 A:0 P:0 C:1 B:0]
+   Brass is an alloy of what metals?
+Set C Q94  -> C   [E:0.6 A:0 P:0.8 C:0.8 B:0]
+   Who established the relationship between the volume of a gas and the pressure when temperature is constant?
+Set C Q100  -> C   [E:0.5 A:0 P:0 C:1 B:0.5]
+   Which of the following colloidal systems shows a liquid dispersed in a gas medium?
+Set C Q101  -> C   [E:0.5 A:0 P:0 C:0 B:0]
+   No two bodies can occupy the same space in the same time. Which property of matter is explained?
+Set C Q102  -> C   [E:0.3 A:0 P:0.4 C:1.3 B:0]
+   When vapor condenses to a liquid, heat is
+Set C Q105  -> C   [E:0.8 A:0 P:0.6 C:0.8 B:0.8]
+   Ice floats in water but not in alcohol. Based on this, we can conclude that:
+Set C Q108  -> B   [E:0 A:0 P:0 C:0.5 B:0]
+   Out of the following choices, which is the correct name for N₂O₃?
+Set C Q110  -> P   [E:0 A:0 P:2.5 C:1.7 B:0]
+   Which of the following are not examples of intermolecular forces?
+Set C Q113  -> C   [E:0 A:0 P:0 C:1 B:0]
+   Which of the following is the element represented by the symbol B?
+Set C Q119  -> C   [E:1 A:0 P:0.5 C:0 B:0]
+   Which particles are deposited last by a flowing stream? Why?
+Set C Q120  -> C   [E:0.6 A:0 P:0.4 C:0.6 B:0.3]
+   As more water turns into ice, the temperature of the remaining liquid in a vessel:
+Set C Q123  -> C   [E:0 A:0 P:0 C:0 B:1]
+   Sucrose, an ordinary table sugar, may be classified as a:
+Set C Q124  -> C   [E:0 A:0 P:0 C:0 B:1]
+   Which of the following is the best example of polysaccharide?
+Set C Q127  -> C   [E:0 A:0 P:1.2 C:1.9 B:0]
+   When electrons in an atom in an excited state fall to lower energy levels, the energy is:
+Set C Q129  -> C   [E:0.6 A:0 P:0.8 C:0.3 B:0]
+   If the absolute temperature of a gas is doubled and the pressure of the gas is halved, how will the volume cha
+Set C Q131  -> C   [E:0 A:0 P:0 C:1.3 B:0]
+   Methane is a principal component of natural gas. How many moles of CH₄ are present in 6.07 g of CH₄?
+Set C Q132  -> C   [E:0 A:0 P:0 C:1.5 B:1.5]
+   When not properly preserved at home, we observe a characteristic smell of rotting meat and dead fish. This is 
+Set C Q134  -> C   [E:0.8 A:0 P:0.8 C:0.8 B:0.2]
+   Which of the following substances requires the least amount of heat per kilogram for a given increase in tempe
+Set C Q135  -> C   [E:0 A:0 P:0 C:0 B:0]
+   Which of the following explains why paste sticks to paper?
+Set C Q136  -> C   [E:0.5 A:0 P:0.6 C:0.5 B:0]
+   Why is ice a good cooling agent?
+Set C Q137  -> C   [E:0 A:0 P:0 C:0 B:0]
+   The carriers for weak interactions that were identified by Carlo Rubia and Simon Van Der Meer.
+Set C Q138  -> C   [E:0 A:0 P:0.9 C:0.3 B:0]
+   Which of the particles below, include the electron, muon and the tau?
+Set C Q139  -> P   [E:0 A:0 P:1.5 C:1 B:1]
+   Which of the following rays are the best producers of ions?
+Set C Q141  -> C   [E:0 A:0 P:0 C:1.2 B:0.2]
+   Which of the following atoms has an octet?
+Set C Q142  -> C   [E:0 A:0 P:0 C:1 B:1]
+   Milk of magnesium has a pH 10.5. It is classified as:
+Set C Q144  -> C   [E:0 A:0 P:0.9 C:0.3 B:0]
+   Which radioactive radiation coming from an external source is most dangerous to human body?
+Set C Q148  -> C   [E:1 A:0 P:0 C:1.5 B:0.2]
+   Ozone is an allotropic form of:
+Set C Q149  -> C   [E:0.3 A:0 P:0.4 C:0.2 B:0]
+   When gaseous substance is compressed, the result is a decrease in the:
+Set D Q2  -> B   [E:0 A:0 P:0 C:0 B:1]
+   Members of which group are not deuterostomes?
+Set D Q8  -> B   [E:0 A:0 P:0 C:0.5 B:0.3]
+   Which of the following is NOT true about science and technology?
+Set D Q10  -> B   [E:0 A:0 P:0 C:0 B:1]
+   The shape of the mango tree is different from that of the pine tree due to a type of branching which is descri
+Set D Q11  -> B   [E:0 A:0 P:0 C:0 B:1]
+   One who specializes in all kinds of fishes and their characteristics, developing expertise in
+Set D Q13  -> B   [E:0 A:0 P:0 C:0.5 B:0]
+   Creativity is a desirable trait that should be developed among our students. Describe a creative person.
+Set D Q16  -> B   [E:0 A:0 P:0 C:0 B:0]
+   Bimbo wanted to find out if a ball dropped from a high building will be slower than one dropped from a lower b
+Set D Q17  -> B   [E:0 A:0 P:0 C:0 B:0]
+   In an experiment, which is the condition being introduced and whose effect is being observed?
+Set D Q29  -> B   [E:0 A:0 P:0 C:0 B:0]
+   Which statement on intensive farming or intensive agriculture is CORRECT?
+Set D Q33  -> E   [E:1.4 A:0 P:0.6 C:0.5 B:0]
+   Why does air temperature usually decrease towards the poles?
+Set D Q34  -> E   [E:1.5 A:0 P:1.5 C:0 B:0]
+   The deflection of the atmosphere towards the right in the northern hemisphere and left in the southern hemisph
+Set D Q39  -> E   [E:1 A:0 P:0 C:0 B:0]
+   A hill or ridge of wind-deposited sand is called a
+Set D Q40  -> E   [E:1 A:0 P:0 C:0 B:0]
+   What happens to the relative humidity as the day goes on?
+Set D Q47  -> E   [E:0 A:0 P:0 C:0 B:0]
+   During a thunderstorm, heavy rains, thunder and lightning occur. It is best to
+Set D Q48  -> E   [E:1.5 A:0.3 P:0.2 C:0.3 B:0.2]
+   Why are nights cooler when the sky is clear than when it is overcast?
+Set D Q49  -> P   [E:0.2 A:0 P:2 C:0.8 B:1.3]
+   Trace the conversion of energy that occurs when plants manufacture food.
+Set D Q51  -> B   [E:1 A:0.5 P:0 C:0 B:0]
+   Where can we trace El Niño phenomenon?
+Set D Q52  -> B   [E:0 A:0 P:0 C:0 B:1]
+   The factors that significantly contribute to an increase in human population are ______.
+Set D Q54  -> B   [E:1.3 A:0.5 P:0 C:0 B:0]
+   What part of the earth is thought to be composed of iron and nickel?
+Set D Q58  -> B   [E:0 A:0 P:0 C:0 B:1]
+   What factors may bring about an increase in population size?
+Set D Q60  -> B   [E:1 A:0 P:0 C:1 B:0]
+   The pH of healthy ponds and streams is approximately
+Set D Q62  -> B   [E:0.3 A:0 P:0 C:0.3 B:0.3]
+   Hard water is:
+Set D Q70  -> P   [E:1 A:0 P:1.5 C:0 B:0]
+   What is the property of minerals that describes its resistance to being broken or bent?
+Set D Q79  -> E   [E:0 A:1 P:0.6 C:0.2 B:0]
+   What property would change if a man were to stand on the moon?
+Set D Q86  -> P   [E:0 A:0 P:0 C:0 B:0]
+   A generalized mental image of an object is ______
+Set D Q87  -> P   [E:0 A:0 P:0.5 C:0 B:0]
+   Which of the following situations does NOT show work being done?
+Set D Q90  -> P   [E:0.3 A:0 P:0.8 C:0.6 B:0]
+   A fluorescent lamp rated at 100 kW has an efficiency of 20%. How much energy is dissipated as heat if the lamp
+Set D Q95  -> P   [E:0 A:0 P:1 C:0 B:0]
+   A highway curve with a radius of 900 ft is to be banked so that a car traveling 55.0 mi/hr will not skid sidew
+Set D Q96  -> P   [E:0 A:0 P:1 C:0 B:0]
+   Sound vibrations below 20 vibrations per second is considered
+Set D Q102  -> P   [E:0 A:0 P:0 C:0 B:0]
+   A Cartesian coordinate system is also called what kind of coordinate system?
+Set D Q104  -> P   [E:0.3 A:0 P:0.5 C:0.3 B:0.3]
+   Two students are poised to dive off equal-height diving towers into a swimming pool below. Student B is twice 
+Set D Q105  -> P   [E:0 A:0 P:1 C:0 B:0]
+   A current of 0.5 A exists in a 60 Ω lamp. The applied potential difference is
+Set D Q109  -> P   [E:0 A:0 P:1 C:0 B:0]
+   Given the change of phase: CO₂ (g) changes to CO₂ (s), the entropy of the system:
+Set D Q111  -> C   [E:0 A:0 P:0.5 C:0 B:1]
+   Proteins made up of two or more polypeptide chains are said to possess:
+Set D Q112  -> C   [E:0 A:0 P:0 C:1.3 B:0]
+   Diamond and graphite are polymorphs of which of the following elements?
+Set D Q118  -> C   [E:0 A:1 P:0.4 C:1.3 B:0]
+   Which of the following is a necessary characteristic for electrons that share an s orbital?
+Set D Q120  -> C   [E:0.9 A:0 P:1.4 C:1 B:0.6]
+   A one hundred gram sample of water at 25°C and 1 atm of pressure ______ one hundred grams of water that has re
+Set D Q121  -> C   [E:0.3 A:0 P:0.4 C:0.3 B:0]
+   Solid X is placed in contact with solid Y. Heat will flow spontaneously from X to Y when:
+Set D Q123  -> C   [E:0 A:0 P:1.4 C:1.6 B:0]
+   When a neutral atom that contains two protons gains three electrons, what charge does it acquire?
+Set D Q125  -> C   [E:0.5 A:0 P:0 C:1.5 B:0.5]
+   Under which of the following conditions will iron rust?
+Set D Q129  -> C   [E:0 A:0 P:0 C:1 B:0]
+   Which of the following turns blue litmus paper to red?
+Set D Q130  -> C   [E:0 A:0 P:2.3 C:3.2 B:0]
+   The most direct and accurate means for determining atomic and molecular weights is by:
+Set D Q134  -> C   [E:0 A:0 P:0 C:0.3 B:0]
+   The term that describes different crystalline modifications of the same chemical substance is called:
+Set D Q135  -> C   [E:0 A:0 P:0.4 C:1 B:0.3]
+   After ten years, 75 g of an original sample of 100 g of a certain radionuclide has decayed. The half-life of t
+Set D Q138  -> C   [E:0 A:0 P:0 C:0 B:0]
+   Which one of the following expresses concise statement about a fundamental relationship in nature?
+Set D Q139  -> C   [E:0 A:0 P:0 C:1 B:0]
+   A scientific law can be expressed as
+Set D Q140  -> C   [E:0 A:0.8 P:0.2 C:0.7 B:0]
+   Which is a theory?
+Set D Q142  -> B   [E:0 A:0 P:0 C:0 B:0]
+   What is a tentative explanation that is then tested to determine if it is valid?
+Set D Q143  -> B   [E:0 A:0 P:0.5 C:0 B:0]
+   What do you call the transmission and reception of information?
+Set D Q144  -> B   [E:1.3 A:0 P:0.4 C:0.3 B:0]
+   What is the required heat sufficient to melt rocks?
+Set D Q146  -> E   [E:0 A:0 P:0 C:0 B:0]
+   What is a short wall built at a right angle to the seashore to trap moving sand?
+Set D Q147  -> E   [E:1.8 A:1.5 P:0 C:0 B:0]
+   What is the gaseous portion of a planet earth?
+Set D Q150  -> E   [E:1.5 A:0 P:1 C:0 B:0]
+   What are the fractures in the crust along which appreciable displacement has taken place?
+Set E Q5  -> E   [E:1 A:0 P:0 C:0 B:0]
+   Typhoon signal no 2 means
+Set E Q6  -> E   [E:1 A:0 P:1.4 C:1.5 B:0]
+   The temperature at which the vapor pressure of a liquid is equal to the external pressure
+Set E Q9  -> E   [E:1 A:0 P:0 C:0 B:0]
+   When crossing the International Date Line going to the west, what change in time is observed?
+Set E Q10  -> E   [E:0.8 A:0.5 P:0 C:0 B:0]
+   It is theorized that the center of the earth is composed of the following
+Set E Q12  -> E   [E:0.8 A:0 P:0.7 C:0 B:0]
+   What is formed when warm air rises and is replaced by cold air?
+Set E Q13  -> P   [E:1 A:1.3 P:2.1 C:0.5 B:0]
+   Why does the earth's temperature rise from sunrise to noontime?
+Set E Q17  -> P   [E:0.3 A:2.5 P:3 C:0 B:0]
+   A hypothetical spaceship takes a straight-line path from the Earth to the moon, a distance of about 400,000 km
+Set E Q19  -> P   [E:0 A:0 P:0 C:0.7 B:0]
+   The effect that we call a mirage has something to do with ____.
+Set E Q20  -> P   [E:0 A:0 P:1 C:0 B:0]
+   Stationary points in a standing wave are called ____.
+Set E Q21  -> P   [E:0 A:0 P:1 C:0 B:0]
+   The magnitude of displacement is always
+Set E Q22  -> P   [E:0 A:0.5 P:1.1 C:0.5 B:0]
+   Which of the following is always conserved?
+Set E Q24  -> P   [E:0 A:0 P:1 C:0 B:0]
+   The angles of incidence and reflection:
+Set E Q26  -> P   [E:0.5 A:0 P:0.6 C:0.5 B:0.5]
+   Why are dams thicker at their bottoms than at their tops?
+Set E Q28  -> P   [E:0 A:0 P:1 C:0 B:0]
+   A car travels at 80 km/hr for 0.5 hr, then goes 100 km/hr for 1 hour, and finally 60 km/hr for 0.5 hr. What is
+Set E Q30  -> C   [E:0 A:0 P:1.2 C:0.5 B:0]
+   Which of the following particles has positive (+1) charge?
+Set E Q38  -> P   [E:0.2 A:0 P:0 C:1.5 B:1.5]
+   Since wood is composed of carbohydrates, you should expect which gases to exhaust from a fireplace when comple
+Set E Q42  -> P   [E:0 A:0 P:0 C:1.2 B:0.2]
+   Which of these is a synthetic element?
+Set E Q43  -> P   [E:0 A:0 P:0 C:0 B:0]
+   What is the proof of a 'wine cooler' that is 5 percent alcohol by volume?
+Set E Q44  -> P   [E:0 A:0 P:0 C:1 B:0]
+   A balloon is filled with 3.3 L of helium gas at STP. Approximately how many moles of helium are contained in t
+Set E Q52  -> C   [E:0 A:0 P:0 C:1 B:0]
+   If you have 6.02 x 10²³ atoms of metallic iron, you will have how many grams of iron?
+Set E Q56  -> C   [E:0 A:1 P:0.4 C:1.6 B:0]
+   What is the radius in nm of the electron orbit of a hydrogen atom for n=3?
+Set E Q58  -> P   [E:0.3 A:0 P:1.6 C:1.5 B:0]
+   Which of the following takes place when ice melts into liquid?
+Set E Q59  -> C   [E:0.6 A:0 P:2.7 C:3.4 B:0]
+   The higher the temperature of a substance, the faster the movement of the molecules, hence temperature is a me
+Set E Q60  -> P   [E:0.3 A:0 P:0 C:1.3 B:0.3]
+   What is the boiling and the freezing point of water?
+Set E Q61  -> P   [E:0.3 A:0 P:0.4 C:1.3 B:0]
+   When vapour condenses to a liquid, heat is ______.
+Set E Q63  -> C   [E:0.5 A:0 P:0.8 C:0.8 B:0.2]
+   Which surface absorbs and releases heat energy fastest?
+Set E Q65  -> P   [E:0.2 A:0 P:0 C:0.2 B:0.2]
+   Why are blocks of concrete left with narrow slits in between?
+Set E Q66  -> P   [E:0.8 A:0 P:1 C:0.6 B:0]
+   The natural direction of heat flow between two reservoirs depends upon their ____.
+Set E Q71  -> B   [E:1 A:0 P:0 C:0 B:0]
+   The regions occur where rainfall is greater than 20 centimeters but is generally insufficient to support trees
+Set E Q76  -> C   [E:0 A:0 P:0 C:2 B:2]
+   An organism that obtains both inorganic and organic raw materials from the environment to survive.
+Set E Q79  -> B   [E:0 A:0 P:0.4 C:0 B:0.5]
+   Bonelike material which forms the main mass of the tooth.
+Set E Q80  -> B   [E:0 A:0 P:0 C:0 B:1]
+   ______ is the middle, muscular layer of the heart.
+Set E Q81  -> B   [E:0 A:0 P:0 C:0 B:1]
+   It pertains to animals that walk on the whole surface of the foot.
+Set E Q84  -> B   [E:0 A:0 P:0 C:0 B:1]
+   It refers to the more movable attachment site of a muscle.
+Set E Q92  -> B   [E:0 A:0 P:0 C:0 B:0.5]
+   What part of Jaja's ear vibrates as sounds enter through her ear?
+Set E Q96  -> B   [E:0 A:0 P:0 C:0 B:0]
+   Which human sense is second in supplying the most information about the external world?
+Set E Q97  -> B   [E:0.3 A:0 P:0 C:0.3 B:1.3]
+   What percentage of the world's diseases can be attributed to poor quality of water?
+Set E Q99  -> C   [E:0 A:0 P:1.2 C:0 B:0]
+   If you are to compare your ordinary weight with that of your weight when you are at top of the mountain, you w
+Set E Q101  -> E   [E:1 A:0.5 P:0 C:0 B:0]
+   At what season of the year does the increased ozone level adversely affect people with respiratory problem?
+Set E Q103  -> E   [E:1.5 A:0 P:1.5 C:0 B:0]
+   The deflection of the atmosphere towards the right in the northern hemisphere and to the left in the southern 
+Set E Q104  -> E   [E:0 A:0 P:1 C:0.2 B:0]
+   What is an instrument for measuring specific gravity of liquid?
+Set E Q105  -> E   [E:1.8 A:0.5 P:1 C:0 B:0]
+   The intensity of cosmic rays bombarding the earth's surface is largest at the ____.
+Set E Q108  -> E   [E:1.5 A:0 P:0 C:0.7 B:0.5]
+   High quality crop soil requires humus as a major component. Which of the following best describes the composit
+Set E Q110  -> P   [E:1.8 A:0.5 P:1.9 C:0.3 B:0]
+   The greenhouse effect is caused primarily by which of the following processes?
+Set E Q112  -> E   [E:0 A:0 P:0.8 C:0.6 B:0.3]
+   The amount of energy in living systems as one goes higher up in the energy pyramid.
+Set E Q114  -> E   [E:1 A:0 P:0 C:0.8 B:0]
+   Which is not related to chemical weathering?
+Set E Q119  -> E   [E:0 A:1.3 P:0 C:0 B:0]
+   In summer, we see the sun rise early and set late. Why?
+Set E Q120  -> E   [E:2.3 A:0 P:1.6 C:0 B:0]
+   A rock is thrown vertically into the air. At the very top of its trajectory, what is the net force on the rock
+Set E Q122  -> P   [E:0 A:0 P:1.4 C:0 B:0]
+   A woman weighing 500 N sits on the floor. How much force does she exert on the floor?
+Set E Q123  -> P   [E:0 A:0 P:1.4 C:0 B:0]
+   A girl whose weight is 490 N runs up a flight of stairs 10 m high. What is the work done by her?
+Set E Q128  -> P   [E:0 A:0 P:0 C:0 B:0]
+   If you lift one load up to two stories, how much work do you do compared to lifting one load up only one story
+Set E Q131  -> P   [E:0 A:0 P:1 C:0 B:0]
+   Which of the following explains the lift of the airplane's wings?
+Set E Q132  -> P   [E:0 A:0 P:1 C:0 B:0]
+   Which of the following has the largest momentum?
+Set E Q134  -> P   [E:0.3 A:0 P:1.8 C:1.6 B:0]
+   If the absolute temperature of a gas is doubled, the average kinetic energy of its molecules ____.
+Set E Q136  -> P   [E:0 A:0 P:1 C:0 B:0]
+   When lights are viewed through a piece of yellow filter and a piece of red filter held in contact, what color 
+Set E Q139  -> P   [E:0.3 A:1.5 P:2 C:0 B:0]
+   A communication satellite in orbit sends a parallel beam of signals down to earth. If they obey the same laws 
+Set E Q142  -> P   [E:0 A:0 P:1 C:0 B:0]
+   If you clap your hands and hear the echo from a distant wall 0.20 sec later, how far away is the wall?
+Set E Q143  -> P   [E:0 A:0 P:1 C:0 B:0]
+   What must be the minimum length of a plane mirror in order for you to see a full view of yourself?
+Set E Q146  -> A   [E:1 A:1.5 P:1 C:0 B:0]
+   Suppose you want to send a beam of light to a space station above the atmosphere and just above the horizon. I
+Set E Q148  -> P   [E:0.6 A:0 P:1 C:0.6 B:0.6]
+   A beam of light strikes the flat, glass side of a water-filled aquarium at an angle of 40.0 deg. to the normal
+Set F Q5  -> P   [E:0.3 A:0 P:1.5 C:1 B:0]
+   The sky is blue because air molecules in the sky are as tiny ______.
+Set F Q11  -> C   [E:0.2 A:0 P:0 C:1.7 B:0.7]
+   Which is homogeneous mixture?
+Set F Q14  -> C   [E:0 A:0 P:0 C:1 B:0]
+   Which of the following observations proves that there are spaces between molecules of a material?
+Set F Q17  -> C   [E:0 A:0 P:0 C:0.5 B:0]
+   Which radioisotope is now used extensively in cancer radiation treatment?
+Set F Q18  -> C   [E:0 A:0 P:0.2 C:0.9 B:0.3]
+   Hydrogen peroxide (H₂O₂) can be bought over the counter as disinfectant for wounds. It is always composed of 6
+Set F Q19  -> C   [E:0.5 A:0 P:0.2 C:1 B:0.3]
+   Which is NOT a physical property?
+Set F Q20  -> C   [E:0.5 A:0 P:0.7 C:1.7 B:0]
+   Why does the smell of ripe mangoes spread easily in a room?
+Set F Q23  -> C   [E:0.6 A:0 P:0 C:0 B:0]
+   A tire has a volume of 300 cu cm. Francis pumped 200 mL of air into the tire while Steven managed to pump anot
+Set F Q25  -> C   [E:0.3 A:0 P:0.9 C:0.7 B:0]
+   What factor contributes to the solubility of a substance?
+Set F Q27  -> C   [E:0 A:0 P:0 C:0.6 B:1]
+   When uranium (92 protons) ejects an alpha particle, the remaining nucleus has ____ protons.
+Set F Q28  -> C   [E:1 A:0 P:0 C:0 B:0]
+   Silver sulphide (Ag₂S) occurs in nature as the mineral argentite. How many g of silver are obtainable from 250
+Set F Q31  -> C   [E:0.8 A:0 P:0.4 C:0.8 B:0.8]
+   What causes the water level in the beaker to rise after a stone is placed in it?
+Set F Q33  -> C   [E:0 A:0 P:0 C:1 B:1.2]
+   The process of producing alcohol from fruits with the aid of microorganism.
+Set F Q34  -> C   [E:1 A:0 P:0.2 C:0.3 B:0.5]
+   Why do canned goods, such as tuna sardines get easily spoiled once the can is opened?
+Set F Q38  -> C   [E:0 A:0 P:0.6 C:1.5 B:0]
+   Which combination of factors leads to a better oxidizing agent?
+Set F Q39  -> C   [E:0.6 A:0 P:0 C:0.5 B:0]
+   Which is the best evidence that helium gas is lighter than air?
+Set F Q41  -> C   [E:0.5 A:0 P:1.7 C:2 B:0.3]
+   Which statement is characteristic of non-metallic materials?
+Set F Q44  -> C   [E:0.6 A:0 P:1.2 C:0.6 B:0.6]
+   A test tube half-filled with water weighs 450.8 grams. What is the mass of the test tube if the mass of the wa
+Set F Q45  -> C   [E:0.9 A:0 P:1.2 C:0 B:0]
+   A given gas occupies 2000 cc at a pressure of 90 cm of mercury. What volume will the gas occupy when the press
+Set F Q56  -> P   [E:0 A:0 P:1 C:0 B:0]
+   A set of chimes made from pipes of different lengths were kept hanging. Which of the pipes will give the lowes
+Set F Q57  -> P   [E:0 A:0 P:1 C:0 B:0]
+   The flux through a flat surface A in a uniform electric field E is maximum when the surface is
+Set F Q61  -> P   [E:0 A:0 P:1 C:0 B:0]
+   A large increase in the inductance of a coil can be achieved by using a core that is
+Set F Q66  -> P   [E:0.3 A:0 P:1 C:0.2 B:0.2]
+   Light travels fastest in
+Set F Q67  -> P   [E:0.3 A:0 P:0 C:0.3 B:0.3]
+   A rainbow is formed when
+Set F Q68  -> P   [E:0 A:0 P:1 C:0 B:0]
+   Suppose your house is 20 kilometers (km) from school and it takes your school bus 2 hours to drive home. What 
+Set F Q70  -> P   [E:0 A:0 P:1 C:0 B:0]
+   A 160 lb person is standing on a scale in an elevator. When the elevator starts to move, the scale reading is 
+Set F Q73  -> P   [E:0 A:0 P:1 C:0 B:0]
+   Which device is used to open or close a circuit?
+Set F Q74  -> P   [E:0.6 A:0 P:1.5 C:0.6 B:0.6]
+   A stick partly submerged obliquely in water appears to be bent at a point where it enters the water surface. T
+Set F Q75  -> P   [E:0 A:0 P:1 C:0 B:0]
+   A truck starts to travel at 80 km/hr for 0.5 hr, then 100 km/hr for 0.5 hr, and finally 90 km/hr for 1 hour. W
+Set F Q78  -> P   [E:0 A:1 P:1.4 C:0.3 B:0]
+   The Law of Thermodynamics stating that the total energy of the universe is constant
+Set F Q80  -> P   [E:1 A:0 P:1.5 C:0 B:0]
+   The sky appears blue because the dust particles in the atmosphere
+Set F Q81  -> P   [E:0.3 A:0 P:0.4 C:0.3 B:0]
+   The ideal efficiency for a heat engine operating between temperatures of 2700 K and 1400 K is
+Set F Q86  -> P   [E:0.3 A:0 P:1 C:0.2 B:0.2]
+   Which of the following substances has the highest index of refraction?
+Set F Q93  -> C   [E:0 A:0.5 P:0 C:0 B:0]
+   What is a rotating electromagnet called?
+Set F Q98  -> P   [E:0 A:0 P:0 C:0 B:0]
+   A 20 cd lamp is 0.6 m above a study table. The illumination on the table is:
+Set F Q103  -> P   [E:0 A:0 P:1 C:0 B:0]
+   It takes 100 N to start a 200 N object sliding across a floor. What is the coefficient of starting friction?
+Set F Q105  -> P   [E:0.3 A:0 P:0.4 C:0.3 B:0]
+   What instrument is used to measure the temperature of hot steel?
+Set F Q110  -> P   [E:0.5 A:0 P:1 C:1 B:0]
+   An instrument used in identifying elements by the wavelength they refract
+Set F Q111  -> P   [E:0 A:0 P:0.4 C:0.3 B:0]
+   The first nuclear reactor was built in 1942 at the University of Chicago under the direction of:
+Set F Q114  -> C   [E:0.5 A:0 P:0.4 C:0.3 B:0]
+   What is an instrument for detecting radioactivity?
+Set F Q117  -> P   [E:0.5 A:0 P:0 C:0 B:0]
+   Which of the following is/are compressed in gasoline engines?
+Set F Q118  -> P   [E:0 A:0 P:0 C:0 B:0.5]
+   Which of the following materials are likely to exhibit more insulating properties than conductive properties?
+Set F Q119  -> P   [E:0 A:0 P:1.4 C:0.3 B:0]
+   What happens to the index of refraction when the medium's optical density increases?
+Set F Q120  -> P   [E:0 A:0 P:1 C:0 B:0]
+   Which of the following instruments is used to measure light frequencies?
+Set F Q122  -> P   [E:0 A:0 P:1 C:0 B:0]
+   What is the relationship between centripetal acceleration and path radius
+Set F Q125  -> P   [E:0 A:0 P:1 C:0 B:0]
+   Human beings have limited hearing capacity. Which range of frequency can man's eardrum vibrate?
+Set F Q130  -> P   [E:0.5 A:0 P:0 C:0 B:0]
+   Which of the following is/are compressed in diesel engines?
+Set F Q132  -> P   [E:0 A:0 P:1 C:0 B:0]
+   What do you call the coil that is stationary in commercial generators?
+Set F Q133  -> P   [E:0 A:0 P:2 C:1.5 B:0]
+   In what electrical connection are resistors of the same semiconductor type?
+Set F Q134  -> P   [E:0 A:0 P:1 C:0 B:0]
+   What is the common eye defect that is caused by irregularities in the shape of the lens or eyeball?
+Set F Q135  -> P   [E:0 A:0 P:1 C:0 B:0]
+   What is the function of the iris of the eye?
+Set F Q138  -> A   [E:1 A:1.5 P:1 C:0 B:0]
+   Suppose you want to send a beam of light to a space station above the atmosphere and just above the horizon. I
+Set F Q139  -> P   [E:0 A:0 P:0.4 C:0.3 B:0]
+   When a solid block of material is cut in half, its density is ____.
+Set F Q141  -> P   [E:0 A:0 P:1 C:0 B:0]
+   For one who is hard of hearing, a normal conversation (60 dB) sounds like a soft whisper (10 dB). What increas
+Set F Q142  -> P   [E:0 A:0 P:1 C:0 B:0]
+   Which wire gives the smallest resistance?
+Set F Q146  -> P   [E:0 A:0 P:0.5 C:0 B:0]
+   Which of the following is a fundamental unit?
+Set F Q149  -> P   [E:0 A:0 P:1 C:0 B:0]
+   How is the ammeter connected to a device?

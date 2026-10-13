@@ -62,21 +62,11 @@ app.use(express.json({ limit: '50kb' }));
 
 // Only serve the website pages. Without this, express.static(__dirname) would also expose
 // server.js, users.json (password hashes), activity.json, package.json, etc.
-// theme.css and game.js are the only non-HTML files allowed (shared styles + gamification logic).
+// theme.css, game.js, drill-tools.js and question-fields.json are the only non-HTML files allowed.
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) return next();
-  if (/^\/(?:[A-Za-z0-9_-]+\.html|theme\.css|game\.js|drill\.css|intro\.js)?$/.test(req.path)) return next();
+  if (/^\/(?:[A-Za-z0-9_-]+\.html|theme\.css|game\.js|drill-tools\.js|question-fields\.json)?$/.test(req.path)) return next();
   res.status(404).send('Not found');
-});
-
-// Drill pages get the shared restyle (drill.css) linked in as they are served, so the six large
-// science-drill-N.html files (and their question data) never need to be edited.
-app.get(/^\/science-drill-\d+\.html$/, (req, res, next) => {
-  fs.readFile(path.join(__dirname, req.path), 'utf8', (err, html) => {
-    if (err) return next();
-    if (!html.includes('/drill.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/drill.css">\n</head>');
-    res.type('html').send(html);
-  });
 });
 app.use(express.static(__dirname));
 
@@ -293,6 +283,64 @@ function cleanFlashState(st) {
     newToday: Math.max(0, Math.min(1000, Math.floor(num(st.newToday) ? st.newToday : 0))),
     newLimit: Math.max(1, Math.min(1000, Math.floor(num(st.newLimit) ? st.newLimit : 20))),
     saved: num(st.saved) ? st.saved : Date.now()
+  };
+}
+
+// ---- practice-mode progress (one row per user + set) ----
+const PRACTICE_FILE = path.join(__dirname, 'practicestate.json');
+function loadPractice() { try { return JSON.parse(fs.readFileSync(PRACTICE_FILE, 'utf8')); } catch { return {}; } }
+
+async function getPracticeState(userId, set) {
+  if (supabase) {
+    const { data, error } = await supabase.from('practice_state').select('state, updated_at')
+      .eq('user_id', userId).eq('set_letter', set).limit(1);
+    if (error) throw new Error(error.message);
+    return data[0] || null;
+  }
+  return loadPractice()[userId + ':' + set] || null;
+}
+async function putPracticeState(userId, set, state) {
+  const updated_at = new Date().toISOString();
+  if (supabase) {
+    const { error } = await supabase.from('practice_state')
+      .upsert({ user_id: userId, set_letter: set, state, updated_at }, { onConflict: 'user_id,set_letter' });
+    if (error) throw new Error(error.message);
+    return;
+  }
+  const all = loadPractice();
+  all[userId + ':' + set] = { state, updated_at };
+  fs.writeFileSync(PRACTICE_FILE, JSON.stringify(all));
+}
+async function deletePracticeState(userId, set) {
+  if (supabase) {
+    const { error } = await supabase.from('practice_state').delete().eq('user_id', userId).eq('set_letter', set);
+    if (error) throw new Error(error.message);
+    return;
+  }
+  const all = loadPractice();
+  delete all[userId + ':' + set];
+  fs.writeFileSync(PRACTICE_FILE, JSON.stringify(all));
+}
+
+// Accept only what practice mode saves: question order, answer-choice order, answers, flags, settings.
+function cleanPracticeState(st) {
+  if (!st || typeof st !== 'object') return null;
+  const MAX = 300;
+  const isInt = (v, max) => Number.isInteger(v) && v >= 0 && v < max;
+  const n = Array.isArray(st.order) ? st.order.length : 0;
+  if (n < 1 || n > MAX || !st.order.every(v => isInt(v, MAX))) return null;
+  if (!Array.isArray(st.perm) || st.perm.length !== n) return null;
+  if (!st.perm.every(p => Array.isArray(p) && p.length === 4 && p.every(v => isInt(v, 4)))) return null;
+  if (!Array.isArray(st.answers) || st.answers.length !== n) return null;
+  if (!st.answers.every(v => v === null || isInt(v, 4))) return null;
+  const flags = Array.isArray(st.flags) && st.flags.length === n ? st.flags.map(v => (v ? 1 : 0)) : new Array(n).fill(0);
+  const s = st.settings || {};
+  return {
+    v: 1, order: st.order, perm: st.perm, answers: st.answers, flags,
+    settings: { sq: !!s.sq, so: !!s.so, instant: !!s.instant },
+    done: !!st.done,
+    score: Number.isInteger(st.score) && st.score >= 0 && st.score <= MAX ? st.score : null,
+    saved: typeof st.saved === 'number' && Number.isFinite(st.saved) ? st.saved : Date.now()
   };
 }
 
@@ -590,6 +638,45 @@ app.put('/api/sync/:set', auth, syncLimiter, async (req, res) => {
     const state = cleanFlashState((req.body || {}).state);
     if (!state) return res.status(400).json({ error: 'Invalid flashcard state.' });
     await putFlashState(req.user.id, set, state);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+});
+
+// ---- practice mode sync ----
+app.get('/api/practice/:set', auth, syncLimiter, async (req, res) => {
+  try {
+    const set = String(req.params.set).toUpperCase();
+    if (!/^[A-Z]$/.test(set)) return res.status(400).json({ error: 'Invalid set.' });
+    const row = await getPracticeState(req.user.id, set);
+    res.json(row ? { state: row.state, updated_at: row.updated_at } : { state: null });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+});
+
+app.put('/api/practice/:set', auth, syncLimiter, async (req, res) => {
+  try {
+    const set = String(req.params.set).toUpperCase();
+    if (!/^[A-Z]$/.test(set)) return res.status(400).json({ error: 'Invalid set.' });
+    const state = cleanPracticeState((req.body || {}).state);
+    if (!state) return res.status(400).json({ error: 'Invalid practice state.' });
+    await putPracticeState(req.user.id, set, state);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+});
+
+app.delete('/api/practice/:set', auth, syncLimiter, async (req, res) => {
+  try {
+    const set = String(req.params.set).toUpperCase();
+    if (!/^[A-Z]$/.test(set)) return res.status(400).json({ error: 'Invalid set.' });
+    await deletePracticeState(req.user.id, set);
     res.json({ ok: true });
   } catch (e) {
     console.error(e);

@@ -67,7 +67,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:40px 0}
 
   <div class="sechead">
     <div><h2>Choose a drill set</h2><div class="modeinfo" id="modeInfo"></div></div>
-    <div class="seg" id="seg"><button data-mode="timed">⏱ Timed exam</button><button data-mode="flashcards">🃏 Flashcards</button></div>
+    <div class="seg" id="seg"><button data-mode="timed">⏱ Timed exam</button><button data-mode="flashcards">🃏 Flashcards</button><button data-mode="practice">✍️ Practice</button></div>
   </div>
   <div class="grid" id="setGrid"></div>
 
@@ -104,6 +104,7 @@ const SETS = [
 ];
 const MODES = {
   timed: { page: 'timed.html', cta: 'Start timed exam →', info: '3 hours on the clock. Earn 5 XP per correct answer plus a bonus for 60%+ scores.' },
+  practice: { direct: true, cta: 'Start practice →', info: 'Self-paced with no timer. Saved to your account, optional shuffling, instant feedback. Practice does not earn XP.' },
   flashcards: { page: 'flashcards.html', cta: 'Study flashcards →', info: 'Spaced repetition at your own pace. Earn 2 XP per review and 10 XP per card learned.' }
 };
 const $ = id => document.getElementById(id);
@@ -145,12 +146,12 @@ function renderSets() {
     const L = String.fromCharCode(65 + i), c = SD.COLORS[L], ps = stats && stats.perSet[L];
     let meter = '<div class="meter"><div class="row"><span>150 questions</span><span>Log in to track mastery</span></div></div>';
     if (ps) {
-      meter = mode === 'flashcards'
+      meter = mode === 'practice' ? '<div class="meter"><div class="row"><span>Self-paced practice</span><span>Saved to your account</span></div></div>' : mode === 'flashcards'
         ? '<div class="meter"><div class="row"><span>Mastery</span><span>' + ps.learned + ' / 150 learned</span></div><div class="bar"><i style="width:' + (ps.learned / 150 * 100).toFixed(0) + '%"></i></div></div>'
         : '<div class="meter"><div class="row"><span>Best exam score</span><span>' + (ps.attempts ? Math.round(ps.best) + '% · ' + ps.attempts + ' attempt' + (ps.attempts > 1 ? 's' : '') : 'Not attempted')
           + '</span></div><div class="bar"><i style="width:' + Math.round(ps.best) + '%"></i></div></div>';
     }
-    return '<a class="set" style="--c:' + c + '" href="' + m.page + '?set=' + encodeURIComponent(s.href) + '"><div class="top"><div class="letter">' + L + '</div><div><h3>' + s.title + '</h3><p>' + s.description + '</p></div></div>' + meter + '<div class="go">' + m.cta + '</div></a>';
+    return '<a class="set" style="--c:' + c + '" href="' + (m.direct ? s.href + '?mode=practice' : m.page + '?set=' + encodeURIComponent(s.href)) + '"><div class="top"><div class="letter">' + L + '</div><div><h3>' + s.title + '</h3><p>' + s.description + '</p></div></div>' + meter + '<div class="go">' + m.cta + '</div></a>';
   }).join('');
 }
 
