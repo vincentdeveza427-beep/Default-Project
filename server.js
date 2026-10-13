@@ -62,10 +62,10 @@ app.use(express.json({ limit: '50kb' }));
 
 // Only serve the website pages. Without this, express.static(__dirname) would also expose
 // server.js, users.json (password hashes), activity.json, package.json, etc.
-// theme.css, game.js, drill-tools.js and question-fields.json are the only non-HTML files allowed.
+// theme.css, game.js, intro.js, drill-tools.js and question-fields.json are the only non-HTML files allowed.
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) return next();
-  if (/^\/(?:[A-Za-z0-9_-]+\.html|theme\.css|game\.js|drill-tools\.js|question-fields\.json)?$/.test(req.path)) return next();
+  if (/^\/(?:[A-Za-z0-9_-]+\.html|theme\.css|game\.js|intro\.js|drill-tools\.js|question-fields\.json)?$/.test(req.path)) return next();
   res.status(404).send('Not found');
 });
 app.use(express.static(__dirname));
