@@ -92,3 +92,13 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .sd-levelup p{color:var(--muted);margin:8px 0 18px}
 @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
 @media(max-width:560px){.links{display:none}.lvlchip .nm{display:none}}
+@media(max-width:560px){
+  .links{display:flex;margin-left:0}
+  .links a{padding:8px 9px;font-size:.84rem}
+  .links a[href="index.html"]{display:none}   /* the logo already goes home */
+  .nav .in{gap:8px}
+  .nav .right{gap:6px}
+  .btn.sm{padding:7px 11px}
+  .seg{display:flex;width:100%}
+  .seg button{flex:1;padding:9px 6px;font-size:.8rem}
+}

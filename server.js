@@ -65,7 +65,7 @@ app.use(express.json({ limit: '50kb' }));
 // theme.css, game.js, intro.js, drill-tools.js and question-fields.json are the only non-HTML files allowed.
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) return next();
-  if (/^\/(?:[A-Za-z0-9_-]+\.html|theme\.css|game\.js|intro\.js|drill-tools\.js|question-fields\.json)?$/.test(req.path)) return next();
+  if (/^\/(?:[A-Za-z0-9_-]+\.html|theme\.css|drill\.css|game\.js|game\.js|intro\.js|drill-tools\.js|question-fields\.json)?$/.test(req.path)) return next();
   res.status(404).send('Not found');
 });
 app.use(express.static(__dirname));

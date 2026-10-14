@@ -1,4 +1,4 @@
-/* Science Drills - shared restyle for science-drill-N.html (loaded after each page's own <style>) */
+/* Science Drills - shared polish for science-drill-N.html (loaded by drill-tools.js, after each page's own <style>) */
 :root{
   --bg1:#0a1424; --bg2:#101f36; --card:#101f36; --card-border:#1f3555;
   --accent:#28e0c5; --accent2:#5aa9ff; --text:#e8f1fb; --muted:#8ea5bf;
@@ -8,6 +8,7 @@ body{
   background:#0a1424 !important;
   font-family:Inter,'Segoe UI',system-ui,-apple-system,sans-serif;
   line-height:1.5; padding-bottom:70px;
+  -webkit-text-size-adjust:100%;
 }
 body::before{
   content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
@@ -22,6 +23,7 @@ header h1{font-size:clamp(1.5rem,4vw,2.1rem); font-weight:800; letter-spacing:-.
 header p{
   display:inline-block; margin-top:12px; padding:5px 14px; font-size:.8rem; font-weight:700;
   color:var(--muted); background:#0c1a30; border:1px solid var(--card-border); border-radius:999px;
+  max-width:100%; line-height:1.4;
 }
 .wrap{max-width:860px;}
 
@@ -29,12 +31,12 @@ header p{
 .name-card, #score-banner, .question-card{
   background:var(--card); border:1px solid var(--card-border); border-radius:16px;
 }
-.name-card{padding:16px 18px;}
+.name-card{padding:16px 18px; align-items:center;}
 .name-card label{font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--accent);}
 .name-card input{background:#0a1830; border-radius:10px; font-family:inherit;}
 .name-card input:focus{border-color:var(--accent2); box-shadow:0 0 0 3px rgba(90,169,255,.15);}
 
-/* stats + sticky progress bar */
+/* stats + progress */
 .stat-row{font-weight:700; font-size:.8rem; color:var(--muted); margin-bottom:8px;}
 .progress-bar{
   position:sticky; top:0; z-index:25; height:10px; background:#0a1830;
@@ -58,24 +60,29 @@ header p{
 #score-banner h2{font-size:.8rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--accent);}
 #score-banner .big{font-size:3rem; font-weight:900; letter-spacing:-.02em;}
 
-/* question cards */
+/* question cards: number, text and flag button share one aligned row */
 .question-card{padding:20px; margin-bottom:14px; transition:border-color .2s, box-shadow .2s;}
 .question-card:hover{border-color:#2b4a74;}
 .question-card.correct{border-color:var(--correct); box-shadow:0 0 0 1px rgba(52,211,153,.25) inset;}
 .question-card.wrong{border-color:var(--wrong); box-shadow:0 0 0 1px rgba(255,107,122,.25) inset;}
+.q-head{gap:12px; align-items:flex-start;}
 .q-num{
-  width:32px; height:32px; border-radius:10px; font-size:.8rem; font-weight:800;
+  flex:none; width:32px; height:32px; border-radius:10px; font-size:.8rem; font-weight:800;
   background:linear-gradient(135deg,rgba(90,169,255,.18),rgba(40,224,197,.14));
   border:1px solid rgba(90,169,255,.35); color:var(--accent2);
 }
-.q-text{font-size:1rem; font-weight:700; line-height:1.5;}
+.q-text{flex:1; min-width:0; padding-top:4px; font-size:1rem; font-weight:700; line-height:1.5; overflow-wrap:anywhere;}
+.sd-chips{margin:-4px 0 12px 44px;}              /* 32px number + 12px gap, lines up with the question text */
+.sd-flag{min-height:32px; display:inline-flex; align-items:center; gap:4px; line-height:1;}
 
-/* options */
+/* options: letter badge stays top-aligned when the text wraps */
 .options{gap:8px;}
 .option{
+  align-items:flex-start;
   background:#0a1830; border:1px solid var(--card-border); border-radius:12px; padding:11px 14px;
   transition:background .15s, border-color .15s, transform .12s;
 }
+.option>div:last-child{flex:1; min-width:0; padding-top:2px; line-height:1.45; overflow-wrap:anywhere;}
 .option:hover{border-color:var(--accent2); background:#0d2040; transform:translateX(2px);}
 .option .letter{width:26px; height:26px; border-radius:8px; background:#15294a; color:var(--muted); font-weight:800;}
 .option.selected{border-color:var(--accent2); background:rgba(90,169,255,.13);}
@@ -86,7 +93,7 @@ header p{
 .option.reveal-wrong .letter{background:var(--wrong); color:#2a0407;}
 .option.disabled:hover{transform:none;}
 
-.answer-note{border-radius:10px; font-weight:600;}
+.answer-note{border-radius:10px; font-weight:600; line-height:1.45;}
 .answer-note.right{color:var(--correct); background:rgba(52,211,153,.09);}
 .answer-note.wrong{color:var(--wrong); background:rgba(255,107,122,.09);}
 .answer-note.skip{color:var(--amber); background:rgba(255,200,87,.09);}
@@ -96,10 +103,78 @@ header p{
 .question-card.flash{border-color:var(--amber); box-shadow:0 0 0 2px rgba(255,200,87,.35);}
 .filter-row select{background:#0a1830; border-radius:10px; font-family:inherit;}
 
+/* top bar + review panel text alignment */
+#sd-prog .t{line-height:1.2;}
+.sd-pill{display:inline-flex; align-items:center; line-height:1.2;}
+.sd-frow span:first-child{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.sd-frow .n{text-align:right;}
+
 footer{opacity:.5;}
-@media(max-width:480px){
+
+/* ---------------- tablets and phones ---------------- */
+@media(max-width:700px){
+  body{padding-bottom:104px;}                      /* room so the floating button never covers the last buttons */
+
+  /* header, name box, controls */
   header{padding-top:24px;}
+  .name-card{flex-direction:column; align-items:stretch; gap:8px;}
+  .name-card input{width:100%; min-width:0;}
+  .controls{margin:16px 0 22px;}
+  .controls .btn{flex:1 1 calc(50% - 8px); min-height:44px; text-align:center;}
+  #checkBtn{flex-basis:100%;}
+
+  /* questions */
   .question-card{padding:16px;}
+  .q-text{font-size:.97rem;}
+  .sd-chips{margin-left:44px;}
+  .option{min-height:48px; padding:12px 14px;}
   .option:hover{transform:none;}
+  .sd-flag{width:36px; min-height:36px; padding:0; justify-content:center; font-size:1rem;}
+  .sd-flag span{display:none;}                     /* icon only, so it never squeezes the question text */
+
+  /* top bar keeps just progress + help */
+  #sd-bar{height:44px; padding:0 12px; gap:10px;}
+  body{padding-top:52px;}
+
+  /* ===== question navigator: floating button + bottom sheet ===== */
+  #sd-nav-btn{
+    position:fixed; z-index:60;
+    right:max(16px,env(safe-area-inset-right));
+    bottom:calc(16px + env(safe-area-inset-bottom));
+    min-height:52px; padding:0 22px; border-radius:999px; font-size:.95rem;
+    box-shadow:0 10px 28px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.1);
+  }
+  #sd-nav-btn[aria-expanded="true"]{display:none;}
+
+  #sd-nav{
+    top:auto; left:0; right:0; bottom:0; width:auto; max-width:none;
+    height:min(76vh,620px);
+    border-left:0; border-top:1px solid var(--card-border); border-radius:20px 20px 0 0;
+    padding:26px 16px calc(16px + env(safe-area-inset-bottom));
+    transform:translateY(110%); z-index:70;
+  }
+  #sd-nav.open{
+    transform:none;
+    box-shadow:0 0 0 100vmax rgba(3,9,18,.62),0 -12px 40px rgba(0,0,0,.5);   /* dims the page behind the sheet */
+  }
+  #sd-nav::before{                                  /* grab handle */
+    content:""; position:absolute; top:9px; left:50%; width:40px; height:4px; margin-left:-20px;
+    border-radius:99px; background:#2c4d73;
+  }
+  #sd-nav .row b{font-size:1.05rem;}
+  #sd-nav .row .sd-btn{min-height:40px; padding:0 16px;}
+  #sd-jump .sd-btn{flex:1; min-height:44px;}
+  #sd-grid{grid-template-columns:repeat(auto-fill,minmax(48px,1fr)); gap:8px;}
+  .sd-q{height:46px; font-size:.9rem;}
+  #sd-legend{gap:8px 12px; font-size:.74rem;}
+
+  /* review panel */
+  .sd-filter{flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch;}
+  .sd-filter button{flex:none; min-height:40px;}
+  .sd-send{flex-direction:column; align-items:stretch;}
+  .sd-send .sd-btn{min-height:44px;}
+}
+@media(max-width:480px){
+  .question-card{padding:14px;}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none !important;}}

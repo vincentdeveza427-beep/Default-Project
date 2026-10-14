@@ -633,6 +633,16 @@ function initPractice() {
     else { if (uid()) setSync('Saved to your account', 'ok'); settingsView(null, null); }
   });
 }
+/* polish: shared stylesheet + consistent text */
+if (!document.querySelector('link[href$="drill.css"]')) {
+  var pl = document.createElement('link'); pl.rel = 'stylesheet'; pl.href = 'drill.css'; document.head.appendChild(pl);
+}
+document.title = 'General Science Drill - Set ' + SET;           // Set A's title was missing "Set A"
+nameInput.placeholder = 'e.g. LAST NAME, First Name, Middle Initial';   // Sets E and F used ALL CAPS
+document.addEventListener('click', function (e) {                // tap outside the sheet to close it
+  if (nav.classList.contains('open') && !nav.contains(e.target) && !$('sd-nav-btn').contains(e.target)) openNav(false);
+});
+}
 
 /* ---------------- start ---------------- */
 enhance();
