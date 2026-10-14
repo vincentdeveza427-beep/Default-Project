@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Timed Mode - Science Drill</title>
+<title>Timed Exam - Science Drills</title>
 <link rel="stylesheet" href="theme.css">
 <style>
 html,body{height:100%}
@@ -30,6 +30,19 @@ html,body{height:100%}
 #lock{position:fixed;top:59px;left:0;right:0;bottom:0;background:rgba(5,15,26,.92);display:none;place-items:center;z-index:4;padding:20px;text-align:center}
 #lock.show{display:grid}
 @media(max-width:560px){#status{display:none} #setLabel{display:none}}
+#bar a{display:inline-block;padding:8px 4px}
+@supports(height:100dvh){#frame{height:calc(100dvh - 59px)}}
+@media(max-width:700px){
+  #intro,#ended,#bad,#needLogin{margin:4vh auto}
+  .panel{padding:22px 18px}
+  .panel h1{font-size:1.4rem}
+  .row .btn{flex:1 1 100%;text-align:center}
+  #bar{height:48px;padding:0 12px}
+  #clock{font-size:1.2rem}
+  #prog{top:48px}
+  #frame{top:51px;height:calc(100% - 51px)}
+}
+@supports(height:100dvh){@media(max-width:700px){#frame{height:calc(100dvh - 51px)}}}
 </style>
 </head>
 <body>
@@ -43,11 +56,11 @@ html,body{height:100%}
 <div id="needLogin" class="hidden"><div class="panel">
   <h1 id="nlTitle">Log in required</h1>
   <p id="nlText">Timed exams are saved to your account so your teacher can see your result. Please log in (or sign up) on the home page first, then come back and start the exam.</p>
-  <div class="row"><a class="btn" href="index.html">Go to home page</a></div>
+  <div class="row"><a class="btn" href="index.html">Back to home</a></div>
 </div></div>
 
 <div id="intro" class="hidden"><div class="panel">
-  <h1 id="introTitle">Timed Mode</h1>
+  <h1 id="introTitle">Timed Exam</h1>
   <p>You have <b style="color:var(--text)">3 hours</b> to finish this drill.</p>
   <div class="reward"><span class="pill">✨ 5 XP per correct answer</span><span class="pill">🏁 +30 XP for finishing</span><span class="pill">🎯 up to +100 XP accuracy bonus</span></div>
   <ul>
@@ -55,7 +68,7 @@ html,body{height:100%}
     <li>When time runs out, your answers are <b>submitted automatically</b> and can no longer be changed.</li>
     <li>You can submit early. The timer stops once your submission goes through.</li>
     <li>The timer keeps running even if you close or refresh this page.</li>
-    <li>"Reveal All Answers" is turned off in timed mode.</li>
+    <li>"Reveal All Answers" is turned off in timed exams.</li>
     <li>Your result is saved to your account automatically.</li>
   </ul>
   <div class="who"><span>Taking this exam as</span><b id="who"></b></div>
@@ -72,7 +85,7 @@ html,body{height:100%}
   <div class="row">
     <button class="btn" id="newBtn">Start a new attempt</button>
     <a class="btn ghost" href="progress.html">View dashboard</a>
-    <a class="btn ghost" href="index.html">Home</a>
+    <a class="btn ghost" href="index.html">Back to home</a>
   </div>
 </div></div>
 
@@ -145,7 +158,7 @@ html,body{height:100%}
   }
 
   if(!valid){ show('bad'); return; }
-  $('introTitle').textContent = 'Timed Mode - Set ' + letter;
+  $('introTitle').textContent = 'Timed Exam - Set ' + letter;
   $('setLabel').textContent = 'Set ' + letter;
   document.title = 'Timed Mode - Set ' + letter;
 

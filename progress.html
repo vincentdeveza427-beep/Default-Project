@@ -26,7 +26,7 @@ select{background:var(--surface);color:var(--text);border:1px solid var(--line);
 .legend{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:.72rem;margin-top:8px}
 .legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
 ul.ins{margin:0;padding:0;list-style:none}
-ul.ins li{padding:9px 0;border-top:1px solid var(--line);font-size:.9rem;display:flex;gap:10px}
+ul.ins li{padding:9px 0;border-top:1px solid var(--line);font-size:.9rem;line-height:1.5}
 ul.ins li:first-child{border-top:0}
 ul.ins li span{color:var(--muted)}
 .tabs{display:flex;gap:6px;margin-bottom:14px}
@@ -45,6 +45,16 @@ ul.ins li span{color:var(--muted)}
 .ach .tier{color:var(--tc)}
 @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.agrid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.agrid{grid-template-columns:1fr}}
+@media(max-width:560px){
+  .player{flex-direction:column;align-items:center;text-align:center}
+  .pinfo{width:100%;min-width:0}
+  .pstats{justify-content:center}
+  .chartbox{height:240px}
+  .kpi{padding:12px}
+  .kpi b{font-size:1.4rem}
+  .tabs button{flex:1;padding:10px 8px;min-height:40px}
+  .pagehead select{min-height:40px}
+}
 </style>
 </head>
 <body>
@@ -205,6 +215,7 @@ ul.ins li span{color:var(--muted)}
       cells += '<i class="l' + lv + '" title="' + key + (a ? ': ' + a.reviews + ' reviews, ' + a.exams + ' exams' : ': no activity') + '"></i>';
     }
     $('heat').innerHTML = cells;
+    $('heat').scrollLeft = $('heat').scrollWidth;
 
     // reviews last 14 days
     var days = [], i;
