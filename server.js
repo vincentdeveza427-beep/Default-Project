@@ -686,6 +686,7 @@ app.delete('/api/practice/:set', auth, syncLimiter, async (req, res) => {
 
 // ---- profile pictures + daily/weekly leaderboard (see social.js) ----
 require('./social.js')({ app, auth, supabase, listAllUsers, listAllActivity, fetchAllRows, effectiveRole, rateLimit, baseLimit, limitMsg });
+require('./feedback.js')({ app, auth, requireAdmin, supabase, fetchAllRows, listAllUsers, rateLimit, baseLimit, limitMsg });
 
 // ---- teacher / admin ----
 // One call returns a per-student summary and every exam attempt. The page filters, sorts and exports CSV in the browser.
