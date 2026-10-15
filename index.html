@@ -60,6 +60,15 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:40px 0}
 .lb-empty{color:var(--muted);font-size:.88rem;text-align:center;padding:18px 8px;line-height:1.6}
 .lb-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:.82rem;color:var(--muted)}
 
+/* feedback box */
+.fbcard{margin-top:30px}
+.fbcard h3{font-size:1.1rem}
+.fbcard select.field,.fbcard textarea.field{margin:6px 0}
+.fbcard textarea.field{resize:vertical;min-height:96px}
+.fbrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px;color:var(--muted);font-size:.8rem}
+.fberr{color:var(--bad);font-size:.85rem;min-height:1.2em;margin-top:6px}
+.fbok{color:var(--good);font-size:.85rem;min-height:1.2em;margin-top:6px}
+
 @media(max-width:860px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.grid{grid-template-columns:1fr}}
 </style>
@@ -97,6 +106,24 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:40px 0}
 
   <div class="sechead"><div><h2>Achievements</h2><div class="modeinfo" id="badgeInfo"></div></div><a class="btn ghost sm" href="progress.html">Open dashboard →</a></div>
   <div class="badges" id="badges"></div>
+
+  <section class="card fbcard" id="feedback">
+    <h3>💬 Send feedback</h3>
+    <p class="sub">Found a wrong answer or a bug, have a question, or an idea to improve the site? Tell your teacher here.</p>
+    <div id="fbForm">
+      <select class="field" id="fbCat" aria-label="Type of feedback">
+        <option value="question">Question</option>
+        <option value="bug">Bug or wrong answer</option>
+        <option value="suggestion">Suggestion</option>
+        <option value="other">Other</option>
+      </select>
+      <textarea class="field" id="fbMsg" rows="4" maxlength="2000" placeholder="Write your message here. If it is about a question, include the set letter and question number." aria-label="Your message"></textarea>
+      <div class="fbrow"><span id="fbCount">0 / 2000</span><button class="btn" id="fbSend" type="button">Send feedback</button></div>
+      <div class="fberr" id="fbErr" role="alert"></div>
+      <div class="fbok" id="fbOk" role="status"></div>
+    </div>
+    <div id="fbLogin" class="lb-empty hidden">Log in to send feedback.</div>
+  </section>
 </main>
 <footer>Science Drill Reviewer</footer>
 
@@ -185,7 +212,7 @@ function renderBadges() {
   const sorted = stats.achievements.slice().sort((a, b) => (b.done - a.done) || (b.ratio - a.ratio));
   $('badges').innerHTML = sorted.slice(0, 14).map(a => '<div class="bdg ' + (a.done ? '' : 'off') + '" title="' + a.name + ': ' + a.desc + '">' + a.icon + '</div>').join('');
 }
-function renderAll() { renderHero(); renderSets(); renderBadges(); }
+function renderAll() { renderHero(); renderSets(); renderBadges(); fbGate(); }
 
 /* ---------- leaderboard preview (top 5) ---------- */
 let lbPeriod = 'day', lbReq = 0;
@@ -222,6 +249,33 @@ document.querySelectorAll('#lbSeg button').forEach(b => b.onclick = () => {
   loadBoard();
 });
 setInterval(() => { if (document.visibilityState === 'visible') loadBoard(); }, 60000);
+
+/* ---------- feedback box ---------- */
+function fbGate() {
+  const on = !!SD.token();
+  $('fbForm').classList.toggle('hidden', !on);
+  $('fbLogin').classList.toggle('hidden', on);
+}
+$('fbMsg').addEventListener('input', () => { $('fbCount').textContent = $('fbMsg').value.length + ' / 2000'; });
+$('fbSend').onclick = async () => {
+  const msg = $('fbMsg').value.trim(), err = $('fbErr'), ok = $('fbOk');
+  err.textContent = ''; ok.textContent = '';
+  if (msg.length < 3) { err.textContent = 'Please write a little more (at least 3 characters).'; return; }
+  $('fbSend').disabled = true;
+  try {
+    const r = await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + SD.token() },
+      body: JSON.stringify({ category: $('fbCat').value, message: msg })
+    });
+    let d = {}; try { d = await r.json(); } catch {}
+    if (r.status === 401) { err.textContent = 'Your session expired. Please log in again.'; return; }
+    if (!r.ok) { err.textContent = d.error || 'Could not send. Please try again.'; return; }
+    $('fbMsg').value = ''; $('fbCount').textContent = '0 / 2000';
+    ok.textContent = 'Thank you! Your feedback was sent.';
+  } catch { err.textContent = 'Cannot reach the server. Please try again.'; }
+  finally { $('fbSend').disabled = false; }
+};
 
 /* ---------- mode toggle (kept in the URL hash) ---------- */
 function syncFromHash() { const h = location.hash.replace('#', ''); mode = MODES[h] ? h : mode; renderSets(); }

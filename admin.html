@@ -32,6 +32,26 @@ td a{cursor:pointer;font-weight:700}
 .good{color:var(--good);font-weight:800}.bad{color:var(--bad);font-weight:800}.mid{color:var(--amber);font-weight:800}
 .muted{color:var(--muted)}
 .count{color:var(--muted);font-size:.82rem;margin:0 0 10px}
+
+/* feedback inbox */
+.tabs .badge{display:inline-block;min-width:18px;padding:0 6px;margin-left:6px;border-radius:99px;background:var(--bad);color:#2a0407;font-size:.72rem;font-weight:900;line-height:18px;text-align:center}
+.tabs .badge:empty{display:none}
+.fbitem{margin-bottom:10px;padding:14px 16px;border-left:4px solid var(--line)}
+.fbitem.new{border-left-color:var(--accent2)}
+.fbitem.resolved{opacity:.7}
+.fbtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;font-size:.82rem;color:var(--muted)}
+.fbtop b{color:var(--text);font-size:.9rem}
+.tag{font-size:.7rem;font-weight:800;padding:2px 9px;border-radius:99px;border:1px solid var(--line);text-transform:uppercase;letter-spacing:.04em}
+.tag.question{color:var(--accent2);border-color:rgba(90,169,255,.5)}
+.tag.bug{color:var(--bad);border-color:rgba(255,107,122,.5)}
+.tag.suggestion{color:var(--good);border-color:rgba(52,211,153,.5)}
+.tag.other{color:var(--muted)}
+.tag.st-new{color:#04222f;background:var(--accent2);border-color:var(--accent2)}
+.tag.st-read{color:var(--muted)}
+.tag.st-resolved{color:var(--good);border-color:rgba(52,211,153,.5)}
+.fbmsg{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;font-size:.92rem}
+.fbact{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.fbempty{text-align:center;color:var(--muted);padding:40px 10px;line-height:1.7}
 @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
@@ -49,14 +69,16 @@ td a{cursor:pointer;font-weight:700}
     <div class="kpis" id="kpis"></div>
 
     <div class="toolbar">
-      <div class="tabs" id="tabs"><button class="on" data-t="students">Students</button><button data-t="attempts">Exam attempts</button></div>
-      <input class="field" id="q" type="search" placeholder="Search name or email" autocomplete="off">
+      <div class="tabs" id="tabs"><button class="on" data-t="students">Students</button><button data-t="attempts">Exam attempts</button><button data-t="feedback">Feedback<span class="badge" id="fbBadge"></span></button></div>
+      <input class="field" id="q" type="search" placeholder="Search name, email or message" autocomplete="off">
       <select id="setSel"></select>
+      <select id="fbSel" class="hidden"><option value="">All messages</option><option value="new">New</option><option value="read">Read</option><option value="resolved">Resolved</option></select>
       <span class="sp"></span>
       <button class="btn sm" id="csvBtn">Export CSV</button>
     </div>
     <p class="count" id="count"></p>
-    <div class="card tablewrap"><table id="tbl"></table></div>
+    <div class="card tablewrap" id="tblCard"><table id="tbl"></table></div>
+    <div id="fbWrap" class="hidden"><div id="fbList"></div></div>
   </div>
 </main>
 <div style="height:40px"></div>
@@ -65,7 +87,8 @@ td a{cursor:pointer;font-weight:700}
 <script>
 (function(){
   var $ = function(id){ return document.getElementById(id); };
-  var DATA = null, tab = 'students', sortKey = null, sortDir = 1, view = [], cols = [];
+  var DATA = null, FB = [], FBERR = false, tab = 'students', sortKey = null, sortDir = 1, view = [], cols = [];
+  var CAT_LABEL = { question: 'Question', bug: 'Bug / wrong answer', suggestion: 'Suggestion', other: 'Other' };
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function msg(t){ $('msg').classList.remove('hidden'); $('main').classList.add('hidden'); $('msg').innerHTML = t; }
   function pctCls(p){ return p == null ? '' : p >= 75 ? 'good' : p >= 60 ? 'mid' : 'bad'; }
@@ -96,24 +119,39 @@ td a{cursor:pointer;font-weight:700}
   if(!token){ msg('Please log in on the <a href="index.html">home page</a> with your teacher account.'); return; }
   load();
 
+  function authHdr(){ return { 'Content-Type': 'application/json', Authorization: 'Bearer ' + SD.token() }; }
+
   function load(){
     msg('Loading...');
-    fetch('/api/admin/data', { headers: { Authorization: 'Bearer ' + SD.token() } })
+    fetch('/api/admin/data', { headers: authHdr() })
       .then(function(r){
         if(r.status === 401){ try{ localStorage.removeItem('sd_token'); }catch(e){} msg('Your session expired. Please log in again on the <a href="index.html">home page</a>.'); return null; }
         if(r.status === 403){ msg('This page is for teachers only. If you should have access, ask the site owner to give your account the admin role.'); return null; }
         if(!r.ok) throw new Error('http ' + r.status);
         return r.json();
       })
-      .then(function(d){ if(!d) return; DATA = d; init(); })
+      .then(function(d){ if(!d) return; DATA = d; return loadFeedback().then(init); })
       .catch(function(){ msg('Could not load the data. Make sure the server is running and try again.'); });
+  }
+
+  // Feedback loads separately so a missing feedback table never breaks the rest of the dashboard.
+  function loadFeedback(){
+    return fetch('/api/admin/feedback', { headers: authHdr() })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){ FB = d && d.items ? d.items : []; FBERR = !d; })
+      .catch(function(){ FB = []; FBERR = true; });
   }
 
   function init(){
     $('msg').classList.add('hidden'); $('main').classList.remove('hidden');
     var sets = {}; DATA.attempts.forEach(function(a){ sets[a.set] = 1; });
     $('setSel').innerHTML = '<option value="">All sets</option>' + Object.keys(sets).sort().map(function(s){ return '<option value="' + esc(s) + '">Set ' + esc(s) + '</option>'; }).join('');
-    kpis(); draw();
+    kpis(); badge(); draw();
+  }
+
+  function badge(){
+    var n = FB.filter(function(f){ return f.status === 'new'; }).length;
+    $('fbBadge').textContent = n ? n : '';
   }
 
   function kpis(){
@@ -128,6 +166,14 @@ td a{cursor:pointer;font-weight:700}
   }
 
   function draw(){
+    var isFb = tab === 'feedback';
+    $('tblCard').classList.toggle('hidden', isFb);
+    $('fbWrap').classList.toggle('hidden', !isFb);
+    $('csvBtn').classList.toggle('hidden', isFb);
+    $('setSel').classList.toggle('hidden', tab !== 'attempts');
+    $('fbSel').classList.toggle('hidden', !isFb);
+    if(isFb){ drawFeedback(); return; }
+
     var q = $('q').value.trim().toLowerCase(), set = $('setSel').value;
     cols = tab === 'students' ? STUDENT_COLS : ATTEMPT_COLS;
     var rows = tab === 'students' ? DATA.students : DATA.attempts;
@@ -148,7 +194,6 @@ td a{cursor:pointer;font-weight:700}
       }
     }
     view = rows;
-    $('setSel').classList.toggle('hidden', tab !== 'attempts');
     $('count').textContent = rows.length + (tab === 'students' ? ' student' : ' attempt') + (rows.length === 1 ? '' : 's');
     var head = '<thead><tr>' + cols.map(function(c){
       return '<th data-k="' + c.k + '" class="' + (c.num ? 'num ' : '') + (sortKey === c.k ? 'sorted' + (sortDir < 0 ? ' desc' : '') : '') + '">' + c.h + '</th>';
@@ -161,6 +206,59 @@ td a{cursor:pointer;font-weight:700}
     $('tbl').innerHTML = head + body;
   }
 
+  // ---------- feedback inbox ----------
+  function fbRows(){
+    var q = $('q').value.trim().toLowerCase(), st = $('fbSel').value;
+    return FB.filter(function(f){
+      if(st && f.status !== st) return false;
+      return !q || (f.name || '').toLowerCase().indexOf(q) >= 0 || (f.email || '').toLowerCase().indexOf(q) >= 0 || (f.message || '').toLowerCase().indexOf(q) >= 0;
+    });
+  }
+  function drawFeedback(){
+    if(FBERR){
+      $('count').textContent = '';
+      $('fbList').innerHTML = '<div class="card fbempty">Feedback could not be loaded. Make sure you ran <b>supabase-feedback.sql</b> in Supabase and deployed the latest server files, then press Refresh.</div>';
+      return;
+    }
+    var rows = fbRows();
+    $('count').textContent = rows.length + ' message' + (rows.length === 1 ? '' : 's');
+    if(!rows.length){
+      $('fbList').innerHTML = '<div class="card fbempty">' + (FB.length ? 'No messages match your filters.' : 'No feedback yet. Messages from the homepage box will appear here.') + '</div>';
+      return;
+    }
+    $('fbList').innerHTML = rows.map(function(f){
+      var who = f.deleted ? '<span class="muted">Deleted account</span>' : '<b>' + esc(f.name || f.email) + '</b>' + (f.name ? ' <span>' + esc(f.email) + '</span>' : '');
+      var acts = '';
+      if(f.status !== 'read') acts += '<button class="btn ghost sm" data-act="read" data-id="' + esc(f.id) + '">Mark read</button>';
+      if(f.status !== 'resolved') acts += '<button class="btn ghost sm" data-act="resolved" data-id="' + esc(f.id) + '">Resolve</button>';
+      if(f.status !== 'new') acts += '<button class="btn ghost sm" data-act="new" data-id="' + esc(f.id) + '">Mark new</button>';
+      acts += '<button class="btn ghost sm" data-act="delete" data-id="' + esc(f.id) + '">Delete</button>';
+      return '<div class="card fbitem ' + esc(f.status) + '"><div class="fbtop">' + who +
+        '<span class="tag ' + esc(f.category) + '">' + esc(CAT_LABEL[f.category] || f.category) + '</span>' +
+        '<span class="tag st-' + esc(f.status) + '">' + esc(f.status) + '</span><span>' + esc(when(f.at)) + '</span></div>' +
+        '<div class="fbmsg">' + esc(f.message) + '</div><div class="fbact">' + acts + '</div></div>';
+    }).join('');
+  }
+  $('fbList').onclick = function(e){
+    var b = e.target.closest('button[data-act]'); if(!b) return;
+    var id = b.getAttribute('data-id'), act = b.getAttribute('data-act');
+    var url = '/api/admin/feedback/' + encodeURIComponent(id);
+    var req;
+    if(act === 'delete'){
+      if(!confirm('Delete this message permanently?')) return;
+      req = fetch(url, { method: 'DELETE', headers: authHdr() });
+    } else {
+      req = fetch(url, { method: 'PUT', headers: authHdr(), body: JSON.stringify({ status: act }) });
+    }
+    b.disabled = true;
+    req.then(function(r){
+      if(!r.ok) throw new Error('http ' + r.status);
+      if(act === 'delete') FB = FB.filter(function(f){ return f.id !== id; });
+      else FB.forEach(function(f){ if(f.id === id) f.status = act; });
+      badge(); drawFeedback();
+    }).catch(function(){ b.disabled = false; alert('Could not update that message. Please try again.'); });
+  };
+
   // ---------- events ----------
   $('tabs').onclick = function(e){
     var b = e.target.closest('button'); if(!b) return;
@@ -170,6 +268,7 @@ td a{cursor:pointer;font-weight:700}
   };
   $('q').oninput = draw;
   $('setSel').onchange = draw;
+  $('fbSel').onchange = draw;
   $('refreshBtn').onclick = load;
   $('tbl').onclick = function(e){
     var th = e.target.closest('th');
