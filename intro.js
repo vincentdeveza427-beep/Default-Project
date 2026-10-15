@@ -6,7 +6,7 @@
   try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
 
   var css = '\
-#sd-intro{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#0a1424;overflow:hidden;\
+#sd-intro{position:fixed;inset:0;width:100%;height:100vh;height:100dvh;max-width:100vw;z-index:9999;display:grid;place-items:center;background:#0a1424;overflow:hidden;\
   transition:opacity .7s ease,transform .7s cubic-bezier(.7,0,.3,1),visibility 0s .7s;cursor:pointer}\
 #sd-intro.out{opacity:0;transform:scale(1.08);visibility:hidden;pointer-events:none}\
 #sd-intro::before{content:"";position:absolute;inset:0;\
@@ -17,16 +17,16 @@
   radial-gradient(2px 2px at 70% 78%,#fff,transparent),radial-gradient(1.5px 1.5px at 24% 74%,#fff,transparent),\
   radial-gradient(1.5px 1.5px at 92% 52%,#fff,transparent),radial-gradient(2px 2px at 40% 10%,#fff,transparent);\
   animation:sdiTwinkle 2.4s ease-in-out infinite alternate}\
-#sd-intro .stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 20px;text-align:center}\
+#sd-intro .stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 16px;text-align:center;width:100%;max-width:100%}\
 #sd-intro svg{width:min(52vw,230px);height:auto;overflow:visible;animation:sdiIn .9s cubic-bezier(.2,1.2,.4,1) both}\
 #sd-intro .orbit{fill:none;stroke:url(#sdiGrad);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:420;stroke-dashoffset:420;\
   animation:sdiDraw 1.1s ease forwards}\
 #sd-intro .o2{animation-delay:.15s}#sd-intro .o3{animation-delay:.3s}\
 #sd-intro .nuc{transform-origin:100px 100px;animation:sdiPulse 1.3s ease-in-out infinite}\
-#sd-intro h1{margin:14px 0 0;font:800 clamp(1.9rem,7vw,3.1rem)/1.1 Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.02em;color:#e8f1fb;display:flex;flex-wrap:wrap;justify-content:center}\
+#sd-intro h1{margin:14px 0 0;font:800 clamp(1.6rem,8vw,3.1rem)/1.1 Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.02em;color:#e8f1fb;display:flex;flex-wrap:wrap;justify-content:center}\
 #sd-intro h1 span{display:inline-block;opacity:0;transform:translateY(24px);animation:sdiRise .6s cubic-bezier(.2,.9,.3,1.2) forwards}\
 #sd-intro h1 .acc{background:linear-gradient(135deg,#28e0c5,#5aa9ff);-webkit-background-clip:text;background-clip:text;color:transparent}\
-#sd-intro .tag{color:#8ea5bf;font:600 .95rem Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:0;animation:sdiFade .7s 1.5s forwards}\
+#sd-intro .tag{color:#8ea5bf;font:600 clamp(.7rem,3.2vw,.95rem) Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;opacity:0;animation:sdiFade .7s 1.5s forwards;max-width:100%}\
 #sd-intro .bar{width:min(64vw,240px);height:6px;margin-top:22px;border-radius:999px;background:#0f2038;border:1px solid #1f3555;overflow:hidden;opacity:0;animation:sdiFade .4s 1.2s forwards}\
 #sd-intro .bar i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#28e0c5,#5aa9ff);animation:sdiLoad 1.5s 1.3s cubic-bezier(.5,0,.2,1) forwards}\
 #sd-intro .skip{position:absolute;bottom:22px;left:0;right:0;text-align:center;color:#8ea5bf;font:600 .75rem Inter,system-ui,sans-serif;letter-spacing:.1em;opacity:0;animation:sdiFade .6s 1s forwards}\
