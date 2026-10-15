@@ -45,6 +45,21 @@
 .bdg{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:1.6rem;background:var(--surface);border:1px solid var(--line)}
 .bdg.off{filter:grayscale(1);opacity:.28}
 footer{text-align:center;color:var(--muted);font-size:.8rem;padding:40px 0}
+
+/* leaderboard preview */
+.lb{margin-top:16px}
+.lb .head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.lb h3{font-size:1rem}
+.lb .seg button{padding:6px 12px;font-size:.8rem}
+.lbrow{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+.lbrow:first-child{border-top:0}
+.lbrow .rk{flex:none;width:30px;text-align:center;font-weight:900;color:var(--muted)}
+.lbrow .nm{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lbrow .xp{font-weight:900;color:var(--accent);white-space:nowrap}
+.lbrow.you{background:rgba(90,169,255,.08);border-radius:10px;padding-left:8px;padding-right:8px}
+.lb-empty{color:var(--muted);font-size:.88rem;text-align:center;padding:18px 8px;line-height:1.6}
+.lb-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:.82rem;color:var(--muted)}
+
 @media(max-width:860px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.grid{grid-template-columns:1fr}}
 </style>
@@ -63,6 +78,15 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:40px 0}
   <section class="hero">
     <div class="card welcome" id="heroMain"></div>
     <div class="card quests" id="questCard"></div>
+  </section>
+
+  <section class="card lb">
+    <div class="head">
+      <h3>🏆 Leaderboard</h3>
+      <div class="seg" id="lbSeg"><button data-p="day" class="on">Today</button><button data-p="week">This week</button></div>
+    </div>
+    <div id="lbBody"><div class="lb-empty">Loading...</div></div>
+    <div class="lb-foot"><span id="lbMe"></span><a href="leaderboard.html">View full leaderboard →</a></div>
   </section>
 
   <div class="sechead">
@@ -163,6 +187,42 @@ function renderBadges() {
 }
 function renderAll() { renderHero(); renderSets(); renderBadges(); }
 
+/* ---------- leaderboard preview (top 5) ---------- */
+let lbPeriod = 'day', lbReq = 0;
+function lbMsg(t) { $('lbBody').innerHTML = '<div class="lb-empty">' + t + '</div>'; $('lbMe').textContent = ''; }
+async function loadBoard() {
+  if (!SD.token()) { lbMsg('Log in to see the top students ' + (lbPeriod === 'day' ? 'today' : 'this week') + '.'); return; }
+  const req = ++lbReq;
+  try {
+    const r = await fetch('/api/leaderboard?period=' + lbPeriod + '&today=' + encodeURIComponent(SD.today()), { headers: { Authorization: 'Bearer ' + SD.token() } });
+    if (req !== lbReq) return;                       // a newer click superseded this request
+    if (r.status === 401) { lbMsg('Log in to see the top students.'); return; }
+    if (!r.ok) throw new Error('http ' + r.status);
+    const d = await r.json();
+    if (req === lbReq) renderBoard(d);
+  } catch { if (req === lbReq) lbMsg('Could not load the leaderboard.'); }
+}
+function renderBoard(d) {
+  const label = d.period === 'day' ? 'today' : 'this week';
+  const medal = r => r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : '#' + r;
+  const top = d.entries.slice(0, 5);
+  $('lbBody').innerHTML = top.length
+    ? top.map(e => '<div class="lbrow' + (e.you ? ' you' : '') + '"><div class="rk">' + medal(e.rank) + '</div>' + SD.avatarHtml(e.avatar, e.name, 34) +
+        '<div class="nm">' + SD.esc(e.name) + (e.you ? ' (you)' : '') + '</div><div class="xp">' + fmt(e.xp) + ' XP</div></div>').join('')
+    : '<div class="lb-empty">Nobody has earned XP ' + label + ' yet. Be the first!</div>';
+  const me = d.me;
+  $('lbMe').textContent = me.admin ? 'Teacher accounts are not ranked.'
+    : me.hidden ? 'You are hidden from the board.'
+    : me.rank ? 'You are #' + me.rank + ' ' + label + ' (' + fmt(me.xp) + ' XP)'
+    : 'Earn XP ' + label + ' to join the board.';
+}
+document.querySelectorAll('#lbSeg button').forEach(b => b.onclick = () => {
+  lbPeriod = b.dataset.p;
+  document.querySelectorAll('#lbSeg button').forEach(x => x.classList.toggle('on', x === b));
+  loadBoard();
+});
+setInterval(() => { if (document.visibilityState === 'visible') loadBoard(); }, 60000);
+
 /* ---------- mode toggle (kept in the URL hash) ---------- */
 function syncFromHash() { const h = location.hash.replace('#', ''); mode = MODES[h] ? h : mode; renderSets(); }
 document.querySelectorAll('#seg button').forEach(b => b.onclick = () => { mode = b.dataset.mode; history.replaceState(null, '', '#' + mode); renderSets(); });
@@ -244,13 +304,13 @@ function renderNav() {
   $('logoutBtn').onclick = () => { localStorage.removeItem('sd_token'); location.reload(); };
 }
 async function boot(u) {
-  user = u; stats = null; renderNav(); renderAll();
+  user = u; stats = null; renderNav(); renderAll(); loadBoard();
   stats = await SD.check();
-  renderNav(); renderAll();
+  renderNav(); renderAll(); loadBoard();
 }
 
 (async () => {
-  syncFromHash(); renderAll();
+  syncFromHash(); renderAll(); loadBoard();
   if (!SD.token()) return;
   try {
     const r = await fetch('/api/me', { headers: { Authorization: 'Bearer ' + SD.token() } });
