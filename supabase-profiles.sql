@@ -13,4 +13,4 @@ create table if not exists profiles (
 );
 
 -- Same as the other tables: the server uses the service_role key, which bypasses RLS.
-alter table profiles disable row level security;
+alter table profiles enable row level security;
