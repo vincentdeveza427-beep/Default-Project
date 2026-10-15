@@ -190,6 +190,28 @@ SD.compute = function (rowsIn) {
   return s;
 };
 
+/* ---------- avatars (profile pictures) ---------- */
+SD.AVATAR_EMOJIS = ['🦊', '🐼', '🐸', '🦉', '🐙', '🦄', '🐢', '🐬', '🦁', '🐯', '🐵', '🐧',
+                     '🦋', '🐝', '🚀', '🔬', '🧪', '🧬', '🪐', '⚛️', '🌋', '🧲', '💡', '🔭'];
+SD.AVATAR_COLORS = ['#28e0c5', '#5aa9ff', '#ffc857', '#ff6b7a', '#a78bfa', '#34d399', '#fb923c', '#f472b6'];
+SD.esc = function (s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
+};
+// av: { kind:'emoji', emoji, color } | { kind:'img', url } | null (-> colored circle with the first letter of the name)
+SD.avatarHtml = function (av, name, size) {
+  size = size || 40;
+  var st = 'width:' + size + 'px;height:' + size + 'px;font-size:' + Math.round(size * 0.5) + 'px';
+  if (av && av.kind === 'img' && av.url) return '<span class="av" style="' + st + '"><img src="' + SD.esc(av.url) + '" alt=""></span>';
+  var bg, txt;
+  if (av && av.kind === 'emoji') { bg = av.color; txt = av.emoji; }
+  else {
+    var s = String(name || '?').trim(), h = 0, i;
+    for (i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 997;
+    bg = SD.AVATAR_COLORS[h % SD.AVATAR_COLORS.length]; txt = (s.charAt(0) || '?').toUpperCase();
+  }
+  return '<span class="av" style="' + st + ';background:' + SD.esc(bg) + '">' + SD.esc(txt) + '</span>';
+};
+
 /* ---------- toasts, level-up, confetti ---------- */
 function box() {
   var b = document.getElementById('sd-toasts');

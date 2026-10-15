@@ -52,7 +52,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:40px 0}
 <body>
 <header class="nav"><div class="container in">
   <a class="brand" href="index.html"><span class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#04222f" stroke-width="2"><circle cx="12" cy="12" r="2" fill="#04222f"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></svg></span>Science Drills</a>
-  <nav class="links"><a class="on" href="index.html">Home</a><a href="progress.html">Dashboard</a></nav>
+  <nav class="links"><a class="on" href="index.html">Home</a><a href="progress.html">Dashboard</a><a href="leaderboard.html">Leaderboard</a></nav>
   <div class="right" id="topbar">
     <button class="btn ghost sm" id="loginBtn">Log in</button>
     <button class="btn sm" id="signupBtn">Sign up</button>
@@ -227,11 +227,20 @@ submitBtn.onclick = async () => {
   finally { submitBtn.disabled = false; }
 };
 
+let navAv = null;
+async function loadNavAvatar() {
+  try {
+    if (!navAv) { const r = await fetch('/api/profile', { headers: { Authorization: 'Bearer ' + SD.token() } }); if (!r.ok) return; navAv = await r.json(); }
+    const el = $('navAv');
+    if (el) el.innerHTML = SD.avatarHtml(navAv.avatar, user && user.name, 24);
+  } catch {}
+}
 function renderNav() {
   const tb = $('topbar');
-  tb.innerHTML = (user.role === 'admin' ? '<a class="btn ghost sm" href="admin.html">Teacher</a>' : '') + '<a class="lvlchip" href="progress.html"><b id="navLvl">1</b><span class="nm" id="navName"></span></a><button class="btn ghost sm" id="logoutBtn">Log out</button>';
+  tb.innerHTML = (user.role === 'admin' ? '<a class="btn ghost sm" href="admin.html">Teacher</a>' : '') + '<a class="lvlchip" href="progress.html"><b id="navLvl">1</b><span id="navAv"></span><span class="nm" id="navName"></span></a><button class="btn ghost sm" id="logoutBtn">Log out</button>';
   $('navName').textContent = user.name || user.email;          // textContent: safe against HTML in usernames
   $('navLvl').textContent = stats ? stats.lvl.level : '1';
+  loadNavAvatar();
   $('logoutBtn').onclick = () => { localStorage.removeItem('sd_token'); location.reload(); };
 }
 async function boot(u) {

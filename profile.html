@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile - Science Drills</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+.wrapn{max-width:640px;margin:0 auto}
+.msg{margin-top:40px;text-align:center;color:var(--muted);line-height:1.8;padding:40px}
+.pagehead{margin:24px 0 14px}
+.pagehead h2{font-size:1.3rem}
+.stack>.card{margin-bottom:14px}
+.card h3{font-size:1rem}
+.top{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.uname{font-size:1.25rem;font-weight:800}
+.emojis{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:8px;margin:12px 0}
+.emojis button{height:52px;border-radius:12px;border:2px solid var(--line);background:#0c1a30;font-size:1.5rem;cursor:pointer;font-family:inherit}
+.emojis button:hover{border-color:var(--accent2)}
+.emojis button[aria-pressed=true]{border-color:var(--accent);background:rgba(40,224,197,.12)}
+.colors{display:flex;gap:10px;flex-wrap:wrap}
+.colors button{width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer;outline:1px solid var(--line)}
+.colors button[aria-pressed=true]{border-color:var(--text)}
+.chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:.92rem}
+.chk input{margin-top:3px;width:18px;height:18px;accent-color:var(--accent)}
+.chk small{display:block;color:var(--muted);font-size:.78rem}
+.btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.err{color:var(--bad);font-size:.85rem;min-height:1.2em;margin-top:8px}
+#saved{color:var(--good);font-weight:700;font-size:.88rem}
+button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.actions{margin:6px 0 40px}
+</style>
+</head>
+<body>
+<header class="nav"><div class="container in">
+  <a class="brand" href="index.html"><span class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#04222f" stroke-width="2"><circle cx="12" cy="12" r="2" fill="#04222f"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></svg></span>Science Drills</a>
+  <nav class="links"><a href="index.html">Home</a><a href="progress.html">Dashboard</a><a href="leaderboard.html">Leaderboard</a></nav>
+  <div class="right"><a class="btn ghost sm" href="index.html">&larr; Back</a></div>
+</div></header>
+
+<main class="container"><div class="wrapn">
+  <div id="msg" class="card msg">Loading...</div>
+  <div id="main" class="hidden stack">
+    <div class="pagehead"><h2>Your profile</h2></div>
+
+    <div class="card top">
+      <div id="prev"></div>
+      <div><div class="uname" id="uname"></div><p class="sub" style="margin:2px 0 0">This is how you appear on the leaderboard.</p></div>
+    </div>
+
+    <div class="card">
+      <h3>Pick an avatar</h3>
+      <div class="emojis" id="emojis" role="group" aria-label="Avatar picture"></div>
+      <div class="colors" id="colors" role="group" aria-label="Avatar color"></div>
+    </div>
+
+    <div class="card">
+      <h3>Or use your own photo</h3>
+      <p class="sub">Any picture works. It is cropped to a square from the center and shrunk before it is saved.</p>
+      <input type="file" id="file" accept="image/*" hidden>
+      <div class="btns">
+        <button class="btn ghost sm" id="pickBtn" type="button">Choose photo</button>
+        <button class="btn ghost sm" id="clearBtn" type="button">Use default avatar</button>
+      </div>
+      <div class="err" id="fileErr" role="alert"></div>
+    </div>
+
+    <div class="card">
+      <label class="chk"><input type="checkbox" id="hide"><span>Hide me from the leaderboards<small>You can still see your own XP. Others will not see your name or picture.</small></span></label>
+    </div>
+
+    <div class="btns actions">
+      <button class="btn" id="saveBtn" type="button">Save profile</button>
+      <a class="btn ghost" href="leaderboard.html">View leaderboard</a>
+      <span id="saved" role="status"></span>
+    </div>
+    <div class="err" id="saveErr" role="alert"></div>
+  </div>
+</div></main>
+
+<script src="game.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var hdr = function () { return { 'Content-Type': 'application/json', Authorization: 'Bearer ' + SD.token() }; };
+  function msg(t) { $('msg').classList.remove('hidden'); $('main').classList.add('hidden'); $('msg').innerHTML = t; }
+
+  if (!SD.token()) { msg('Please log in on the <a href="index.html">home page</a> to edit your profile.'); return; }
+
+  var name = '', cur = null, dirty = false, lastEmoji = SD.AVATAR_EMOJIS[0], lastColor = SD.AVATAR_COLORS[0];
+  // cur: null (default) | { t:'emoji', emoji, color } | { t:'img', data } (new upload) | { t:'saved', url } (already saved photo)
+
+  function view() {
+    if (!cur) return null;
+    if (cur.t === 'emoji') return { kind: 'emoji', emoji: cur.emoji, color: cur.color };
+    return { kind: 'img', url: cur.t === 'img' ? cur.data : cur.url };
+  }
+  function draw() {
+    $('prev').innerHTML = SD.avatarHtml(view(), name, 96);
+    Array.prototype.forEach.call($('emojis').children, function (b) { b.setAttribute('aria-pressed', cur && cur.t === 'emoji' && cur.emoji === b.getAttribute('data-e') ? 'true' : 'false'); });
+    Array.prototype.forEach.call($('colors').children, function (b) { b.setAttribute('aria-pressed', cur && cur.t === 'emoji' && cur.color === b.getAttribute('data-c') ? 'true' : 'false'); });
+    $('saved').textContent = '';
+  }
+  function setEmoji(e, c) { lastEmoji = e; lastColor = c; cur = { t: 'emoji', emoji: e, color: c }; dirty = true; $('fileErr').textContent = ''; draw(); }
+
+  $('emojis').innerHTML = SD.AVATAR_EMOJIS.map(function (e) { return '<button type="button" data-e="' + SD.esc(e) + '" aria-label="Avatar ' + SD.esc(e) + '">' + SD.esc(e) + '</button>'; }).join('');
+  $('colors').innerHTML = SD.AVATAR_COLORS.map(function (c) { return '<button type="button" data-c="' + c + '" style="background:' + c + '" aria-label="Color ' + c + '"></button>'; }).join('');
+  $('emojis').onclick = function (e) { var b = e.target.closest('button'); if (b) setEmoji(b.getAttribute('data-e'), cur && cur.t === 'emoji' ? cur.color : lastColor); };
+  $('colors').onclick = function (e) { var b = e.target.closest('button'); if (b) setEmoji(cur && cur.t === 'emoji' ? cur.emoji : lastEmoji, b.getAttribute('data-c')); };
+  $('clearBtn').onclick = function () { cur = null; dirty = true; $('fileErr').textContent = ''; draw(); };
+
+  // ----- photo upload: center-crop to a square, shrink, re-encode as JPEG (keeps it ~10 KB) -----
+  $('pickBtn').onclick = function () { $('file').click(); };
+  $('file').onchange = function () {
+    var f = this.files && this.files[0]; this.value = '';
+    var err = $('fileErr'); err.textContent = '';
+    if (!f) return;
+    if (!/^image\//.test(f.type)) { err.textContent = 'Please choose an image file.'; return; }
+    if (f.size > 15 * 1024 * 1024) { err.textContent = 'That file is too big. Choose a photo under 15 MB.'; return; }
+    var fr = new FileReader();
+    fr.onerror = function () { err.textContent = 'Could not read that file.'; };
+    fr.onload = function () {
+      var img = new Image();
+      img.onerror = function () { err.textContent = 'This browser cannot open that image type. Try a JPG or PNG.'; };
+      img.onload = function () {
+        var S = 160, c = document.createElement('canvas'); c.width = c.height = S;
+        var g = c.getContext('2d'), m = Math.min(img.width, img.height);
+        g.fillStyle = '#0a1830'; g.fillRect(0, 0, S, S);
+        g.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, S, S);
+        var q = 0.85, out;
+        do { out = c.toDataURL('image/jpeg', q); q -= 0.1; } while (out.length > 30000 && q > 0.2);
+        if (out.length > 30000 || out.indexOf('data:image/jpeg') !== 0) { err.textContent = 'Could not shrink that photo. Try a different one.'; return; }
+        cur = { t: 'img', data: out }; dirty = true; draw();
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(f);
+  };
+
+  // ----- save -----
+  $('saveBtn').onclick = function () {
+    var btn = this, body = { hide: $('hide').checked };
+    if (dirty) body.avatar = !cur ? null : cur.t === 'emoji' ? { type: 'emoji', emoji: cur.emoji, color: cur.color } : cur.t === 'img' ? { type: 'img', data: cur.data } : undefined;
+    if (body.avatar === undefined) delete body.avatar;      // an already-saved photo is left alone
+    btn.disabled = true; $('saveErr').textContent = ''; $('saved').textContent = '';
+    fetch('/api/profile', { method: 'PUT', headers: hdr(), body: JSON.stringify(body) })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (x) {
+        if (!x.ok) { $('saveErr').textContent = x.d.error || 'Could not save. Please try again.'; return; }
+        var a = x.d.avatar;
+        cur = !a ? null : a.kind === 'emoji' ? { t: 'emoji', emoji: a.emoji, color: a.color } : { t: 'saved', url: a.url };
+        dirty = false; draw(); $('saved').textContent = 'Saved!';
+      })
+      .catch(function () { $('saveErr').textContent = 'Cannot reach the server. Please try again.'; })
+      .then(function () { btn.disabled = false; });
+  };
+
+  // ----- load -----
+  Promise.all([
+    fetch('/api/me', { headers: hdr() }).then(function (r) { return r.ok ? r.json() : null; }),
+    fetch('/api/profile', { headers: hdr() }).then(function (r) { return r.ok ? r.json() : null; })
+  ]).then(function (res) {
+    var u = res[0], p = res[1];
+    if (!u || !p) { try { if (!u) localStorage.removeItem('sd_token'); } catch (e) {} msg('Could not load your profile. Please log in again on the <a href="index.html">home page</a>.'); return; }
+    name = u.name || u.email; $('uname').textContent = name;
+    var a = p.avatar;
+    if (a && a.kind === 'emoji') { cur = { t: 'emoji', emoji: a.emoji, color: a.color }; lastEmoji = a.emoji; lastColor = a.color; }
+    else if (a && a.kind === 'img') cur = { t: 'saved', url: a.url };
+    $('hide').checked = !!p.hide;
+    $('msg').classList.add('hidden'); $('main').classList.remove('hidden');
+    draw();
+  }).catch(function () { msg('Cannot reach the server. Please try again.'); });
+})();
+</script>
+</body>
+</html>

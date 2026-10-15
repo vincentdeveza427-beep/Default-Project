@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Dashboard - Science Drills</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+.msg{margin-top:40px;text-align:center;color:var(--muted);line-height:1.8;padding:40px}
+.pagehead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:24px 0 14px}
+.pagehead h2{font-size:1.3rem}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.kpi b{display:block;font-size:1.65rem;font-weight:900;line-height:1.2}
+.kpi span{color:var(--muted);font-size:.76rem;font-weight:600}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.toolbar .field{width:auto;min-width:220px;margin:0;flex:1;max-width:340px}
+.tabs{display:flex;gap:6px}
+.tabs button{background:var(--surface);border:1px solid var(--line);color:var(--muted);font:inherit;font-weight:700;font-size:.82rem;border-radius:999px;padding:7px 16px;cursor:pointer}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#04222f}
+select{background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;font-size:.88rem}
+.sp{flex:1}
+.tablewrap{padding:0;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:720px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--surface)}
+th.sorted::after{content:" \25B2"} th.sorted.desc::after{content:" \25BC"}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:rgba(90,169,255,.06)}
+td.num,th.num{text-align:right}
+td a{cursor:pointer;font-weight:700}
+.good{color:var(--good);font-weight:800}.bad{color:var(--bad);font-weight:800}.mid{color:var(--amber);font-weight:800}
+.muted{color:var(--muted)}
+.count{color:var(--muted);font-size:.82rem;margin:0 0 10px}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header class="nav"><div class="container in">
+  <a class="brand" href="index.html"><span class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#04222f" stroke-width="2"><circle cx="12" cy="12" r="2" fill="#04222f"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></svg></span>Science Drills</a>
+  <nav class="links"><a href="index.html">Home</a><a href="progress.html">Dashboard</a><a class="on" href="admin.html">Teacher</a></nav>
+  <div class="right"><a class="btn ghost sm" href="index.html">&larr; Back</a></div>
+</div></header>
+
+<main class="container">
+  <div id="msg" class="card msg">Loading...</div>
+  <div id="main" class="hidden">
+    <div class="pagehead"><h2>Teacher dashboard</h2><button class="btn ghost sm" id="refreshBtn">Refresh</button></div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="toolbar">
+      <div class="tabs" id="tabs"><button class="on" data-t="students">Students</button><button data-t="attempts">Exam attempts</button></div>
+      <input class="field" id="q" type="search" placeholder="Search name or email" autocomplete="off">
+      <select id="setSel"></select>
+      <span class="sp"></span>
+      <button class="btn sm" id="csvBtn">Export CSV</button>
+    </div>
+    <p class="count" id="count"></p>
+    <div class="card tablewrap"><table id="tbl"></table></div>
+  </div>
+</main>
+<div style="height:40px"></div>
+
+<script src="game.js"></script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var DATA = null, tab = 'students', sortKey = null, sortDir = 1, view = [], cols = [];
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function msg(t){ $('msg').classList.remove('hidden'); $('main').classList.add('hidden'); $('msg').innerHTML = t; }
+  function pctCls(p){ return p == null ? '' : p >= 75 ? 'good' : p >= 60 ? 'mid' : 'bad'; }
+  function when(iso){ if(!iso) return ''; var d = new Date(iso); if(isNaN(d)) return String(iso).slice(0, 16); var p = function(n){ return (n < 10 ? '0' : '') + n; }; return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+
+  var STUDENT_COLS = [
+    { k:'name', h:'Name', get:function(r){ return r.name || ''; }, html:function(r){ return '<a data-email="' + esc(r.email) + '">' + esc(r.name || r.email) + '</a>'; } },
+    { k:'email', h:'Email', get:function(r){ return r.email; } },
+    { k:'exams', h:'Exams', num:1, get:function(r){ return r.exams; } },
+    { k:'avg', h:'Avg %', num:1, get:function(r){ return r.avg; }, html:function(r){ return r.avg == null ? '<span class="muted">-</span>' : '<span class="' + pctCls(r.avg) + '">' + r.avg + '%</span>'; } },
+    { k:'best', h:'Best %', num:1, get:function(r){ return r.best; }, html:function(r){ return r.best == null ? '<span class="muted">-</span>' : r.best + '%'; } },
+    { k:'reviews', h:'Card reviews', num:1, get:function(r){ return r.reviews; } },
+    { k:'learned', h:'Cards learned', num:1, get:function(r){ return r.learned; } },
+    { k:'last', h:'Last active', get:function(r){ return r.last || ''; } }
+  ];
+  var ATTEMPT_COLS = [
+    { k:'at', h:'Date', get:function(r){ return when(r.at); } },
+    { k:'name', h:'Student', get:function(r){ return r.name || r.email; } },
+    { k:'email', h:'Email', get:function(r){ return r.email; } },
+    { k:'set', h:'Set', get:function(r){ return r.set; } },
+    { k:'score', h:'Score', num:1, get:function(r){ return r.score + ' / ' + r.total; }, sort:function(r){ return r.score; } },
+    { k:'pct', h:'%', num:1, get:function(r){ return r.pct; }, html:function(r){ return '<span class="' + pctCls(r.pct) + '">' + r.pct + '%</span>'; } },
+    { k:'unanswered', h:'Unanswered', num:1, get:function(r){ return r.unanswered; } },
+    { k:'minutes', h:'Minutes used', num:1, get:function(r){ return r.minutes == null ? '' : r.minutes; }, sort:function(r){ return r.minutes == null ? -1 : r.minutes; } }
+  ];
+
+  var token = SD.token();
+  if(!token){ msg('Please log in on the <a href="index.html">home page</a> with your teacher account.'); return; }
+  load();
+
+  function load(){
+    msg('Loading...');
+    fetch('/api/admin/data', { headers: { Authorization: 'Bearer ' + SD.token() } })
+      .then(function(r){
+        if(r.status === 401){ try{ localStorage.removeItem('sd_token'); }catch(e){} msg('Your session expired. Please log in again on the <a href="index.html">home page</a>.'); return null; }
+        if(r.status === 403){ msg('This page is for teachers only. If you should have access, ask the site owner to give your account the admin role.'); return null; }
+        if(!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      })
+      .then(function(d){ if(!d) return; DATA = d; init(); })
+      .catch(function(){ msg('Could not load the data. Make sure the server is running and try again.'); });
+  }
+
+  function init(){
+    $('msg').classList.add('hidden'); $('main').classList.remove('hidden');
+    var sets = {}; DATA.attempts.forEach(function(a){ sets[a.set] = 1; });
+    $('setSel').innerHTML = '<option value="">All sets</option>' + Object.keys(sets).sort().map(function(s){ return '<option value="' + esc(s) + '">Set ' + esc(s) + '</option>'; }).join('');
+    kpis(); draw();
+  }
+
+  function kpis(){
+    var a = DATA.attempts, n = a.length, avg = n ? a.reduce(function(s, x){ return s + x.pct; }, 0) / n : null;
+    var pass = n ? a.filter(function(x){ return x.pct >= 75; }).length / n * 100 : null;
+    var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
+    var ck = cutoff.getFullYear() + '-' + ('0' + (cutoff.getMonth()+1)).slice(-2) + '-' + ('0' + cutoff.getDate()).slice(-2);
+    var active = DATA.students.filter(function(s){ return s.last && s.last >= ck; }).length;
+    var k = [[DATA.students.length, 'Registered students'], [n, 'Exam attempts'], [avg == null ? '-' : Math.round(avg * 10) / 10 + '%', 'Average exam score'],
+             [pass == null ? '-' : Math.round(pass) + '%', 'Pass rate (75%+)'], [active, 'Active in last 7 days']];
+    $('kpis').innerHTML = k.map(function(c){ return '<div class="kpi"><b>' + esc(c[0]) + '</b><span>' + c[1] + '</span></div>'; }).join('');
+  }
+
+  function draw(){
+    var q = $('q').value.trim().toLowerCase(), set = $('setSel').value;
+    cols = tab === 'students' ? STUDENT_COLS : ATTEMPT_COLS;
+    var rows = tab === 'students' ? DATA.students : DATA.attempts;
+    rows = rows.filter(function(r){
+      if(tab === 'attempts' && set && r.set !== set) return false;
+      return !q || (r.name || '').toLowerCase().indexOf(q) >= 0 || (r.email || '').toLowerCase().indexOf(q) >= 0;
+    });
+    if(sortKey){
+      var c = cols.filter(function(x){ return x.k === sortKey; })[0];
+      if(c){
+        var f = c.sort || c.get;
+        rows = rows.slice().sort(function(a, b){
+          var x = f(a), y = f(b);
+          if(x == null) x = -Infinity; if(y == null) y = -Infinity;
+          if(typeof x === 'string' || typeof y === 'string') return String(x).localeCompare(String(y)) * sortDir;
+          return (x - y) * sortDir;
+        });
+      }
+    }
+    view = rows;
+    $('setSel').classList.toggle('hidden', tab !== 'attempts');
+    $('count').textContent = rows.length + (tab === 'students' ? ' student' : ' attempt') + (rows.length === 1 ? '' : 's');
+    var head = '<thead><tr>' + cols.map(function(c){
+      return '<th data-k="' + c.k + '" class="' + (c.num ? 'num ' : '') + (sortKey === c.k ? 'sorted' + (sortDir < 0 ? ' desc' : '') : '') + '">' + c.h + '</th>';
+    }).join('') + '</tr></thead>';
+    var body = '<tbody>' + (rows.length ? rows.map(function(r){
+      return '<tr>' + cols.map(function(c){
+        return '<td class="' + (c.num ? 'num' : '') + '">' + (c.html ? c.html(r) : esc(c.get(r))) + '</td>';
+      }).join('') + '</tr>';
+    }).join('') : '<tr><td colspan="' + cols.length + '" class="muted" style="text-align:center;padding:30px">Nothing to show yet.</td></tr>') + '</tbody>';
+    $('tbl').innerHTML = head + body;
+  }
+
+  // ---------- events ----------
+  $('tabs').onclick = function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    tab = b.dataset.t; sortKey = null; sortDir = 1;
+    Array.prototype.forEach.call($('tabs').children, function(x){ x.classList.toggle('on', x === b); });
+    draw();
+  };
+  $('q').oninput = draw;
+  $('setSel').onchange = draw;
+  $('refreshBtn').onclick = load;
+  $('tbl').onclick = function(e){
+    var th = e.target.closest('th');
+    if(th){ var k = th.dataset.k; if(sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = 1; } draw(); return; }
+    var a = e.target.closest('a[data-email]');
+    if(a){                                   // click a student to see their exam attempts
+      tab = 'attempts'; sortKey = null; sortDir = 1; $('q').value = a.dataset.email;
+      Array.prototype.forEach.call($('tabs').children, function(x){ x.classList.toggle('on', x.dataset.t === 'attempts'); });
+      draw();
+    }
+  };
+
+  // ---------- CSV export (current tab, current filters and sort) ----------
+  function cell(v){
+    var s = v == null ? '' : String(v);
+    if(/^[=+\-@\t\r]/.test(s)) s = "'" + s;          // stops spreadsheet formula injection from usernames
+    return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  $('csvBtn').onclick = function(){
+    var lines = [cols.map(function(c){ return cell(c.h); }).join(',')];
+    view.forEach(function(r){ lines.push(cols.map(function(c){ return cell(c.get(r)); }).join(',')); });
+    var blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob), a = document.createElement('a');
+    var d = new Date(), ds = d.getFullYear() + '-' + ('0' + (d.getMonth()+1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    a.href = url; a.download = 'science-drills-' + tab + '-' + ds + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  };
+})();
+</script>
+</body>
+</html>
